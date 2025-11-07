@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es" class="dark" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bienvenido — Ledgerly</title>
+    <meta name="description" content="Página de bienvenida moderna con soporte de tema oscuro/claro y animaciones suaves.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- CSS estático -->
+    <link th:href="@{/css/welcome.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="wrap">
+    <div class="card" role="region" aria-labelledby="title">
+        <div class="hero">
+            <h1>Ledgerly</h1>
+            <h2 id="title">Bienvenido</h2>
+            <p class="lead">Interfaz de bienvenida para Ledgerly Health</p>
+
+            <div class="actions">
+                <a class="btn" th:href="${apiUrl}" title="Ir a la documentación">Documentación</a>
+                <a class="btn btn-ghost" id="open-console" th:href="@{/health/panel}" title="Abrir consola">⚙️ Estado</a>
+            </div>
+
+            <div class="meta">Servidor: <strong th:text="${serverName}"></strong></div>
+            <div class="meta">Instancia: <strong th:text="${instance}"></strong></div>
+            <div class="meta">Locación: <strong th:text="${location}"></strong></div>
+        </div>
+
+        <aside class="panel" aria-label="Panel de control">
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="font-weight:700">Estado</div>
+                    <div class="theme-toggle">
+                        <div id="themeLabel" style="font-size:13px;color:var('grey')">Tema</div>
+                        <div id="themeToggle" class="toggle dark" role="switch" aria-checked="true" tabindex="0">
+                            <div class="knob"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats" style="margin-top:14px">
+                    <div class="stat">Usuarios: <span style="float:right" id="userCount">0</span></div>
+                    <div class="stat">Uptime: <span style="float:right" th:text="${uptime}">0%</span></div>
+                    <div class="stat">Versión: <span style="float:right" th:text="${version}">v0.0.0</span></div>
+                    <div class="stat">Latencia: <span style="float:right" th:text="${latency}">0 ms</span></div>
+                    <div class="stat">API: <span style="float:right" th:text="${apiUrl}">https://ledgerly/api</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="shape s1" aria-hidden="true"></div>
+        <div class="shape s2" aria-hidden="true"></div>
+    </div>
+</div>
+<script>
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        toggle.classList.toggle('dark');
+    });
+
+    async function updateUserCount() {
+        const element = document.getElementById("userCount");
+        try {
+            const response = await fetch('/api/users/count');
+            const newCount = parseInt(await response.text());
+            const current = parseInt(element.textContent);
+
+            if (newCount !== current) {
+                // fade out
+                element.classList.add("fade-out");
+                setTimeout(() => {
+                    element.textContent = newCount;
+                    element.classList.remove("fade-out");
+                    element.classList.add("fade-in");
+                    setTimeout(() => element.classList.remove("fade-in"), 300);
+                }, 300);
+            }
+        } catch (err) {
+            console.error("Error al obtener conteo:", err);
+        }
+    }
+
+    updateUserCount();
+    setInterval(updateUserCount, 2000);
+</script>
+</body>
+</html>
