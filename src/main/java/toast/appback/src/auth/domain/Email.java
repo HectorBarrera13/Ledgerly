@@ -4,7 +4,6 @@ import toast.appback.src.shared.types.Result;
 import toast.appback.src.shared.Validators;
 import toast.appback.src.shared.errors.DomainError;
 
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public record Email(String local, String domain, String tld) {
