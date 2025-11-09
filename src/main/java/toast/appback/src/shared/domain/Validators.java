@@ -1,7 +1,7 @@
-package toast.appback.src.shared;
+package toast.appback.src.shared.domain;
 
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.utils.Result;
+
 /**
  * A utility class providing static methods for generating standardized validation error results.
  * Each method returns a Result object encapsulating a DomainError with a specific validation message.

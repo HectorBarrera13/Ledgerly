@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class AmountTest {
 
     @Test
-    public void Amount_CreateValidAmount_AmountIsSuccesful() {
+    public void Amount_CreateValidAmount_AmountIsSuccessful() {
         String currency = "MXN";
         Double quantity = 100.00;
         Amount amount = new Amount(currency, quantity);

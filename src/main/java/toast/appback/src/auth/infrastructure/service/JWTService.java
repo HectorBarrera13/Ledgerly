@@ -13,8 +13,8 @@ import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.communication.result.TokenInfo;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.AppError;
 import toast.appback.src.auth.application.port.TokenService;
 
 import javax.crypto.SecretKey;

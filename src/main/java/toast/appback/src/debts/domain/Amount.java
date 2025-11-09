@@ -1,9 +1,8 @@
 package toast.appback.src.debts.domain;
 
-import org.thymeleaf.util.Validate;
-import toast.appback.src.shared.Validators;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.Validators;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 
 public record Amount(String currency, Double quantity) {
     private static final String FIELD_CURRENCY = "currency";

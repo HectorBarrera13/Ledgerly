@@ -3,8 +3,8 @@ package toast.appback.src.spring.general;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.EventBus;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.application.EventBus;
 
 import java.util.List;
 

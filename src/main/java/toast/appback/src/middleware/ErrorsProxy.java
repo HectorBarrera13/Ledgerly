@@ -1,8 +1,9 @@
 package toast.appback.src.middleware;
 
 import org.springframework.http.HttpStatus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.*;
+import toast.appback.src.shared.application.AppErrType;
+import toast.appback.src.shared.application.AppError;
+import toast.appback.src.shared.utils.Result;
 
 import java.time.Instant;
 import java.util.ArrayList;

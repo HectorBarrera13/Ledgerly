@@ -1,9 +1,9 @@
 package toast.appback.src.auth.domain;
 
 import toast.appback.src.auth.domain.service.PasswordHasher;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.Validators;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.Validators;
+import toast.appback.src.shared.domain.DomainError;
 
 public record Password(
         String hashed

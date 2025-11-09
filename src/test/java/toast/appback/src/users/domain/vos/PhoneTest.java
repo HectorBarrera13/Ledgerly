@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.Phone;
 
 import java.io.IOException;

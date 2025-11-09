@@ -1,6 +1,10 @@
-package toast.appback.src.shared.errors;
+package toast.appback.src.shared.application;
+
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.errors.IError;
 
 import java.util.List;
+import java.util.Objects;
 
 public record AppError(String message, String details, AppErrType type, String field) implements IError {
 
@@ -57,5 +61,16 @@ public record AppError(String message, String details, AppErrType type, String f
                 type(),
                 field()
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof AppError appError)) return false;
+        return Objects.equals(field, appError.field) && Objects.equals(message, appError.message) && type == appError.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(message, type, field);
     }
 }

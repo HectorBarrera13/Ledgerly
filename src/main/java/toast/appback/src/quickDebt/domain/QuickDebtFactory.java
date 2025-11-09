@@ -1,7 +1,7 @@
 package toast.appback.src.quickDebt.domain;
 
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.DomainError;
 
 import toast.appback.src.users.domain.User;
 

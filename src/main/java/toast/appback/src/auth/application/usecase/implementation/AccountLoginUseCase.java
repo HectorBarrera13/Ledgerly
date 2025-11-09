@@ -9,10 +9,10 @@ import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.AppError;
+import toast.appback.src.shared.domain.DomainError;
 
 import java.util.Optional;
 

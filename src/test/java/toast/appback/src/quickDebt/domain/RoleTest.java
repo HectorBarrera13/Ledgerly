@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RoleTest {
     @Test
-    public void Role_RoleIsDebtor_ResultIsSuccesful(){
+    public void roleRoleIsDebtorResultIsSuccessful() {
         var role = Role.DEBTOR;
-        assertEquals(role.getRole(), "DEBTOR");
+        assertEquals("Debtor", role.getRole());
     }
 }

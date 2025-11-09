@@ -4,9 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.domain.event.AccountCreated;
 import toast.appback.src.auth.domain.service.PasswordHasher;
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.List;

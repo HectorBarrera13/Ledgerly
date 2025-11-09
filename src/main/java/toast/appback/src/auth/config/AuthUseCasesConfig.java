@@ -11,7 +11,7 @@ import toast.appback.src.auth.application.usecase.implementation.RegisterAccount
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.auth.domain.DefaultAccount;
 import toast.appback.src.auth.domain.service.PasswordHasher;
-import toast.appback.src.shared.EventBus;
+import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 
 @Configuration

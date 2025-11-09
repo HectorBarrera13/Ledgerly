@@ -1,12 +1,5 @@
 package toast.appback.src.quickDebt.domain;
 
-import toast.appback.src.shared.Validators;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
-
-import toast.appback.src.shared.errors.DomainError;
-
-import java.util.List;
 import java.util.Map;
 
 public record Role(String value) {

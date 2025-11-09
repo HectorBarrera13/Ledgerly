@@ -2,7 +2,7 @@ package toast.appback.src.users.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import toast.appback.src.shared.EventBus;
+import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.usecase.implementation.AddFriendUseCase;
 import toast.appback.src.users.application.usecase.implementation.CreateUserUseCase;
 import toast.appback.src.users.application.usecase.implementation.RemoveFriendUseCase;

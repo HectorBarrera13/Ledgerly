@@ -1,7 +1,7 @@
-package toast.appback.src.shared;
+package toast.appback.src.shared.application;
 
 import toast.appback.src.shared.errors.IError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.utils.Result;
 
 /**
  * Generic Use Case interface defining the contract for executing use cases.

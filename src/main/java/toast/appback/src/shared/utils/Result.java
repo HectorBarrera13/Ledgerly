@@ -1,4 +1,4 @@
-package toast.appback.src.shared.types;
+package toast.appback.src.shared.utils;
 
 import toast.appback.src.shared.errors.IError;
 

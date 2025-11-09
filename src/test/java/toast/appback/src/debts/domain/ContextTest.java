@@ -6,25 +6,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ContextTest {
     @Test
-    public void Context_WithValidFortmat_ResultIsSuccesful() {
+    public void Context_WithValidFormat_ResultIsSuccessful() {
         var result = Context.create("Test", "Test");
         assertTrue(result.isSuccess());
     }
 
     @Test
-    public void Context_WithPurposeEmptyDescriptionValid_ResultIsNotSuccesful() {
+    public void Context_WithPurposeEmptyDescriptionValid_ResultIsNotSuccessful() {
         var result = Context.create("", "Test");
         assertFalse(result.isSuccess());
     }
 
     @Test
-    public void Context_WithPurposeTooLongDescriptionValid_ResultIsNotSuccesful() {
+    public void Context_WithPurposeTooLongDescriptionValid_ResultIsNotSuccessful() {
         var result = Context.create("Lorem ipsum dolor sit amet consectetur adipiscing elit quisque faucibus.", "Test1");
         assertFalse(result.isSuccess());
     }
 
     @Test
-    public void Context_WithPurposeValidDescriptionEmpty_ResultIsSuccesful() {
+    public void Context_WithPurposeValidDescriptionEmpty_ResultIsSuccessful() {
         var result = Context.create("Test", "");
         assertTrue(result.isSuccess());
     }

@@ -2,9 +2,9 @@ package toast.appback.src.users.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.event.UserCreated;
 
 import java.util.List;

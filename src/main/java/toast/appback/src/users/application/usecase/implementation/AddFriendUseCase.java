@@ -1,8 +1,8 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.errors.AppError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.AppError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.application.communication.command.AddFriendCommand;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;

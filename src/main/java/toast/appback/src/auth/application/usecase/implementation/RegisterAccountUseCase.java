@@ -5,10 +5,10 @@ import toast.appback.src.auth.application.communication.command.RegisterAccountC
 import toast.appback.src.auth.application.communication.result.TokenInfo;
 import toast.appback.src.auth.domain.*;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.AppError;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
 import toast.appback.src.auth.application.port.TokenService;

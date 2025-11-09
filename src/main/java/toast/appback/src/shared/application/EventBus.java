@@ -1,4 +1,6 @@
-package toast.appback.src.shared;
+package toast.appback.src.shared.application;
+
+import toast.appback.src.shared.domain.DomainEvent;
 
 import java.util.List;
 

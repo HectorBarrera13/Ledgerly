@@ -1,8 +1,8 @@
 package toast.appback.src.debts.domain;
 
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.User;
 
 import java.util.List;

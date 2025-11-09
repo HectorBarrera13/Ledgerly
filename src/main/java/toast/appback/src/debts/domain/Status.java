@@ -1,9 +1,5 @@
 package toast.appback.src.debts.domain;
 
-import toast.appback.src.shared.Validators;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
-
 import java.util.Map;
 
 public record Status(String value) {

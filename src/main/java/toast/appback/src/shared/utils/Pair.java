@@ -1,4 +1,4 @@
-package toast.appback.src.shared.types;
+package toast.appback.src.shared.utils;
 
 public record Pair<A, B>(A first, B second) {
     public static <A, B, C> Pair<Pair<A, B>, C> of(Pair<A, B> first, C second) {

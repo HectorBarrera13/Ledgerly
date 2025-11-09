@@ -1,6 +1,6 @@
 package toast.appback.src.users.domain;
 
-import toast.appback.src.shared.DomainEvent;
+import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.users.domain.event.FriendAdded;
 
 import java.time.Instant;

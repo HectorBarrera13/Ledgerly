@@ -2,7 +2,7 @@ package toast.appback.src.users.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.shared.DomainEvent;
+import toast.appback.src.shared.domain.DomainEvent;
 
 import java.util.UUID;
 

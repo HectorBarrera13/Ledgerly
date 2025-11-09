@@ -5,9 +5,9 @@ import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.AccountLogout;
 import toast.appback.src.auth.domain.Account;
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.AppError;
 
 public class AccountLogoutUseCase implements AccountLogout {
 

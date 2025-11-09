@@ -1,10 +1,8 @@
 package toast.appback.src.debts.domain;
 
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.User;
-
-import java.util.UUID;
 
 public abstract class DebtFactory {
     public abstract Result<Debt, DomainError> create(
@@ -18,7 +16,7 @@ public abstract class DebtFactory {
         User debtor,
         User creditor
     ){
-        return create(DebtId.generateDebtId(), debtor, creditor, new Status("Enviada"));
+        return create(DebtId.generate(), debtor, creditor, new Status("Enviada"));
     }
 
 }

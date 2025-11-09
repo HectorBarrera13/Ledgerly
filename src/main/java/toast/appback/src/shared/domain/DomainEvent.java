@@ -1,4 +1,4 @@
-package toast.appback.src.shared;
+package toast.appback.src.shared.domain;
 
 import java.time.Instant;
 

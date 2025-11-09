@@ -3,9 +3,9 @@ package toast.appback.src.auth.domain;
 import toast.appback.src.auth.domain.event.AllSessionsRevoked;
 import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.auth.domain.event.SessionRevoked;
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.*;

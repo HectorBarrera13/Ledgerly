@@ -1,4 +1,6 @@
-package toast.appback.src.shared.errors;
+package toast.appback.src.shared.domain;
+
+import toast.appback.src.shared.errors.ErrorTypeV;
 
 import java.util.Optional;
 

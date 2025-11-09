@@ -1,9 +1,9 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.AppError;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
