@@ -1,55 +1,63 @@
 package toast.appback.src.shared;
 
-/*
+import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.types.Result;
+/**
  * A utility class providing static methods for generating standardized validation error results.
  * Each method returns a Result object encapsulating a DomainError with a specific validation message.
  * The class includes an enumeration for common special characters to enhance error message clarity.
  * Example usage:
  * <pre>
- * Result<String, DomainError> result = Validators.EMPTY_VALUE("username");
- * if (result.isFailure()) {
- *     DomainError error = result.getError();
- *     // Handle the error
- * }
+ *     Result<String, DomainError> result = Validators.TOO_LONG("username", "verylongusername", 10);
+ *     if (result.isFailure()) {
+ *         DomainError error = result.getFailure();
+ *         // Handle the validation error
+ *     }
  * </pre>
  */
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
 
 public class Validators {
     public static <T> Result<T, DomainError> EMPTY_VALUE(String field) {
-        return Result.failure(DomainError.validation(field, "Value cannot be null or empty"));
+        return Result.failure(DomainError.validation(field, "value cannot be null or empty"));
     }
 
     public static <T> Result<T, DomainError> EMPTY_COLLECTION(String field, Iterable<?> value) {
-        return Result.failure(DomainError.validation(field, "Collection cannot be null or empty").withDetails("Value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, "collection cannot be null or empty").withDetails("value: '" + value + "'"));
     }
 
     public static <T> Result<T, DomainError> TOO_LONG(String field, String value, int max) {
-        return Result.failure(DomainError.validation(field, "Value cannot be longer than " + max + " characters").withDetails("Value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, "value cannot be longer than " + max + " characters").withDetails("value: '" + value + "'"));
     }
 
     public static <T> Result<T, DomainError> TOO_SHORT(String field, String value, int min) {
-        return Result.failure(DomainError.validation(field, "Value cannot be shorter than " + min + " characters").withDetails("Value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, "value cannot be shorter than " + min + " characters").withDetails("value: '" + value + "'"));
     }
 
     public static <T> Result<T, DomainError> INVALID_FORMAT(String field, String value, String message) {
-        return Result.failure(DomainError.validation(field, message).withDetails("Value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, message).withDetails("value: '" + value + "'"));
     }
 
     public static <T> Result<T, DomainError> buildPrefixError(String field, String value, String prefix, String message) {
         CharName charName = CharName.fromString(prefix); // Check if the prefix is a known special character
         return Result.failure(DomainError.validation(field, message + (charName != null ? " " + charName.getName() + " '" + charName.getCharacter() + "'" // Use the character name if it's a known special character
                 : " '" + prefix + "'") // Otherwise, use the prefix as is
-        ).withDetails("Value: '" + value + "'"));
+        ).withDetails("value: '" + value + "'"));
+    }
+
+    public static <T> Result<T, DomainError> buildSuffixError(String field, String value, String suffix, String message) {
+        return buildPrefixError(field, value, suffix, message);
     }
 
     public static <T> Result<T, DomainError> MUST_NOT_CONTAIN(String field, String value, String substring) {
-        return buildPrefixError(field, value, substring, "Value must not contain");
+        return buildPrefixError(field, value, substring, "value must not contain");
     }
 
     public static <T> Result<T, DomainError> MUST_NOT_START_WITH(String field, String value, String prefix) {
-        return buildPrefixError(field, value, prefix, "Value must not start with");
+        return buildPrefixError(field, value, prefix, "value must not start with");
+    }
+
+    public static <T> Result<T, DomainError> MUST_NOT_END_WITH(String field, String value, String suffix) {
+        return buildSuffixError(field, value, suffix, "value must not end with");
     }
 
     private enum CharName {

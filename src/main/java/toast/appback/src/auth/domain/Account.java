@@ -58,7 +58,7 @@ public class Account {
                 .count();
         if (notRevokedSessions >= MAX_SESSIONS) {
             return Result.failure(DomainError.businessRule("session limit exceeded")
-                    .withDetails("Account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
+                    .withDetails("account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
         }
         this.sessions.add(session);
         this.recordEvent(new SessionAdded(this.accountId, session.getSessionId()));
@@ -74,8 +74,8 @@ public class Account {
                     return true;
                 }).orElse(false);
         if (!removed) {
-            return Result.failure(DomainError.unexpected("session error",
-                    "Session with ID: " + sessionId + " could not be revoked from account " + accountId));
+            return Result.failure(DomainError.unexpected("session not found",
+                    "session with ID: " + sessionId + " could not be revoked from account " + accountId));
         }
         this.recordEvent(new SessionRevoked(this.accountId, sessionId));
         return Result.success();

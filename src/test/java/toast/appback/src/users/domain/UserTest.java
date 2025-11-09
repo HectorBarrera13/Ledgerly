@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("User Domain Tests")
 public class UserTest {
     private final UUID uuid = UUID.randomUUID();
     private final String FIRST_NAME = "John";
@@ -16,9 +17,9 @@ public class UserTest {
     private final String PHONE_NUMBER = "9341341";
 
     private final User user = new User(
-            new UserId(uuid),
-            new Name(FIRST_NAME, LAST_NAME),
-            new Phone(PHONE_COUNTRY_CODE, PHONE_NUMBER)
+            UserId.load(uuid),
+            Name.load(FIRST_NAME, LAST_NAME),
+            Phone.load(PHONE_COUNTRY_CODE, PHONE_NUMBER)
     );
 
     @Test
@@ -35,9 +36,9 @@ public class UserTest {
     @DisplayName("Should be equal when having the same id")
     void testUserEquality() {
         User anotherUser = new User(
-                new UserId(uuid),
-                new Name("Jane", "Smith"),
-                new Phone("+1", "1234567")
+                UserId.load(uuid),
+                Name.load("Jane", "Smith"),
+                Phone.load("+1", "1234567")
         );
         assertEquals(user, anotherUser);
     }
@@ -45,7 +46,7 @@ public class UserTest {
     @Test
     @DisplayName("Should change name correctly")
     void testChangeName() {
-        Name newName = new Name("Alice", "Johnson");
+        Name newName = Name.load("Alice", "Johnson");
         user.changeName(newName);
         assertEquals("Alice", user.getName().firstName());
         assertEquals("Johnson", user.getName().lastName());
@@ -81,9 +82,9 @@ public class UserTest {
     @DisplayName("Should not be equal when having different ids")
     void testUserInequality() {
         User anotherUser = new User(
-                new UserId(UUID.randomUUID()),
-                new Name("Jane", "Smith"),
-                new Phone("+1", "1234567")
+                UserId.load(UUID.randomUUID()),
+                Name.load("Jane", "Smith"),
+                Phone.load("+1", "1234567")
         );
         assertNotEquals(user, anotherUser);
     }

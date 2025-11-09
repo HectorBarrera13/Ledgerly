@@ -24,6 +24,10 @@ public record Name(String firstName, String lastName) {
                 .map(() -> new Name(firstName, lastName));
     }
 
+    public static Name load(String firstName, String lastName) {
+        return new Name(firstName, lastName);
+    }
+
     private static Result<Void, DomainError> generalValidation(String value, String fieldName) {
         if (value == null || value.isBlank()) {
             return Validators.EMPTY_VALUE(fieldName);
@@ -41,15 +45,15 @@ public record Name(String firstName, String lastName) {
         }
 
         if (!value.matches("^(?!.* {2,})(?!.*['-]{2,})\\p{L}+(?:[ '-]\\p{L}+)*$")) {
-            return Validators.INVALID_FORMAT(fieldName, value, "Must contain only letters");
+            return Validators.INVALID_FORMAT(fieldName, value, "must contain only letters");
         }
 
         String[] split = value.split(" ");
         for (String part : split) {
             if (part.length() < 2) {
                 return Result.failure(
-                        DomainError.validation(fieldName, "Each part of the name must be at least 2 characters long, found: " + part)
-                                .withDetails("Part: '" + part + "'"));
+                        DomainError.validation(fieldName, "each part of the name must be at least 2 characters long, found: " + part)
+                                .withDetails("part: '" + part + "'"));
             }
         }
         return Result.success();

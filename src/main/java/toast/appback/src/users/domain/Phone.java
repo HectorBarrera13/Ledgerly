@@ -12,12 +12,16 @@ public record Phone(String countryCode, String number) {
                         .map(() -> new Phone(countryCode, number)));
     }
 
+    public static Phone load(String countryCode, String number) {
+        return new Phone(countryCode, number);
+    }
+
     private static Result<Void, DomainError> isValidPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.isBlank()) {
             return Validators.EMPTY_VALUE("number");
         }
         if (!phoneNumber.matches("\\d{4,15}")) {
-            return Validators.INVALID_FORMAT("number", phoneNumber, "Must contain only digits and be between 4 and 15 characters long");
+            return Validators.INVALID_FORMAT("number", phoneNumber, "must contain only digits and be between 4 and 15 characters long");
         }
         return Result.success();
     }
@@ -27,7 +31,7 @@ public record Phone(String countryCode, String number) {
             return Validators.EMPTY_VALUE("countryCode");
         }
         if (!code.matches("\\+\\d{1,4}")) {
-            return Validators.INVALID_FORMAT("countryCode", code, "Must start with '+' followed by 1 to 4 digits");
+            return Validators.INVALID_FORMAT("countryCode", code, "must start with '+' followed by 1 to 4 digits");
         }
         return Result.success();
     }

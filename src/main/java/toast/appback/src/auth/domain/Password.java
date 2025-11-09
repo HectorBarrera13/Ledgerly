@@ -24,9 +24,9 @@ public record Password(
         if (password.length() < 8)
             return Validators.TOO_SHORT("password", password, 8);
         if (!password.matches(".*[A-Z].*"))
-            return Validators.INVALID_FORMAT("password", password, "Must contain at least one uppercase letter");
+            return Validators.INVALID_FORMAT("password", password, "must contain at least one uppercase letter");
         if (!password.matches(".*[0-9].*"))
-            return Validators.INVALID_FORMAT("password", password, "Must contain at least one digit");
+            return Validators.INVALID_FORMAT("password", password, "must contain at least one digit");
         return Result.success();
     }
 }

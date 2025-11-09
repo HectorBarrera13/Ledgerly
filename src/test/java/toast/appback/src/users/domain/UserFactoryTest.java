@@ -11,6 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("UserFactory Domain Tests")
 public class UserFactoryTest {
 
     private final UserFactory userFactory = new DefaultUser();
