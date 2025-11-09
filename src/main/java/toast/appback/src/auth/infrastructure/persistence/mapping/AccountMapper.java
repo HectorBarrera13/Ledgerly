@@ -29,7 +29,7 @@ public class AccountMapper {
         return new Account(
                 AccountId.load(entity.getAccountId()),
                 UserId.load(entity.getUser().getUserId()),
-                Email.unsafeLoad(entity.getEmail()),
+                Email.load(entity.getEmail()),
                 Password.fromHashed(entity.getPasswordHash()),
                 sessions,
                 List.of()

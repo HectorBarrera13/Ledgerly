@@ -1,6 +1,7 @@
 package toast.appback.src.auth.domain;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class Session {
 
@@ -9,7 +10,7 @@ public class Session {
     private final Instant expiration;
     private static final long MAX_DURATION_SECONDS = 60 * 60 * 24 * 20; // 20 days
 
-    private Session(SessionId sessionId, SessionStatus status, Instant expiration) {
+    public Session(SessionId sessionId, SessionStatus status, Instant expiration) {
         this.sessionId = sessionId;
         this.status = status;
         this.expiration = expiration;
@@ -45,5 +46,16 @@ public class Session {
 
     public boolean isRevoked() {
         return this.status == SessionStatus.REVOKED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Session session)) return false;
+        return Objects.equals(sessionId, session.sessionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(sessionId);
     }
 }

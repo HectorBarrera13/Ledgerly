@@ -159,6 +159,22 @@ public class Result<T, E extends IError> {
         }
     }
 
+    public <U> Result<U, E> captureFirstError(Function<? super T, Result<U, E>> mapper) {
+        if (isSuccess()) {
+            return mapper.apply(this.value);
+        } else {
+            return Result.failure(List.of(this.errors.getFirst()));
+        }
+    }
+
+    public <U> Result<U, E> captureFirstError(Supplier<Result<U, E>> mapper) {
+        if (isSuccess()) {
+            return mapper.get();
+        } else {
+            return Result.failure(List.of(this.errors.getFirst()));
+        }
+    }
+
     /**
      * Transforms the successful value of this Result using the provided mapper function that returns another Result.
      * If this Result is a failure, the errors are propagated without applying the mapper.
