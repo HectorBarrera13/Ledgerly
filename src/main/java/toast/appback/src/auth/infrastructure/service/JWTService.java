@@ -34,9 +34,6 @@ public class JWTService implements TokenService {
     @Value("${jwt.expiration.access}")
     private long accessExpiration;
 
-    @Value("${jwt.expiration.refresh}")
-    private long refreshExpiration;
-
     private SecretKey secretKey;
 
     private JwtParser jwtParser;
@@ -54,17 +51,6 @@ public class JWTService implements TokenService {
                 accessToken,
                 "Bearer",
                 Instant.now().plusSeconds(accessExpiration)
-        );
-        return Result.success(tokenResult);
-    }
-
-    @Override
-    public Result<TokenInfo, AppError> generateRefreshToken(String uuid, String sessionId, String email) {
-        String refreshToken = buildToken(uuid, email, sessionId, refreshExpiration);
-        TokenInfo tokenResult = new TokenInfo(
-                refreshToken,
-                "Bearer",
-                Instant.now().plusSeconds(refreshExpiration)
         );
         return Result.success(tokenResult);
     }
@@ -89,8 +75,8 @@ public class JWTService implements TokenService {
         String sessionId = sessionIdResult.getValue();
 
         AccountInfo accountInfo = new AccountInfo(
-                AccountId.create(UUID.fromString(id)),
-                SessionId.create(UUID.fromString(sessionId)),
+                AccountId.load(UUID.fromString(id)),
+                SessionId.load(UUID.fromString(sessionId)),
                 subjectResult.getValue()
         );
         return Result.success(accountInfo);
@@ -123,14 +109,14 @@ public class JWTService implements TokenService {
             logger.warn("JWT signature inválida: {}", e.getMessage());
             return Result.failure(AppError.authorizationFailed("Invalid JWT signature").withDetails(e.getMessage()));
         } catch (MalformedJwtException e) {
-            logger.warn("JWT token malformado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Malformed JWT token").withDetails(e.getMessage()));
+            logger.warn("JWT value malformado: {}", e.getMessage());
+            return Result.failure(AppError.authorizationFailed("Malformed JWT value").withDetails(e.getMessage()));
         } catch (ExpiredJwtException e) {
-            logger.warn("JWT token expirado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Expired JWT token").withDetails(e.getMessage()));
+            logger.warn("JWT value expirado: {}", e.getMessage());
+            return Result.failure(AppError.authorizationFailed("Expired JWT value").withDetails(e.getMessage()));
         } catch (UnsupportedJwtException e) {
-            logger.warn("JWT token no soportado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Unsupported JWT token").withDetails(e.getMessage()));
+            logger.warn("JWT value no soportado: {}", e.getMessage());
+            return Result.failure(AppError.authorizationFailed("Unsupported JWT value").withDetails(e.getMessage()));
         } catch (IllegalArgumentException e) {
             logger.warn("JWT claims string vacío o nulo: {}", e.getMessage());
             return Result.failure(AppError.authorizationFailed("JWT claims string is empty or null").withDetails(e.getMessage()));

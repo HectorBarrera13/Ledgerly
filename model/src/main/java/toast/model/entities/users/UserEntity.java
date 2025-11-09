@@ -32,4 +32,11 @@ public class UserEntity {
 
     @Embedded
     private PhoneEmbeddable phone;
+
+    public String getPhoneAsString() {
+        if (phone == null) {
+            return null;
+        }
+        return phone.getCountryCode() + "-" + phone.getNumber();
+    }
 }

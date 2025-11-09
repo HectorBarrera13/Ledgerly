@@ -1,37 +1,39 @@
 package toast.appback.src.auth.domain;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class Session {
 
     private final SessionId sessionId;
-    private final Token token;
     private SessionStatus status;
+    private final Instant expiration;
+    private static final long MAX_DURATION_SECONDS = 60 * 60 * 24 * 20; // 20 days
 
-    private Session(SessionId sessionId, Token token, SessionStatus status) {
+    public Session(SessionId sessionId, SessionStatus status, Instant expiration) {
         this.sessionId = sessionId;
-        this.token = token;
         this.status = status;
+        this.expiration = expiration;
     }
 
-    public SessionId sessionId() {
+    public SessionId getSessionId() {
         return sessionId;
     }
 
-    public Token token() {
-        return token;
-    }
-
-    public SessionStatus status() {
+    public SessionStatus getStatus() {
         return status;
     }
 
-    public static Session create(SessionId sessionId, String token, String tokenType, Instant expiration) {
-        return new Session(sessionId, Token.create(token, tokenType, expiration), SessionStatus.NORMAL);
+    public Instant getExpiration() {
+        return expiration;
     }
 
-    public static Session load(SessionId sessionId, String token, String tokenType, Instant expiration, SessionStatus status) {
-        return new Session(sessionId, Token.create(token, tokenType, expiration), status);
+    public static Session create(SessionId sessionId) {
+        return new Session(sessionId, SessionStatus.NORMAL, Instant.now().plusSeconds(MAX_DURATION_SECONDS));
+    }
+
+    public static Session load(SessionId sessionId, Instant expiration, SessionStatus status) {
+        return new Session(sessionId, status, expiration);
     }
 
     public void revoke() {
@@ -44,5 +46,16 @@ public class Session {
 
     public boolean isRevoked() {
         return this.status == SessionStatus.REVOKED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Session session)) return false;
+        return Objects.equals(sessionId, session.sessionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(sessionId);
     }
 }

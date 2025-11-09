@@ -60,11 +60,13 @@ public class AuthUseCasesConfig {
     @Bean
     public AccountLogoutUseCase accountLogoutUseCase(
             TokenService tokenService,
-            AuthService authService
+            AuthService authService,
+            EventBus eventBus
     ) {
         return new AccountLogoutUseCase(
                 tokenService,
-                authService
+                authService,
+                eventBus
         );
     }
 

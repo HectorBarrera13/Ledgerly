@@ -1,29 +1,22 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
+import toast.appback.src.users.application.communication.result.UserQueryResult;
+import toast.appback.src.users.application.port.UserQueryRepository;
 import toast.appback.src.users.application.usecase.contract.GetUser;
-import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.repository.UserRepository;
+import toast.appback.src.users.domain.UserId;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public class GetUserUseCase implements GetUser {
+    private final UserQueryRepository userQueryRepository;
 
-    private final UserRepository userRepository;
-
-    public GetUserUseCase(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public GetUserUseCase(UserQueryRepository userQueryRepository) {
+        this.userQueryRepository = userQueryRepository;
     }
 
     @Override
-    public Result<User, AppError> get(UUID userId) {
-        Optional<User> maybeUser = userRepository.findById(userId);
-        if (maybeUser.isEmpty()) {
-            return Result.failure(AppError.entityNotFound("User")
-                    .withDetails("User with ID " + userId + " not found."));
-        }
-        return Result.success(maybeUser.get());
+    public Optional<UserQueryResult> getUser(UUID userId) {
+        return userQueryRepository.getUser(UserId.load(userId));
     }
 }

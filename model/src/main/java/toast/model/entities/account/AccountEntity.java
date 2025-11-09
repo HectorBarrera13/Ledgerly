@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import toast.model.entities.users.UserEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,5 +35,5 @@ public class AccountEntity {
     private String passwordHash;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SessionEntity> sessions;
+    private List<SessionEntity> sessions = new ArrayList<>();
 }

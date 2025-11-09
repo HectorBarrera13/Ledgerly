@@ -2,9 +2,9 @@ package toast.appback.src.auth.domain;
 
 import java.util.UUID;
 
-public record SessionId(UUID id) {
+public record SessionId(UUID value) {
 
-    public static SessionId create(UUID id) {
+    public static SessionId load(UUID id) {
         return new SessionId(id);
     }
 

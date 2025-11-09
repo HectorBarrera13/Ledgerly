@@ -16,8 +16,8 @@ public class Account {
     private final UserId userId;
     private Email email;
     private Password password;
-    private List<Session> sessions = new ArrayList<>();
-    private List<DomainEvent> domainEvents = new ArrayList<>();
+    private List<Session> sessions = new ArrayList<>(); // Only five active sessions allowed
+    private List<DomainEvent> userEvents = new ArrayList<>();
 
     public Account(AccountId accountId, UserId userId, Email email, Password password) {
         this.accountId = accountId;
@@ -26,13 +26,10 @@ public class Account {
         this.password = password;
     }
 
-    public Account(AccountId accountId, UserId userId, Email email, Password password, List<Session> sessions, List<DomainEvent> domainEvents) {
-        this.accountId = accountId;
-        this.userId = userId;
-        this.email = email;
-        this.password = password;
+    public Account(AccountId accountId, UserId userId, Email email, Password password, List<Session> sessions, List<DomainEvent> userEvents) {
+        this(accountId, userId, email, password);
         this.sessions = new ArrayList<>(sessions);
-        this.domainEvents = new ArrayList<>(domainEvents);
+        this.userEvents = new ArrayList<>(userEvents);
     }
 
     public AccountId getAccountId() {
@@ -61,46 +58,46 @@ public class Account {
                 .count();
         if (notRevokedSessions >= MAX_SESSIONS) {
             return Result.failure(DomainError.businessRule("session limit exceeded")
-                    .withDetails("Account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
+                    .withDetails("account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
         }
         this.sessions.add(session);
-        this.addDomainEvent(new SessionAdded(this.accountId, session.sessionId()));
+        this.recordEvent(new SessionAdded(this.accountId, session.getSessionId()));
         return Result.success();
     }
 
     public Result<Void, DomainError> revokeSession(SessionId sessionId) {
         boolean removed = this.sessions.stream()
-                .filter(s -> s.sessionId().equals(sessionId))
+                .filter(s -> s.getSessionId().equals(sessionId))
                 .findFirst()
                 .map(s -> {
                     s.revoke();
                     return true;
                 }).orElse(false);
         if (!removed) {
-            return Result.failure(DomainError.unexpected("session error",
-                    "Session with ID: " + sessionId + " could not be revoked from account " + accountId));
+            return Result.failure(DomainError.unexpected("session not found",
+                    "session with ID: " + sessionId + " could not be revoked from account " + accountId));
         }
-        this.addDomainEvent(new SessionRevoked(this.accountId, sessionId));
+        this.recordEvent(new SessionRevoked(this.accountId, sessionId));
         return Result.success();
     }
 
     public boolean hasActiveSession(SessionId sessionId) {
         return this.sessions.stream()
-                .anyMatch(s -> s.sessionId().equals(sessionId) && s.isValid());
+                .anyMatch(s -> s.getSessionId().equals(sessionId) && s.isValid());
     }
 
     public void revokeAllSessions() {
         this.sessions.clear();
-        this.addDomainEvent(new AllSessionsRevoked(this.accountId));
+        this.recordEvent(new AllSessionsRevoked(this.accountId));
     }
 
-    public void addDomainEvent(DomainEvent event) {
-        domainEvents.add(event);
+    public void recordEvent(DomainEvent event) {
+        userEvents.add(event);
     }
 
-    public List<DomainEvent> pullDomainEvents() {
-        List<DomainEvent> events = new ArrayList<>(domainEvents);
-        domainEvents.clear();
+    public List<DomainEvent> pullEvents() {
+        List<DomainEvent> events = new ArrayList<>(userEvents);
+        userEvents.clear();
         return events;
     }
 
@@ -112,7 +109,7 @@ public class Account {
                 ", email=" + email +
                 ", password=" + password +
                 ", sessions=" + sessions +
-                ", domainEvents=" + domainEvents +
+                ", domainEvents=" + userEvents +
                 '}';
     }
 

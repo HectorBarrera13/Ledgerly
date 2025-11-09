@@ -15,6 +15,9 @@ public class DefaultAccount extends AccountFactory {
 
     @Override
     public Result<Account, DomainError> create(UserId userId, String email, String password) {
+        if (userId == null) {
+            return Result.failure(DomainError.validation("user id", "user id cannot be null"));
+        }
         Result<Account, DomainError> result = Email.create(email)
                 .flatMap(email_ -> Password.fromPlain(password, passwordHasher)
                         .map(password_ ->
@@ -25,7 +28,7 @@ public class DefaultAccount extends AccountFactory {
                                         password_
                                 )));
         result.ifSuccess(
-                account -> account.addDomainEvent(
+                account -> account.recordEvent(
                         new AccountCreated(
                                 account.getAccountId(),
                                 account.getUserId(),

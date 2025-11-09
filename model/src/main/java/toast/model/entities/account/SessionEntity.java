@@ -3,6 +3,7 @@ package toast.model.entities.account;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -22,4 +23,6 @@ public class SessionEntity {
 
     @Enumerated(EnumType.STRING)
     private SessionStatusE sessionStatus;
+
+    private Instant expiration;
 }

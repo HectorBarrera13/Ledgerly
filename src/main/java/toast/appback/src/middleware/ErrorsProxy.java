@@ -1,8 +1,6 @@
 package toast.appback.src.middleware;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import toast.appback.src.shared.ResponseMapper;
 import toast.appback.src.shared.types.Result;
 import toast.appback.src.shared.errors.*;
 
@@ -11,20 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ErrorsProxy {
-
-    public static <T, R> ResponseEntity<R> handleResult(Result<T, AppError> result, ResponseMapper<T, R> response) {
-        if (result.isSuccess()) {
-            return ResponseEntity.ok(response.map(result.getValue()));
-        }
-        throw new ErrorHandler(handleError(result.getErrors()));
-    }
-
-    public static <T, R> ResponseEntity<R> handleResult(Result<T, AppError> result, HttpStatus status, ResponseMapper<T, R> response) {
-        if (result.isSuccess()) {
-            return ResponseEntity.status(status).body(response.map(result.getValue()));
-        }
-        throw new ErrorHandler(handleError(result.getErrors()));
-    }
 
     public static <T> void handleResult(Result<T, AppError> result) {
         if (result.isSuccess()) {
@@ -50,12 +34,9 @@ public class ErrorsProxy {
             }
         }
         List<ErrorDetails> details = new ArrayList<>();
-        error.forEach(err -> {
-            details.add(new ErrorDetails(
-                    err.field(),
-                    err.message()
-            ));
-        });
+        error.forEach(err ->
+                details.add(new ErrorDetails(err.field(), err.message()))
+        );
         return new ErrorData(
                 "Multiple errors occurred",
                 null,

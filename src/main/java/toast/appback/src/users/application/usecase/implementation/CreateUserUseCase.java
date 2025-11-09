@@ -27,18 +27,17 @@ public class CreateUserUseCase implements CreateUser {
     }
 
     @Override
-    public Result<User, AppError> create(CreateUserCommand command) {
+    public Result<User, AppError> execute(CreateUserCommand command) {
         Result<User, DomainError> newUser = userFactory.create(
-                        command.userId(),
                         command.firstName(),
                         command.lastName(),
                         command.phone().countryCode(),
                         command.phone().number()
                 );
         if (newUser.isFailure()) return Result.failure(AppError.domainError(newUser.getErrors()));
-        User savedUser = userRepository.save(newUser.getValue());
-
-        eventBus.publishAll(savedUser.pullDomainEvents());
-        return Result.success(savedUser);
+        userRepository.save(newUser.getValue());
+        User user = newUser.getValue();
+        eventBus.publishAll(user.pullEvents());
+        return Result.success(user);
     }
 }
