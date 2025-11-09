@@ -29,7 +29,6 @@ public record Name(String firstName, String lastName) {
     }
 
     private static Result<String, DomainError> validate(String value, String fieldName) {
-
         if (value.length() < 2) {
             return Validators.TOO_SHORT(fieldName, value, 2);
         }

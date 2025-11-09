@@ -25,7 +25,7 @@ public class DefaultAccount extends AccountFactory {
                                         password_
                                 )));
         result.ifSuccess(
-                account -> account.addDomainEvent(
+                account -> account.recordEvent(
                         new AccountCreated(
                                 account.getAccountId(),
                                 account.getUserId(),

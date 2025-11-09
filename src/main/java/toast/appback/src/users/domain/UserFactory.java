@@ -7,7 +7,6 @@ import java.util.UUID;
 
 public abstract class UserFactory {
     public abstract Result<User, DomainError> create(
-            UUID id,
             String firstName,
             String lastName,
             String phoneCode,

@@ -25,6 +25,11 @@ public record Email(String local, String domain) {
                         .map(w -> new Email(parts.local(), parts.domain())));
     }
 
+    public static Email unsafeLoad(String email) {
+        String[] split = email.split("@");
+        return new Email(split[0], split[1]);
+    }
+
     private static Result<EmailParts, DomainError> verifyGeneral(String value) {
         if (value == null || value.isBlank()) {
             return Validators.EMPTY_VALUE("email");
@@ -65,7 +70,7 @@ public record Email(String local, String domain) {
         return Result.success();
     }
 
-    public String getValue() {
+    public String value() {
         return local + "@" + domain;
     }
 

@@ -30,36 +30,36 @@ public class RefreshSessionUseCase implements RefreshSession {
     }
 
     @Override
-    public Result<TokenInfo, AppError> refresh(String refreshToken) {
-        Result<AccountInfo, AppError> result = tokenService.extractClaims(refreshToken);
-        if (result.isFailure()) {
-            return Result.failure(result.getErrors());
+    public Result<TokenInfo, AppError> execute(String accessToken) {
+        Result<AccountInfo, AppError> claimsResult = tokenService.extractClaims(accessToken);
+        if (claimsResult.isFailure()) {
+            return Result.failure(claimsResult.getErrors());
         }
-        AccountInfo accountInfo = result.getValue();
-        Optional<Account> accountOptional = accountRepository.findBySessionId(accountInfo.sessionId().id());
-        if (accountOptional.isEmpty()) {
+        AccountInfo accountInfo = claimsResult.getValue();
+        Optional<Account> foundAccount = accountRepository.findBySessionId(accountInfo.sessionId());
+        if (foundAccount.isEmpty()) {
             return Result.failure(AppError.authorizationFailed("Session not found")
                     .withDetails("sessionId: " + accountInfo.sessionId()));
         }
-        Account account = accountOptional.get();
+        Account account = foundAccount.get();
         SessionId sessionId = accountInfo.sessionId();
         if (!account.hasActiveSession(sessionId)) {
             return Result.failure(AppError.authorizationFailed("Session is not active")
                     .withDetails("sessionId: " + accountInfo.sessionId()));
         }
 
-        Result<TokenInfo, AppError> maybeTokens = tokenService.generateAccessToken(
-                account.getAccountId().id().toString(),
-                sessionId.id().toString(),
-                account.getEmail().getValue()
+        Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
+                account.getAccountId().value().toString(),
+                sessionId.value().toString(),
+                account.getEmail().value()
         );
 
-        if (maybeTokens.isFailure()) {
-            return Result.failure(maybeTokens.getErrors());
+        if (accessTokenResult.isFailure()) {
+            return Result.failure(accessTokenResult.getErrors());
         }
-        TokenInfo tokens = maybeTokens.getValue();
+        TokenInfo accessTokenRefreshed = accessTokenResult.getValue();
 
-        eventBus.publishAll(account.pullDomainEvents());
-        return Result.success(tokens);
+        eventBus.publishAll(account.pullEvents());
+        return Result.success(accessTokenRefreshed);
     }
 }

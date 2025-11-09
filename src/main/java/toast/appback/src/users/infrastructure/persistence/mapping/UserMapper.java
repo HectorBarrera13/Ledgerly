@@ -11,7 +11,7 @@ public class UserMapper {
     public static UserEntity toEntity(User user) {
         if (user == null) return null;
         UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(user.getId().uuid());
+        userEntity.setUserId(user.getId().value());
         userEntity.setFirstName(user.getName().firstName());
         userEntity.setLastName(user.getName().lastName());
 
@@ -23,20 +23,12 @@ public class UserMapper {
         return userEntity;
     }
 
-    public static User toDomain(UserEntity userEntity, List<DomainEvent> domainEvents) {
+    public static User toDomain(UserEntity userEntity) {
         if (userEntity == null) return null;
         return new User(
-                UserId.create(userEntity.getUserId()),
+                UserId.load(userEntity.getUserId()),
                 Name.create(userEntity.getFirstName(), userEntity.getLastName()).getValue(),
-                Phone.create(userEntity.getPhone().getCountryCode(), userEntity.getPhone().getNumber()).getValue(),
-                userEntity.getFriends() == null
-                        ? List.of()
-                        : userEntity.getFriends().stream()
-                        .map(f -> new Friend(
-                                UserId.create(f.getFriend().getUserId()),
-                                f.getAddedAt())
-                        ).toList(),
-                domainEvents
+                Phone.create(userEntity.getPhone().getCountryCode(), userEntity.getPhone().getNumber()).getValue()
         );
     }
 }

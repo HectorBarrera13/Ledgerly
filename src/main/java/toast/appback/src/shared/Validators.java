@@ -53,7 +53,14 @@ public class Validators {
     }
 
     private enum CharName {
-        DOT(".", "dot"), UNDERSCORE("_", "underscore"), DASH("-", "dash"), AT("@", "at"), SLASH("/", "slash"), BACKSLASH("\\", "backslash"), COLON(":", "colon"), SEMICOLON(";", "semicolon"), COMMA(",", "comma"), SPACE(" ", "space"), EQUALS("=", "equals"), PLUS("+", "plus"), QUESTION_MARK("?", "question mark"), AMPERSAND("&", "ampersand");
+        DOT(".", "dot"),
+        UNDERSCORE("_", "underscore"),
+        DASH("-", "dash"), AT("@", "at"),
+        SLASH("/", "slash"), BACKSLASH("\\", "backslash"),
+        COLON(":", "colon"), SEMICOLON(";", "semicolon"),
+        COMMA(",", "comma"), SPACE(" ", "space"),
+        EQUALS("=", "equals"), PLUS("+", "plus"),
+        QUESTION_MARK("?", "question mark"), AMPERSAND("&", "ampersand");
 
         private final String character;
         private final String name;
