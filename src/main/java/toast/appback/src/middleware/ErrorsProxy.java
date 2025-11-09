@@ -34,12 +34,9 @@ public class ErrorsProxy {
             }
         }
         List<ErrorDetails> details = new ArrayList<>();
-        error.forEach(err -> {
-            details.add(new ErrorDetails(
-                    err.field(),
-                    err.message()
-            ));
-        });
+        error.forEach(err ->
+                details.add(new ErrorDetails(err.field(), err.message()))
+        );
         return new ErrorData(
                 "Multiple errors occurred",
                 null,

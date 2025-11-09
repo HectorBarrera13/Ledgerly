@@ -1,11 +1,8 @@
 package toast.appback.src.users.infrastructure.persistence.mapping;
 
-import toast.appback.src.shared.DomainEvent;
 import toast.appback.src.users.domain.*;
 import toast.model.entities.users.PhoneEmbeddable;
 import toast.model.entities.users.UserEntity;
-
-import java.util.List;
 
 public class UserMapper {
     public static UserEntity toEntity(User user) {

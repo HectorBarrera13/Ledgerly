@@ -1,6 +1,6 @@
 package toast.appback.src.shared;
 
-/**
+/*
  * A utility class providing static methods for generating standardized validation error results.
  * Each method returns a Result object encapsulating a DomainError with a specific validation message.
  * The class includes an enumeration for common special characters to enhance error message clarity.
