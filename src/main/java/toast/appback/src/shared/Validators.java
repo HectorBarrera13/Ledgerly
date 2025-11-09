@@ -25,6 +25,10 @@ public class Validators {
         return Result.failure(DomainError.validation(field, "Collection cannot be null or empty").withDetails("Value: '" + value + "'"));
     }
 
+    public static <T> Result<T, DomainError> INVAlID_STATE(String field, String desiredValue, String actualValue) {
+        return Result.failure(DomainError.validation(field, "State" + actualValue + " cannot be converted to" + desiredValue));
+    }
+
     public static <T> Result<T, DomainError> TOO_LONG(String field, String value, int max) {
         return Result.failure(DomainError.validation(field, "Value cannot be longer than " + max + " characters").withDetails("Value: '" + value + "'"));
     }
@@ -34,6 +38,10 @@ public class Validators {
     }
 
     public static <T> Result<T, DomainError> INVALID_FORMAT(String field, String value, String message) {
+        return Result.failure(DomainError.validation(field, message).withDetails("Value: '" + value + "'"));
+    }
+
+    public static <T> Result<T, DomainError> MUST_BE_POSITIVE(String field, Double value, String message) {
         return Result.failure(DomainError.validation(field, message).withDetails("Value: '" + value + "'"));
     }
 
@@ -51,6 +59,8 @@ public class Validators {
     public static <T> Result<T, DomainError> MUST_NOT_START_WITH(String field, String value, String prefix) {
         return buildPrefixError(field, value, prefix, "Value must not start with");
     }
+
+
 
     private enum CharName {
         DOT(".", "dot"), UNDERSCORE("_", "underscore"), DASH("-", "dash"), AT("@", "at"), SLASH("/", "slash"), BACKSLASH("\\", "backslash"), COLON(":", "colon"), SEMICOLON(";", "semicolon"), COMMA(",", "comma"), SPACE(" ", "space"), EQUALS("=", "equals"), PLUS("+", "plus"), QUESTION_MARK("?", "question mark"), AMPERSAND("&", "ampersand");

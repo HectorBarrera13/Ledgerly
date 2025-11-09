@@ -11,12 +11,12 @@ import java.util.Objects;
  */
 public record DomainError(String message, String details, DomainErrType type, String field) implements IError {
 
-    // This is a factory method to create a validation error
+    // This is a factory method to load a validation error
     public static DomainError validation(String field, String message) {
         return new DomainError(message, null, DomainErrType.VALIDATION_ERROR, field);
     }
 
-    // This is a factory method to create a business rule violation error
+    // This is a factory method to load a business rule violation error
     public static DomainError businessRule(String message) {
         return new DomainError(message, null, DomainErrType.BUSINESS_RULE_VIOLATION, null);
     }
