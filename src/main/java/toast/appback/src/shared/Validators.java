@@ -1,6 +1,6 @@
 package toast.appback.src.shared;
 
-/**
+/*
  * A utility class providing static methods for generating standardized validation error results.
  * Each method returns a Result object encapsulating a DomainError with a specific validation message.
  * The class includes an enumeration for common special characters to enhance error message clarity.
@@ -53,7 +53,14 @@ public class Validators {
     }
 
     private enum CharName {
-        DOT(".", "dot"), UNDERSCORE("_", "underscore"), DASH("-", "dash"), AT("@", "at"), SLASH("/", "slash"), BACKSLASH("\\", "backslash"), COLON(":", "colon"), SEMICOLON(";", "semicolon"), COMMA(",", "comma"), SPACE(" ", "space"), EQUALS("=", "equals"), PLUS("+", "plus"), QUESTION_MARK("?", "question mark"), AMPERSAND("&", "ampersand");
+        DOT(".", "dot"),
+        UNDERSCORE("_", "underscore"),
+        DASH("-", "dash"), AT("@", "at"),
+        SLASH("/", "slash"), BACKSLASH("\\", "backslash"),
+        COLON(":", "colon"), SEMICOLON(";", "semicolon"),
+        COMMA(",", "comma"), SPACE(" ", "space"),
+        EQUALS("=", "equals"), PLUS("+", "plus"),
+        QUESTION_MARK("?", "question mark"), AMPERSAND("&", "ampersand");
 
         private final String character;
         private final String name;

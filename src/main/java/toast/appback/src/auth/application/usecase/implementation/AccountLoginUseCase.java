@@ -37,48 +37,38 @@ public class AccountLoginUseCase implements AccountLogin {
     }
 
     @Override
-    public Result<TokenInfo, AppError> login(AccountAuthCommand accountAuthCommand) {
-        Optional<Account> accountOptional = accountRepository.findByEmail(accountAuthCommand.email());
-        if (accountOptional.isEmpty()) {
+    public Result<TokenInfo, AppError> execute(AccountAuthCommand command) {
+        Optional<Account> foundAccount = accountRepository.findByEmail(command.email());
+        if (foundAccount.isEmpty()) {
             return Result.failure(AppError.authorizationFailed("Account not found")
-                    .withDetails("email: " + accountAuthCommand.email()));
+                    .withDetails("email: " + command.email()));
         }
-        Account account = accountOptional.get();
-        Result<Void, AppError> authResult = authService.authenticate(
-                accountAuthCommand.email(),
-                accountAuthCommand.password());
+        Account account = foundAccount.get();
+        Result<Void, AppError> authResult = authService.authenticate(command);
         if (authResult.isFailure()) {
             return Result.failure(authResult.getErrors());
         }
 
         SessionId newSessionId = SessionId.generate();
         Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
-                account.getAccountId().id().toString(),
-                newSessionId.id().toString(),
-                account.getEmail().getValue()
+                account.getAccountId().value().toString(),
+                newSessionId.value().toString(),
+                account.getEmail().value()
         );
-        Result<TokenInfo, AppError> refreshTokenResult = tokenService.generateRefreshToken(
-                account.getAccountId().id().toString(),
-                newSessionId.id().toString(),
-                account.getEmail().getValue()
-        );
+
         if (accessTokenResult.isFailure()) {
             return Result.failure(accessTokenResult.getErrors());
         }
-        if (refreshTokenResult.isFailure()) {
-            return Result.failure(refreshTokenResult.getErrors());
-        }
 
         TokenInfo accessToken = accessTokenResult.getValue();
-        TokenInfo refreshToken = refreshTokenResult.getValue();
 
-        Session newSession = Session.create(newSessionId, refreshToken.token(), refreshToken.tokenType(), refreshToken.expiresAt());
+        Session newSession = Session.create(newSessionId);
         Result<Void, DomainError> result = account.addSession(newSession);
         if (result.isFailure()) {
             return Result.failure(AppError.domainError(result.getErrors()));
         }
         accountRepository.updateSessions(account);
-        eventBus.publishAll(account.pullDomainEvents());
+        eventBus.publishAll(account.pullEvents());
         return Result.success(accessToken);
     }
 }

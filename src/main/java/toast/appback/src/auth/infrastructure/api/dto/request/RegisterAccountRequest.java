@@ -1,6 +1,7 @@
 package toast.appback.src.auth.infrastructure.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import toast.appback.src.auth.application.communication.command.PhoneCommand;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
 
 public record RegisterAccountRequest(
@@ -18,7 +19,7 @@ public record RegisterAccountRequest(
                 lastName,
                 email,
                 password,
-                new RegisterAccountCommand.Phone(
+                new PhoneCommand(
                     phone.countryCode(),
                     phone.number()
                 )

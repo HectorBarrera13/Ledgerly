@@ -20,14 +20,6 @@ public record Password(
         return new Password(hashedPassword);
     }
 
-    public boolean matches(String rawPassword, PasswordHasher hasher) {
-        return hasher.verify(rawPassword, hashed);
-    }
-
-    public String value() {
-        return hashed;
-    }
-
     private static Result<Void, DomainError> validateStrength(String password) {
         if (password.length() < 8)
             return Validators.TOO_SHORT("password", password, 8);

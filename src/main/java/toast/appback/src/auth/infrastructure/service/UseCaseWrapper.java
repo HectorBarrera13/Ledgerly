@@ -12,11 +12,10 @@ import toast.appback.src.auth.application.usecase.contract.AccountLogout;
 import toast.appback.src.auth.application.usecase.contract.RefreshSession;
 import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
 import toast.appback.src.middleware.ErrorsProxy;
-import toast.appback.src.users.application.usecase.contract.CreateUser;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class UseCaseWrapper {
 
     private final RegisterAccount registerAccount;
 
@@ -28,20 +27,20 @@ public class AuthService {
 
     @Transactional
     public RegisterAccountResult registerAccount(RegisterAccountCommand command) {
-        return registerAccount.register(command).mapResult(ErrorsProxy::handleResult);
+        return registerAccount.execute(command).mapResult(ErrorsProxy::handleResult);
     }
 
     @Transactional
     public TokenInfo loginAccount(AccountAuthCommand command) {
-        return accountLogin.login(command).mapResult(ErrorsProxy::handleResult);
+        return accountLogin.execute(command).mapResult(ErrorsProxy::handleResult);
     }
 
     @Transactional
-    public void logoutAccount(String token) {
-        accountLogout.logout(token).mapResult(ErrorsProxy::handleResult);
+    public void logoutAccount(String accessToken) {
+        accountLogout.execute(accessToken).mapResult(ErrorsProxy::handleResult);
     }
 
-    public TokenInfo refreshSession(String refreshToken) {
-        return refreshSession.refresh(refreshToken).mapResult(ErrorsProxy::handleResult);
+    public TokenInfo refreshSession(String accessToken) {
+        return refreshSession.execute(accessToken).mapResult(ErrorsProxy::handleResult);
     }
 }

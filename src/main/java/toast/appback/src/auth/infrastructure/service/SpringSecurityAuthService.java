@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import toast.appback.src.auth.application.communication.command.AccountAuthCommand;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.AccountId;
@@ -24,12 +25,12 @@ public class SpringSecurityAuthService implements AuthService {
     private final AccountRepository accountRepository;
 
     @Override
-    public Result<Void, AppError> authenticate(String email, String password) {
+    public Result<Void, AppError> authenticate(AccountAuthCommand command) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            email,
-                            password
+                            command.email(),
+                            command.password()
                     )
             );
             return Result.success();
@@ -39,8 +40,8 @@ public class SpringSecurityAuthService implements AuthService {
     }
 
     @Override
-    public Result<Void, AppError> invalidateSession(AccountId accountId, SessionId sessionId) {
-        Optional<Account> maybeAccount = accountRepository.findByAccountIdAndSessionId(accountId.id(), sessionId.id());
+    public Result<Account, AppError> invalidateSession(AccountId accountId, SessionId sessionId) {
+        Optional<Account> maybeAccount = accountRepository.findByAccountIdAndSessionId(accountId, sessionId);
         if (maybeAccount.isEmpty()) {
             return Result.failure(AppError.entityNotFound("Account", "Account not found")
                     .withDetails("No account found for userId: " + accountId + " and sessionId: " + sessionId));
@@ -51,6 +52,6 @@ public class SpringSecurityAuthService implements AuthService {
             return Result.failure(AppError.domainError(revokeResult.getErrors()));
         }
         accountRepository.updateSessions(account);
-        return Result.success();
+        return Result.success(account);
     }
 }
