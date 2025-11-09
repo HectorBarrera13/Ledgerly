@@ -1,0 +1,103 @@
+A B
+1 2
+123 456
+J0hn D03
+Anna😊 Smith
+<script>alert('x')</script> Miller
+Robert'); DROP TABLE Students;-- Johnson
+!!! ???
+LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL Smith
+  Liam O'Neil
+Mia\tBrown
+Oliver   Twist
+-- --
+SELECT * FROM_users
+user@example.com test
+/etc/passwd root
+DROP;TABLE Users
+José\nGarcía
+- -
+Mary  Jane
+Eva_123 Petrova
+NameWithTab\tSurname
+Emoji🚀 Doe
+NULL;-- Smith
+; ;
+script<script> Tag
+admin'-- user
+. .
+.. ..
+"" ""
+  Space Lead
+TrailSpace
+NoLastName_
+OnlyOneName
+--- ___
+NULL_VALUE NULL
+0xDEADBEEF 0xBEEF
+名字123 姓456
+💀 Skull
+<img src=x onerror=alert(1)> Rivera
+Robert\'); DROP TABLE Students;--
+'; DROP TABLE users; -- Brown
+N/A N/A
+__init__ main
+Path/To File
+semicolon; name
+quote"name quote
+back`tick Oops
+veryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryverylongname Smith
+NameWith:Colon Last:Name
+(paren) (paren)
+brackets[] Jones
+curly{brace} Patel
+angle<right> left
+tab\tin\tname Lopez
+newline\nname Gomez
+script>alert() Cruz
+XSS<script>Chen
+DROP TABLE;users O'Malley
+admin@domain.com user
+user#hashtag name
+dollar$sign cents
+percent%value percent
+caret^hat caret
+ampersand&sons
+asterisk*star
+plus+plus
+equals=equals
+pipe|bar
+tilde~name
+slash/name back
+back\slash forward
+emoji🙂emoji🙂
+control\u0000null Null
+NULL\0VALUE Null
+space-in-first  last
+first  space-in-last
+multiple     spaces
+only.dots ...
+only,commas ,,
+only;semicolons ;;EZ
+sql-inject ';-- --
+xss-inject <svg onload=alert(1)> Perez
+unicode-combining ñame Garcíã
+leading-dash -Dash Last
+trailing-dash Dash- Last
+underscore_first _Smith
+numbers-in-last John123
+percent-encoded %20 %2F
+json-like {"a":"b"} {"c":"d"}
+xml-like <a/> <b/>
+binary-like 010101 101010
+mailto:john doe
+file://etc passwd
+C:\\Windows\\ System32
+very-long-firstname-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa last
+quotes-in-first "John" Doe
+slashes/in/first slashes/in/last
+mixed\t\npayload Danger
+emptystring "" ""
+space-only " " " "
+NULL_STRING null_string
+Inf -Inf
