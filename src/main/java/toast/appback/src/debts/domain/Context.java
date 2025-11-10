@@ -41,7 +41,7 @@ public class Context {
     }
 
     public static Result<String, DomainError> descriptionValidation(String description, String fildName) {
-        if(description.length()>maxDescriptionLength){
+        if(description != null && !description.isBlank() && description.length()>maxDescriptionLength){
             return Validators.TOO_LONG(fildName, description, maxDescriptionLength);
         }
         return Result.success(description);

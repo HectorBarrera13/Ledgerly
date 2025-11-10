@@ -57,7 +57,9 @@ public class Account {
                 .filter(Session::isValid)
                 .count();
         if (notRevokedSessions >= MAX_SESSIONS) {
-            return Result.failure(DomainError.businessRule("session limit exceeded")
+            return Result.failure(DomainError
+                    .businessRule("session limit exceeded")
+                    .withBusinessCode(AccountBusinessCode.SESSION_LIMIT_EXCEEDED)
                     .withDetails("account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
         }
         this.sessions.add(session);

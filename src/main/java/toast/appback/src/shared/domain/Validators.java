@@ -18,7 +18,9 @@ import toast.appback.src.shared.utils.Result;
 
 public class Validators {
     public static <T> Result<T, DomainError> EMPTY_VALUE(String field) {
-        return Result.failure(DomainError.validation(field, "value cannot be null or empty"));
+        return Result.failure(DomainError.validation(field, "value cannot be null or empty")
+                .withValidatorType(ValidatorType.EMPTY_VALUE)
+        );
     }
 
     public static <T> Result<T, DomainError> EMPTY_COLLECTION(String field, Iterable<?> value) {

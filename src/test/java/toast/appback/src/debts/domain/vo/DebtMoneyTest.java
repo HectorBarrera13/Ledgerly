@@ -12,7 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
 // Ajusta las importaciones de tu dominio
 import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
+
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("DebtMoney Value Object Test")
 public class DebtMoneyTest {
@@ -23,14 +26,6 @@ public class DebtMoneyTest {
     private static final String VALID_CURRENCY = "USD";
     private static final Long VALID_AMOUNT_LONG = 12345L; // Representa 123.45
     private static final String DUMMY_UNIT_SCALE = "CENTS"; // Parámetro ignorado en la lógica actual
-
-    // Helper para verificar un error específico en la lista
-    private void assertErrorExists(List<DomainError> errors,  String expectedField) {
-        // En tu DomainError, si no tienes getErrorCode(), usa el campo que identifique el tipo de error.
-        boolean found = errors.stream()
-                .anyMatch(e -> expectedField.equals(e.field()));
-        assertTrue(found, "No se encontró el error esperado: Campo=" + expectedField);
-    }
 
     // --- 1. Casos Válidos ---
     // Simula tu clase 'ValidCases'
@@ -71,7 +66,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors, FIELD_AMOUNT);
+            assertValidatorErrorExists(errors, ValidatorType.MUST_BE_POSITIVE);
         }
 
         @Test
@@ -84,7 +79,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors, "currency");
+            assertValidatorErrorExists(errors, ValidatorType.INVALID_FORMAT);
         }
 
         @Test
@@ -95,7 +90,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors,  "currency");
+            assertValidatorErrorExists(errors,  ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -106,7 +101,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors, "amount");
+            assertValidatorErrorExists(errors, ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -123,8 +118,8 @@ public class DebtMoneyTest {
             assertEquals(2, errors.size());
 
             // Verifica que ambos errores estén presentes
-            assertErrorExists(errors,  "currency");
-            assertErrorExists(errors, "amount");
+            assertValidatorErrorExistsForField(errors, ValidatorType.INVALID_FORMAT, FIELD_CURRENCY);
+            assertValidatorErrorExistsForField(errors, ValidatorType.MUST_BE_POSITIVE, FIELD_AMOUNT);
         }
     }
 

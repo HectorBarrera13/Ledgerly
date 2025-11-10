@@ -68,7 +68,7 @@ public class QuickDebtIdTest {
 
             // Prueba de igualdad VO: fundamental
             assertEquals(id1, id2, "Dos IDs que encapsulan el mismo UUID deben ser iguales.");
-            assertTrue(id1.equals(id2), "El método equals debe retornar true.");
+            assertEquals(id1, id2, "El método equals debe retornar true.");
         }
 
         @Test

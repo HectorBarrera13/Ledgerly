@@ -12,12 +12,12 @@ import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User; // Asumo que User tiene un método load()
 import toast.appback.src.users.domain.UserId;
 
-import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Debt Aggregate Test")
 public class DebtTest {
@@ -151,8 +151,7 @@ public class DebtTest {
             debt.reject(); // Estado: REJECTED
 
             Result<Void, DomainError> result = debt.accept();
-
-            assertBusinessRuleError(result);
+            assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
             assertEquals(Status.REJECTED, debt.getStatus(), "El estado no debe cambiar.");
         }
 
@@ -165,7 +164,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.reject();
 
-            assertBusinessRuleError(result);
+            assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
             assertEquals(Status.PAID, debt.getStatus(), "El estado no debe cambiar.");
         }
 
@@ -177,7 +176,7 @@ public class DebtTest {
             Result<Void, DomainError> result = debt.pay();
 
             // La lógica actual de pay() falla si no es ACCEPTED.
-            assertBusinessRuleError(result);
+            assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.DEBT_NO_ACCEPTED);
             assertEquals(Status.PENDING, debt.getStatus(), "El estado no debe cambiar.");
         }
     }
@@ -213,7 +212,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.editAmount(newAmount);
 
-            assertBusinessRuleError(result);
+            assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
             // Verifica que el monto NO haya cambiado
             assertEquals(debtMoney, debt.getAmount(), "El monto no debe ser actualizado.");
         }
@@ -229,7 +228,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.editAmount(newAmount);
 
-            assertBusinessRuleError(result);
+            assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
             // Verifica que el monto NO haya cambiado
             assertEquals(debtMoney, debt.getAmount(), "El monto no debe ser actualizado.");
         }

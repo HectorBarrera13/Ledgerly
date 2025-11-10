@@ -11,7 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 // Ajusta las importaciones de tu dominio
 import toast.appback.src.debts.domain.Context;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
+
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Context Value Object Test")
 public class ContextTest {
@@ -20,14 +23,6 @@ public class ContextTest {
     private static final int MAX_DESCRIPTION = 200;
     private static final String VALID_PURPOSE = "Compra de libros";
     private static final String VALID_DESCRIPTION = "Detalle de la transacción de compra de tres ejemplares.";
-
-    // Helper para verificar la existencia de un error específico en la lista
-    private void assertErrorExists(List<DomainError> errors, String expectedField) {
-        // Asumo que tu DomainError tiene métodos para el código/tipo de error y el nombre del campo.
-        boolean found = errors.stream()
-                .anyMatch(e -> expectedField.equals(e.field()));
-        assertTrue(found, "No se encontró el error esperado: Campo=" + expectedField);
-    }
 
     // --- 1. Casos Válidos ---
     @Nested
@@ -86,7 +81,7 @@ public class ContextTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors, "purpose");
+            assertValidatorErrorExists(errors, ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -99,7 +94,7 @@ public class ContextTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors, "purpose");
+            assertValidatorErrorExists(errors, ValidatorType.TOO_LONG);
         }
 
         // --- Fallos en Description ---
@@ -114,7 +109,7 @@ public class ContextTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertErrorExists(errors, "description");
+            assertValidatorErrorExists(errors, ValidatorType.TOO_LONG);
         }
 
         // --- Fallo Combinado ---
@@ -133,8 +128,8 @@ public class ContextTest {
             assertEquals(2, errors.size(), "Debe retornar dos errores.");
 
             // Verificar ambos errores
-            assertErrorExists(errors, "purpose");
-            assertErrorExists(errors, "description");
+            assertValidatorErrorExistsForField(errors, ValidatorType.TOO_LONG, "purpose");
+            assertValidatorErrorExistsForField(errors, ValidatorType.TOO_LONG, "description");
         }
     }
 

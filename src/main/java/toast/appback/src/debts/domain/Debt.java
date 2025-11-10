@@ -50,17 +50,18 @@ public class Debt {
     public Result< Void, DomainError> accept(){
         boolean isSent =  status == Status.PENDING;
         if(!isSent){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid"));
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.ACCEPTED;
-
         return Result.success();
     }
 
     public Result< Void, DomainError> reject(){
         boolean isDebtSent = status == Status.PENDING;
         if(!isDebtSent){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid"));
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.REJECTED;
         return Result.success();
@@ -69,7 +70,8 @@ public class Debt {
     public Result< Void, DomainError> pay(){
         boolean isDebtAccepted = status == Status.ACCEPTED;
         if(!isDebtAccepted){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid"));
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAID;
         return Result.success();
@@ -78,7 +80,9 @@ public class Debt {
     public Result< Void, DomainError> editAmount(DebtMoney debtMoney) {
         boolean isDebtSent = status == Status.PENDING;
         if (!isDebtSent) {
-            return Result.failure(DomainError.businessRule("A debt can only be edited if the status is 'Pending'"));
+            return Result.failure(DomainError
+                    .businessRule("A debt can only be edited if the status is 'Pending'")
+                    .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.debtMoney = debtMoney;
         return Result.success();
