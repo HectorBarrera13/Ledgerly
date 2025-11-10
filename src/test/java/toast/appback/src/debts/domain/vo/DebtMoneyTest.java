@@ -66,7 +66,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors, ValidatorType.MUST_BE_POSITIVE);
+            assertErrorExists(errors, ValidatorType.MUST_BE_POSITIVE);
         }
 
         @Test
@@ -79,7 +79,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors, ValidatorType.INVALID_FORMAT);
+            assertErrorExists(errors, ValidatorType.INVALID_FORMAT);
         }
 
         @Test
@@ -90,7 +90,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors,  ValidatorType.EMPTY_VALUE);
+            assertErrorExists(errors,  ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -101,7 +101,7 @@ public class DebtMoneyTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors, ValidatorType.EMPTY_VALUE);
+            assertErrorExists(errors, ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -118,8 +118,8 @@ public class DebtMoneyTest {
             assertEquals(2, errors.size());
 
             // Verifica que ambos errores estén presentes
-            assertValidatorErrorExistsForField(errors, ValidatorType.INVALID_FORMAT, FIELD_CURRENCY);
-            assertValidatorErrorExistsForField(errors, ValidatorType.MUST_BE_POSITIVE, FIELD_AMOUNT);
+            assertErrorExistsForField(errors, ValidatorType.INVALID_FORMAT, FIELD_CURRENCY);
+            assertErrorExistsForField(errors, ValidatorType.MUST_BE_POSITIVE, FIELD_AMOUNT);
         }
     }
 

@@ -81,7 +81,7 @@ public class ContextTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors, ValidatorType.EMPTY_VALUE);
+            assertErrorExists(errors, ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -94,7 +94,7 @@ public class ContextTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors, ValidatorType.TOO_LONG);
+            assertErrorExists(errors, ValidatorType.TOO_LONG);
         }
 
         // --- Fallos en Description ---
@@ -109,7 +109,7 @@ public class ContextTest {
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
             assertEquals(1, errors.size());
-            assertValidatorErrorExists(errors, ValidatorType.TOO_LONG);
+            assertErrorExists(errors, ValidatorType.TOO_LONG);
         }
 
         // --- Fallo Combinado ---
@@ -128,8 +128,8 @@ public class ContextTest {
             assertEquals(2, errors.size(), "Debe retornar dos errores.");
 
             // Verificar ambos errores
-            assertValidatorErrorExistsForField(errors, ValidatorType.TOO_LONG, "purpose");
-            assertValidatorErrorExistsForField(errors, ValidatorType.TOO_LONG, "description");
+            assertErrorExistsForField(errors, ValidatorType.TOO_LONG, "purpose");
+            assertErrorExistsForField(errors, ValidatorType.TOO_LONG, "description");
         }
     }
 
