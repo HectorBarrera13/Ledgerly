@@ -73,10 +73,7 @@ public class Email {
         }
 
         if (value.startsWith(" ") || value.endsWith(" ")) {
-            return Result.failure(
-                    DomainError.validation("email", "email must not start or end with whitespace")
-                            .withDetails("value: '" + value + "'")
-            );
+            return Validators.INVALID_FORMAT("email", value, "must not start or end with whitespace");
         }
 
         String[] split = value.split("@"); // Simple split to check basic structure
@@ -86,13 +83,13 @@ public class Email {
 
         String domainPart = split[1];
         if (domainPart.length() > MAX_DOMAIN_PART_LENGTH) {
-            return Result.failure(
-                    DomainError.validation("email", "domain part cannot be longer than " + MAX_DOMAIN_PART_LENGTH + " characters")
-                            .withDetails("value: '" + domainPart + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", value, "domain part cannot be longer than " + MAX_DOMAIN_PART_LENGTH + " characters");
         }
         String[] domainParts = domainPart.split("\\.", -1);
         if (domainParts.length != 2) {
-            return Validators.INVALID_FORMAT("email", value, "domain part must contain exactly one dot (.) separating domain and TLD");
+            return Validators
+                    .INVALID_FORMAT("email", value, "domain part must contain exactly one dot (.) separating domain and TLD");
         }
         String local = split[0];
         String domain = domainParts[0].toLowerCase();
@@ -112,26 +109,22 @@ public class Email {
         }
 
         if (local.endsWith(".")) {
-            return Result.failure(DomainError.validation("email", "local part must not end with a dot")
-                    .withDetails("value: '" + local + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", local, "local part must not end with a dot");
         }
 
         if (local.contains("..")) {
-            return Result.failure(DomainError.validation("email", "local part must not contain consecutive dots")
-                    .withDetails("value: '" + local + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", local, "local part must not contain consecutive dots");
         }
 
         if (local.length() > MAX_LOCAL_PART_LENGTH) {
-            return Result.failure(
-                    DomainError.validation("email", "local part cannot be longer than " + MAX_LOCAL_PART_LENGTH + " characters")
-                            .withDetails("value: '" + local + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", local, "local part cannot be longer than " + MAX_LOCAL_PART_LENGTH + " characters");
         }
 
         if (!PERMITTED_LOCAL_CHARACTERS_PATTERN.matcher(local).matches()) {
-            return Result.failure(
-                    DomainError.validation("email", "local part contains invalid characters")
-                            .withDetails("value: '" + local + "'")
-            );
+            return Validators.INVALID_FORMAT("email", local, "local part contains invalid characters");
         }
         return Result.success();
     }
@@ -142,30 +135,28 @@ public class Email {
         }
 
         if (domain.startsWith("-") || domain.startsWith(".")) {
-            return Result.failure(DomainError.validation("email", "domain part must not start with a hyphen or dot")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not start with a hyphen or dot");
         }
 
         if (domain.endsWith("-") ||  domain.endsWith(".")) {
-            return Result.failure(DomainError.validation("email", "domain part must not end with a hyphen or dot")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not end with a hyphen or dot");
         }
 
         if (domain.contains("..")) {
-            return Result.failure(DomainError.validation("email", "domain part must not contain consecutive dots")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not contain consecutive dots");
         }
 
         if (domain.contains(" ")) {
-            return Result.failure(DomainError.validation("email", "domain part must not contain spaces")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not contain spaces");
         }
 
         if (!PERMITTED_DOMAIN_CHARACTERS_PATTERN.matcher(domain).matches()) {
-            return Result.failure(
-                    DomainError.validation("email", "domain part contains invalid characters")
-                            .withDetails("value: '" + domain + "'")
-            );
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part contains invalid characters");
         }
         return Result.success();
     }
@@ -175,13 +166,12 @@ public class Email {
             return Validators.EMPTY_VALUE("email");
         }
         if (tld.contains("..")) {
-            return Result.failure(DomainError.validation("email", "TLD part must not contain consecutive dots")
-                    .withDetails("value: '" + tld + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", tld, "TLD part must not contain consecutive dots");
         }
         if (tld.length() < 2 || tld.length() > 24) {
-            return Result.failure(
-                    DomainError.validation("email", "TLD part must be between 2 and 24 characters long")
-                            .withDetails("Value: '" + tld + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", tld, "TLD part must be between 2 and 24 characters long");
         }
         return Result.success();
     }

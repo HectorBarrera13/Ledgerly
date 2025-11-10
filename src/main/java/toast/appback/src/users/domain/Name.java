@@ -91,9 +91,8 @@ public class Name {
         String[] split = value.split(" ");
         for (String part : split) {
             if (part.length() < 2) {
-                return Result.failure(
-                        DomainError.validation(fieldName, "each part of the name must be at least 2 characters long, found: " + part)
-                                .withDetails("part: '" + part + "'"));
+                return Validators
+                        .INVALID_FORMAT("fieldName", value, "each part of the name must be at least 2 characters long");
             }
         }
         return Result.success();

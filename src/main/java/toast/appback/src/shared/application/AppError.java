@@ -57,7 +57,7 @@ public record AppError(String message, String details, AppErrType type, String f
     public AppError withDetails(String details) {
         return new AppError(
                 message(),
-                details(),
+                details,
                 type(),
                 field()
         );
