@@ -1,6 +1,6 @@
 package toast.appback.src.quickDebt.domain;
 
-public enum Role {
-    DEBTOR,
-    CREDITOR
+public enum Status {
+    PENDING,
+    PAYED
 }

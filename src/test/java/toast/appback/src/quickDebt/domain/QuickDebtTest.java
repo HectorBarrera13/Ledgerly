@@ -3,8 +3,8 @@ package toast.appback.src.quickDebt.domain;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import toast.appback.src.debts.domain.Amount;
 import toast.appback.src.debts.domain.Context;
+import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.users.domain.*;
 
 import java.util.UUID;
@@ -18,10 +18,10 @@ public class QuickDebtTest {
 
     private final String unknownUser = "Antonio Polanco";
 
-    private final Amount amount = new Amount("MXN", 100.00);
-    private final Context context = new Context("Zaaza", "o");
+    private final DebtMoney debtMoney = DebtMoney.load(10000L, "MXN");
+    private final Context context = Context.load("Zaaza", "o");
 
-    private final QuickDebt quickDebt = new QuickDebt(new QuickDebtId(UUID.randomUUID()), context, amount, knownUser, role, unknownUser );
+    private final QuickDebt quickDebt = new QuickDebt(QuickDebtId.load(UUID.randomUUID()), context, debtMoney, knownUser, role, unknownUser );
 
     @Test
     public void QuickDebt_CreateQuickDebt_QuickDebtCreated(){
