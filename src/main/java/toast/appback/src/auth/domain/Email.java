@@ -13,8 +13,8 @@ public record Email(String local, String domain, String tld) {
     private static final int MAX_DOMAIN_PART_LENGTH = 255;
     private static final Pattern PERMITTED_DOMAIN_CHARACTERS_PATTERN = Pattern.compile("^[a-zA-Z0-9.-]+$");
 
-
     public static Result<Email, DomainError> create(String email) {
+        System.out.println("Creating email: " + email);
         Result<EmailParts, DomainError> generalValidation = verifyGeneral(email);
         if (generalValidation.isFailure()) {
             return Result.failure(generalValidation.getErrors());

@@ -2,6 +2,7 @@ package toast.appback.src.users.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.usecase.implementation.AddFriendUseCase;
 import toast.appback.src.users.application.usecase.implementation.CreateUserUseCase;
@@ -20,6 +21,7 @@ public class UserUseCasesConfig {
     }
 
     @Bean
+    @Transactional
     public CreateUserUseCase createUserUseCase(
             UserRepository userRepository,
             UserFactory userFactory,
@@ -33,6 +35,7 @@ public class UserUseCasesConfig {
     }
 
     @Bean
+    @Transactional
     public AddFriendUseCase addFriendUseCase(
             FriendShipRepository friendShipRepository,
             UserRepository userRepository,
@@ -46,6 +49,7 @@ public class UserUseCasesConfig {
     }
 
     @Bean
+    @Transactional
     public RemoveFriendUseCase removeFriendUseCase(
             FriendShipRepository friendShipRepository,
             EventBus eventBus

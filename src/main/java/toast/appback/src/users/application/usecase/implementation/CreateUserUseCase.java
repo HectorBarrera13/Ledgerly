@@ -1,5 +1,6 @@
 package toast.appback.src.users.application.usecase.implementation;
 
+import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.application.AppError;
@@ -27,17 +28,22 @@ public class CreateUserUseCase implements CreateUser {
     }
 
     @Override
-    public Result<User, AppError> execute(CreateUserCommand command) {
+    public User execute(CreateUserCommand command) {
         Result<User, DomainError> newUser = userFactory.create(
                         command.firstName(),
                         command.lastName(),
                         command.phone().countryCode(),
                         command.phone().number()
                 );
-        if (newUser.isFailure()) return Result.failure(AppError.domainError(newUser.getErrors()));
+        System.out.println(newUser.getErrors());
+        newUser.ifFailure(ErrorsHandler::handleErrors);
+
         userRepository.save(newUser.getValue());
+
         User user = newUser.getValue();
+
         eventBus.publishAll(user.pullEvents());
-        return Result.success(user);
+
+        return user;
     }
 }
