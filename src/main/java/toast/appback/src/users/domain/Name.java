@@ -4,9 +4,46 @@ import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.domain.DomainError;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-public record Name(String firstName, String lastName) {
+public class Name {
+
+    private final String firstName;
+    private final String lastName;
+
+    private Name(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "Name{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Name name)) return false;
+        return Objects.equals(firstName, name.firstName) && Objects.equals(lastName, name.lastName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName);
+    }
+
     private static final int MIN_LENGTH = 2;
     private static final int MAX_LENGTH = 80;
     private static final String FIELD_FIRST_NAME = "firstName";
@@ -54,9 +91,8 @@ public record Name(String firstName, String lastName) {
         String[] split = value.split(" ");
         for (String part : split) {
             if (part.length() < 2) {
-                return Result.failure(
-                        DomainError.validation(fieldName, "each part of the name must be at least 2 characters long, found: " + part)
-                                .withDetails("part: '" + part + "'"));
+                return Validators
+                        .INVALID_FORMAT("fieldName", value, "each part of the name must be at least 2 characters long");
             }
         }
         return Result.success();

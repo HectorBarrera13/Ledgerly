@@ -1,13 +1,15 @@
-package toast.appback.src.auth.config;
+package toast.appback.src.auth.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.AccountLoginUseCase;
 import toast.appback.src.auth.application.usecase.implementation.AccountLogoutUseCase;
 import toast.appback.src.auth.application.usecase.implementation.RefreshSessionUseCase;
 import toast.appback.src.auth.application.usecase.implementation.RegisterAccountUseCase;
+import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.auth.domain.DefaultAccount;
 import toast.appback.src.auth.domain.service.PasswordHasher;
@@ -26,16 +28,17 @@ public class AuthUseCasesConfig {
 
 
     @Bean
+    @Transactional
     public RegisterAccountUseCase registerAccountUseCase(
             AccountRepository accountRepository,
+            AccountFactory accountFactory,
             TokenService tokenService,
-            PasswordHasher passwordHasher,
             CreateUser createUserUseCase,
             EventBus eventBus
     ) {
         return new RegisterAccountUseCase(
                 accountRepository,
-                new DefaultAccount(passwordHasher),
+                accountFactory,
                 tokenService,
                 createUserUseCase,
                 eventBus
@@ -43,6 +46,7 @@ public class AuthUseCasesConfig {
     }
 
     @Bean
+    @Transactional
     public AccountLoginUseCase accountLoginUseCase(
             TokenService tokenService,
             AuthService authService,
@@ -58,6 +62,7 @@ public class AuthUseCasesConfig {
     }
 
     @Bean
+    @Transactional
     public AccountLogoutUseCase accountLogoutUseCase(
             TokenService tokenService,
             AuthService authService,

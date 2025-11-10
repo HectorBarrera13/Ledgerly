@@ -8,13 +8,13 @@ public class UserMapper {
     public static UserEntity toEntity(User user) {
         if (user == null) return null;
         UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(user.getId().value());
-        userEntity.setFirstName(user.getName().firstName());
-        userEntity.setLastName(user.getName().lastName());
+        userEntity.setUserId(user.getId().getValue());
+        userEntity.setFirstName(user.getName().getFirstName());
+        userEntity.setLastName(user.getName().getLastName());
 
         PhoneEmbeddable phone = new PhoneEmbeddable();
-        phone.setCountryCode(user.getPhone().countryCode());
-        phone.setNumber(user.getPhone().number());
+        phone.setCountryCode(user.getPhone().getCountryCode());
+        phone.setNumber(user.getPhone().getNumber());
         userEntity.setPhone(phone);
 
         return userEntity;

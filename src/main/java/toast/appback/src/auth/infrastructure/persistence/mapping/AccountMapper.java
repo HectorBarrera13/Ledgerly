@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 public class AccountMapper {
 
     public static AccountEntity toEntity(Account domain, UserEntity user, AccountEntity entity) {
-        entity.setAccountId(domain.getAccountId().value());
+        entity.setAccountId(domain.getAccountId().getValue());
         entity.setUser(user);
-        entity.setEmail(domain.getEmail().value());
-        entity.setPasswordHash(domain.getPassword().hashed());
+        entity.setEmail(domain.getEmail().getValue());
+        entity.setPasswordHash(domain.getPassword().getHashed());
         // Map sessions
         syncSessions(domain.getSessions(), entity);
         return entity;
@@ -49,7 +49,7 @@ public class AccountMapper {
 
         // Agregar o actualizar sesiones
         for (Session domainSession : domainSessions) {
-            SessionEntity existing = existingMap.get(domainSession.getSessionId().value());
+            SessionEntity existing = existingMap.get(domainSession.getSessionId().getValue());
             if (existing != null) {
                 // Ya existe, actualizar campos
                 existing.setSessionStatus(SessionStatusE.valueOf(domainSession.getStatus().name()));
@@ -57,7 +57,7 @@ public class AccountMapper {
             } else {
                 // Nueva sesión → crear entidad
                 SessionEntity newEntity = new SessionEntity();
-                newEntity.setSessionId(domainSession.getSessionId().value());
+                newEntity.setSessionId(domainSession.getSessionId().getValue());
                 newEntity.setAccount(entity);
                 newEntity.setExpiration(domainSession.getExpiration());
                 newEntity.setSessionStatus(SessionStatusE.valueOf(domainSession.getStatus().name()));
@@ -67,7 +67,7 @@ public class AccountMapper {
 
         // Eliminar las que ya no existen en el dominio
         entitySessions.removeIf(e ->
-                domainSessions.stream().noneMatch(d -> d.getSessionId().value().equals(e.getSessionId()))
+                domainSessions.stream().noneMatch(d -> d.getSessionId().getValue().equals(e.getSessionId()))
         );
     }
 

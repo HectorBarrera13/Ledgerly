@@ -1,0 +1,17 @@
+package toast.appback.src.shared.domain;
+
+public enum ValidatorType {
+    EMPTY_VALUE,
+    EMPTY_COLLECTION,
+    INVALID_STATE,
+    TOO_LONG,
+    TOO_SHORT,
+    INVALID_FORMAT,
+    MUST_BE_POSITIVE,
+    MUST_BE_NEGATIVE,
+    MUST_NOT_CONTAIN,
+    MUST_NOT_START_WITH,
+    MUST_NOT_END_WITH,
+    BUSINESS_RULE_VIOLATION,
+    UNEXPECTED_ERROR
+}

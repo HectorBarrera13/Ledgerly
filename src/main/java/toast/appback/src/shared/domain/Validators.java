@@ -22,52 +22,65 @@ public class Validators {
     }
 
     public static <T> Result<T, DomainError> EMPTY_COLLECTION(String field, Iterable<?> value) {
-        return Result.failure(DomainError.validation(field, "collection cannot be null or empty").withDetails("value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, "collection cannot be null or empty")
+                .withDetails("value: '" + value + "'")
+                .withValidatorType(ValidatorType.EMPTY_COLLECTION)
+        );
     }
 
     public static <T> Result<T, DomainError> INVAlID_STATE(String field, String desiredValue, String actualValue) {
-        return Result.failure(DomainError.validation(field, "State" + actualValue + " cannot be converted to" + desiredValue));
+        return Result.failure(DomainError.validation(field, "State" + actualValue + " cannot be converted to" + desiredValue)
+                .withDetails("actual value: '" + actualValue + "'")
+                .withValidatorType(ValidatorType.INVALID_STATE)
+        );
     }
 
     public static <T> Result<T, DomainError> TOO_LONG(String field, String value, int max) {
-        return Result.failure(DomainError.validation(field, "value cannot be longer than " + max + " characters").withDetails("value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, "value cannot be longer than " + max + " characters")
+                .withDetails("value: '" + value + "'")
+                .withValidatorType(ValidatorType.TOO_LONG)
+        );
     }
 
     public static <T> Result<T, DomainError> TOO_SHORT(String field, String value, int min) {
-        return Result.failure(DomainError.validation(field, "value cannot be shorter than " + min + " characters").withDetails("value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, "value cannot be shorter than " + min + " characters")
+                .withDetails("value: '" + value + "'")
+                .withValidatorType(ValidatorType.TOO_SHORT)
+        );
     }
 
     public static <T> Result<T, DomainError> INVALID_FORMAT(String field, String value, String message) {
-        return Result.failure(DomainError.validation(field, message).withDetails("value: '" + value + "'"));
+        return Result.failure(DomainError.validation(field, message)
+                .withDetails("value: '" + value + "'")
+                .withValidatorType(ValidatorType.INVALID_FORMAT)
+        );
     }
 
     public static <T> Result<T, DomainError> MUST_BE_POSITIVE(String field, Double value, String message) {
-        return Result.failure(DomainError.validation(field, message).withDetails("Value: '" + value + "'"));
-    }
-
-    public static <T> Result<T, DomainError> buildPrefixError(String field, String value, String prefix, String message) {
-        CharName charName = CharName.fromString(prefix); // Check if the prefix is a known special character
-        return Result.failure(DomainError.validation(field, message + (charName != null ? " " + charName.getName() + " '" + charName.getCharacter() + "'" // Use the character name if it's a known special character
-                : " '" + prefix + "'") // Otherwise, use the prefix as is
-        ).withDetails("value: '" + value + "'"));
-    }
-
-    public static <T> Result<T, DomainError> buildSuffixError(String field, String value, String suffix, String message) {
-        return buildPrefixError(field, value, suffix, message);
+        return Result.failure(DomainError.validation(field, message)
+                .withDetails("Value: '" + value + "'")
+                .withValidatorType(ValidatorType.MUST_BE_POSITIVE)
+        );
     }
 
     public static <T> Result<T, DomainError> MUST_NOT_CONTAIN(String field, String value, String substring) {
-        return buildPrefixError(field, value, substring, "value must not contain");
+        return buildCharValidationMessage(field, value, substring, "value must not contain", ValidatorType.MUST_NOT_CONTAIN);
     }
 
     public static <T> Result<T, DomainError> MUST_NOT_START_WITH(String field, String value, String prefix) {
-        return buildPrefixError(field, value, prefix, "value must not start with");
+        return buildCharValidationMessage(field, value, prefix, "value must not start with", ValidatorType.MUST_NOT_START_WITH);
     }
 
     public static <T> Result<T, DomainError> MUST_NOT_END_WITH(String field, String value, String suffix) {
-        return buildSuffixError(field, value, suffix, "value must not end with");
+        return buildCharValidationMessage(field, value, suffix, "value must not end with", ValidatorType.MUST_NOT_END_WITH);
     }
 
+    private static <T> Result<T, DomainError> buildCharValidationMessage(String field, String value, String prefix, String message, ValidatorType validatorType) {
+        CharName charName = CharName.fromString(prefix); // Check if the prefix is a known special character
+        return Result.failure(DomainError.validation(field, message + (charName != null ? " " + charName.getName() + " '" + charName.getCharacter() + "'" // Use the character name if it's a known special character
+                : " '" + prefix + "'") // Otherwise, use the prefix as is
+        ).withDetails("value: '" + value + "'").withValidatorType(validatorType));
+    }
 
 
     private enum CharName {

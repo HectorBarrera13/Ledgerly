@@ -4,17 +4,44 @@ import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.domain.DomainError;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-public record Email(String local, String domain, String tld) {
+public class Email {
     private static final int MAX_EMAIL_LENGTH = 320;
     private static final int MAX_LOCAL_PART_LENGTH = 64;
     private static final Pattern PERMITTED_LOCAL_CHARACTERS_PATTERN = Pattern.compile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+$");
     private static final int MAX_DOMAIN_PART_LENGTH = 255;
     private static final Pattern PERMITTED_DOMAIN_CHARACTERS_PATTERN = Pattern.compile("^[a-zA-Z0-9.-]+$");
 
+    private final String local;
+    private final String domain;
+    private final String tld;
+
+    private Email(String local, String domain, String tld) {
+        this.local = local;
+        this.domain = domain;
+        this.tld = tld;
+    }
+
+    public String getLocal() {
+        return local;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getTld() {
+        return tld;
+    }
+
+    public String getValue() {
+        return local + "@" + domain + "." + tld;
+    }
 
     public static Result<Email, DomainError> create(String email) {
+        System.out.println("Creating email: " + email);
         Result<EmailParts, DomainError> generalValidation = verifyGeneral(email);
         if (generalValidation.isFailure()) {
             return Result.failure(generalValidation.getErrors());
@@ -46,10 +73,7 @@ public record Email(String local, String domain, String tld) {
         }
 
         if (value.startsWith(" ") || value.endsWith(" ")) {
-            return Result.failure(
-                    DomainError.validation("email", "email must not start or end with whitespace")
-                            .withDetails("value: '" + value + "'")
-            );
+            return Validators.INVALID_FORMAT("email", value, "must not start or end with whitespace");
         }
 
         String[] split = value.split("@"); // Simple split to check basic structure
@@ -59,13 +83,13 @@ public record Email(String local, String domain, String tld) {
 
         String domainPart = split[1];
         if (domainPart.length() > MAX_DOMAIN_PART_LENGTH) {
-            return Result.failure(
-                    DomainError.validation("email", "domain part cannot be longer than " + MAX_DOMAIN_PART_LENGTH + " characters")
-                            .withDetails("value: '" + domainPart + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", value, "domain part cannot be longer than " + MAX_DOMAIN_PART_LENGTH + " characters");
         }
         String[] domainParts = domainPart.split("\\.", -1);
         if (domainParts.length != 2) {
-            return Validators.INVALID_FORMAT("email", value, "domain part must contain exactly one dot (.) separating domain and TLD");
+            return Validators
+                    .INVALID_FORMAT("email", value, "domain part must contain exactly one dot (.) separating domain and TLD");
         }
         String local = split[0];
         String domain = domainParts[0].toLowerCase();
@@ -85,26 +109,22 @@ public record Email(String local, String domain, String tld) {
         }
 
         if (local.endsWith(".")) {
-            return Result.failure(DomainError.validation("email", "local part must not end with a dot")
-                    .withDetails("value: '" + local + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", local, "local part must not end with a dot");
         }
 
         if (local.contains("..")) {
-            return Result.failure(DomainError.validation("email", "local part must not contain consecutive dots")
-                    .withDetails("value: '" + local + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", local, "local part must not contain consecutive dots");
         }
 
         if (local.length() > MAX_LOCAL_PART_LENGTH) {
-            return Result.failure(
-                    DomainError.validation("email", "local part cannot be longer than " + MAX_LOCAL_PART_LENGTH + " characters")
-                            .withDetails("value: '" + local + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", local, "local part cannot be longer than " + MAX_LOCAL_PART_LENGTH + " characters");
         }
 
         if (!PERMITTED_LOCAL_CHARACTERS_PATTERN.matcher(local).matches()) {
-            return Result.failure(
-                    DomainError.validation("email", "local part contains invalid characters")
-                            .withDetails("value: '" + local + "'")
-            );
+            return Validators.INVALID_FORMAT("email", local, "local part contains invalid characters");
         }
         return Result.success();
     }
@@ -115,30 +135,28 @@ public record Email(String local, String domain, String tld) {
         }
 
         if (domain.startsWith("-") || domain.startsWith(".")) {
-            return Result.failure(DomainError.validation("email", "domain part must not start with a hyphen or dot")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not start with a hyphen or dot");
         }
 
         if (domain.endsWith("-") ||  domain.endsWith(".")) {
-            return Result.failure(DomainError.validation("email", "domain part must not end with a hyphen or dot")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not end with a hyphen or dot");
         }
 
         if (domain.contains("..")) {
-            return Result.failure(DomainError.validation("email", "domain part must not contain consecutive dots")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not contain consecutive dots");
         }
 
         if (domain.contains(" ")) {
-            return Result.failure(DomainError.validation("email", "domain part must not contain spaces")
-                    .withDetails("value: '" + domain + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part must not contain spaces");
         }
 
         if (!PERMITTED_DOMAIN_CHARACTERS_PATTERN.matcher(domain).matches()) {
-            return Result.failure(
-                    DomainError.validation("email", "domain part contains invalid characters")
-                            .withDetails("value: '" + domain + "'")
-            );
+            return Validators
+                    .INVALID_FORMAT("email", domain, "domain part contains invalid characters");
         }
         return Result.success();
     }
@@ -148,18 +166,33 @@ public record Email(String local, String domain, String tld) {
             return Validators.EMPTY_VALUE("email");
         }
         if (tld.contains("..")) {
-            return Result.failure(DomainError.validation("email", "TLD part must not contain consecutive dots")
-                    .withDetails("value: '" + tld + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", tld, "TLD part must not contain consecutive dots");
         }
         if (tld.length() < 2 || tld.length() > 24) {
-            return Result.failure(
-                    DomainError.validation("email", "TLD part must be between 2 and 24 characters long")
-                            .withDetails("Value: '" + tld + "'"));
+            return Validators
+                    .INVALID_FORMAT("email", tld, "TLD part must be between 2 and 24 characters long");
         }
         return Result.success();
     }
 
-    public String value() {
-        return local + "@" + domain + "." + tld;
+    @Override
+    public String toString() {
+        return "Email{" +
+                "local='" + local + '\'' +
+                ", domain='" + domain + '\'' +
+                ", tld='" + tld + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Email email)) return false;
+        return Objects.equals(local, email.local) && Objects.equals(domain, email.domain) && Objects.equals(tld, email.tld);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(local, domain, tld);
     }
 }

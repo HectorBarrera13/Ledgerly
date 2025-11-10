@@ -1,8 +1,8 @@
 package toast.appback.src.users.application.usecase.implementation;
 
+import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.application.AppError;
-import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.domain.FriendShip;
@@ -22,19 +22,22 @@ public class RemoveFriendUseCase implements RemoveFriend {
     }
 
     @Override
-    public Result<Void, AppError> execute(RemoveFriendCommand command) {
+    public void execute(RemoveFriendCommand command) {
         Optional<FriendShip> foundUser = friendShipRepository.findByUsersIds(
                 UserId.load(command.requesterId()),
                 UserId.load(command.friendId())
         );
-        foundUser.ifPresent(friendShip -> {
-            friendShipRepository.delete(friendShip.getFriendshipId());
-            eventBus.publish(new FriendRemoved(
-                    friendShip.getFriendshipId(),
-                    friendShip.getRequest().getId(),
-                    friendShip.getReceiver().getId())
-            );
-        });
-        return Result.success();
+        if (foundUser.isEmpty()) {
+            ErrorsHandler.handleError(AppError.entityNotFound("friend", "the friendship does not exist"));
+        }
+        FriendShip friendShip = foundUser.get();
+
+        friendShipRepository.delete(friendShip.getFriendshipId());
+
+        eventBus.publish(new FriendRemoved(
+                friendShip.getFriendshipId(),
+                friendShip.getRequest().getId(),
+                friendShip.getReceiver().getId())
+        );
     }
 }

@@ -9,6 +9,7 @@ import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
+import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.application.AppError;
@@ -37,38 +38,38 @@ public class AccountLoginUseCase implements AccountLogin {
     }
 
     @Override
-    public Result<TokenInfo, AppError> execute(AccountAuthCommand command) {
+    public TokenInfo execute(AccountAuthCommand command) {
         Optional<Account> foundAccount = accountRepository.findByEmail(command.email());
         if (foundAccount.isEmpty()) {
-            return Result.failure(AppError.authorizationFailed("Account not found")
+            ErrorsHandler.handleError(AppError.authorizationFailed("Account not found")
                     .withDetails("email: " + command.email()));
         }
+
         Account account = foundAccount.get();
+
         Result<Void, AppError> authResult = authService.authenticate(command);
-        if (authResult.isFailure()) {
-            return Result.failure(authResult.getErrors());
-        }
+        authResult.ifFailure(ErrorsHandler::handleErrors);
 
         SessionId newSessionId = SessionId.generate();
-        Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
-                account.getAccountId().value().toString(),
-                newSessionId.value().toString(),
-                account.getEmail().value()
-        );
 
-        if (accessTokenResult.isFailure()) {
-            return Result.failure(accessTokenResult.getErrors());
-        }
+        Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
+                account.getAccountId().getValue().toString(),
+                newSessionId.getValue().toString(),
+                account.getEmail().getValue()
+        );
+        accessTokenResult.ifFailure(ErrorsHandler::handleErrors);
 
         TokenInfo accessToken = accessTokenResult.getValue();
 
         Session newSession = Session.create(newSessionId);
+
         Result<Void, DomainError> result = account.addSession(newSession);
-        if (result.isFailure()) {
-            return Result.failure(AppError.domainError(result.getErrors()));
-        }
+        result.ifFailure(ErrorsHandler::handleErrors);
+
         accountRepository.updateSessions(account);
+
         eventBus.publishAll(account.pullEvents());
-        return Result.success(accessToken);
+
+        return accessToken;
     }
 }

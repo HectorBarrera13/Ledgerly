@@ -7,7 +7,7 @@ import toast.model.entities.users.FriendEntity;
 public class FriendMapper {
     public static FriendEntity toEntity(FriendShip friendship) {
         FriendEntity entity = new FriendEntity();
-        entity.setId(friendship.getFriendshipId().id());
+        entity.setId(friendship.getFriendshipId().getValue());
         entity.setUser(UserMapper.toEntity(friendship.getRequest()));
         entity.setFriend(UserMapper.toEntity(friendship.getReceiver()));
         entity.setAddedAt(friendship.getAddTime());

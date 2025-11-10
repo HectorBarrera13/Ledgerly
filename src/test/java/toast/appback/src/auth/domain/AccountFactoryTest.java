@@ -65,8 +65,8 @@ public class AccountFactoryTest {
         );
         assertTrue(result.isSuccess(), "Expected successful account creation");
         Account account = result.getValue();
-        assertEquals("validemail@gmail.com", account.getEmail().value());
-        assertTrue(passwordHasher.verify("StrongPassword123", account.getPassword().hashed()), "Password should be hashed correctly");
+        assertEquals("validemail@gmail.com", account.getEmail().getValue());
+        assertTrue(passwordHasher.verify("StrongPassword123", account.getPassword().getHashed()), "Password should be hashed correctly");
         assertNotNull(account.getAccountId());
     }
 

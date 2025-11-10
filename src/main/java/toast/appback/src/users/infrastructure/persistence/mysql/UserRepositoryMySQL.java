@@ -25,7 +25,7 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public Optional<User> findById(UserId id) {
-        return jpaUserRepository.findByUserId(id.value())
+        return jpaUserRepository.findByUserId(id.getValue())
                 .map(UserMapper::toDomain);
     }
 }
