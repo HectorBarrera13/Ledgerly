@@ -53,9 +53,9 @@ public class AccountLoginUseCase implements AccountLogin {
         SessionId newSessionId = SessionId.generate();
 
         Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
-                account.getAccountId().value().toString(),
-                newSessionId.value().toString(),
-                account.getEmail().value()
+                account.getAccountId().getValue().toString(),
+                newSessionId.getValue().toString(),
+                account.getEmail().getValue()
         );
         accessTokenResult.ifFailure(ErrorsHandler::handleErrors);
 

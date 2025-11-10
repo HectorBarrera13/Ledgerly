@@ -4,14 +4,41 @@ import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.domain.DomainError;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-public record Email(String local, String domain, String tld) {
+public class Email {
     private static final int MAX_EMAIL_LENGTH = 320;
     private static final int MAX_LOCAL_PART_LENGTH = 64;
     private static final Pattern PERMITTED_LOCAL_CHARACTERS_PATTERN = Pattern.compile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+$");
     private static final int MAX_DOMAIN_PART_LENGTH = 255;
     private static final Pattern PERMITTED_DOMAIN_CHARACTERS_PATTERN = Pattern.compile("^[a-zA-Z0-9.-]+$");
+
+    private final String local;
+    private final String domain;
+    private final String tld;
+
+    private Email(String local, String domain, String tld) {
+        this.local = local;
+        this.domain = domain;
+        this.tld = tld;
+    }
+
+    public String getLocal() {
+        return local;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getTld() {
+        return tld;
+    }
+
+    public String getValue() {
+        return local + "@" + domain + "." + tld;
+    }
 
     public static Result<Email, DomainError> create(String email) {
         System.out.println("Creating email: " + email);
@@ -159,7 +186,23 @@ public record Email(String local, String domain, String tld) {
         return Result.success();
     }
 
-    public String value() {
-        return local + "@" + domain + "." + tld;
+    @Override
+    public String toString() {
+        return "Email{" +
+                "local='" + local + '\'' +
+                ", domain='" + domain + '\'' +
+                ", tld='" + tld + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Email email)) return false;
+        return Objects.equals(local, email.local) && Objects.equals(domain, email.domain) && Objects.equals(tld, email.tld);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(local, domain, tld);
     }
 }

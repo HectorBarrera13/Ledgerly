@@ -53,10 +53,10 @@ public class UserFactoryTest {
         );
         assertTrue(result.isSuccess(), "Expected successful user creation");
         User user = result.getValue();
-        assertEquals("John", user.getName().firstName());
-        assertEquals("Doe", user.getName().lastName());
-        assertEquals("+1", user.getPhone().countryCode());
-        assertEquals("1234567890", user.getPhone().number());
+        assertEquals("John", user.getName().getFirstName());
+        assertEquals("Doe", user.getName().getLastName());
+        assertEquals("+1", user.getPhone().getCountryCode());
+        assertEquals("1234567890", user.getPhone().getNumber());
     }
 
     @Test

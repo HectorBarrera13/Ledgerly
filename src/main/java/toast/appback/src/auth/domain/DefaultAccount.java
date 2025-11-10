@@ -15,9 +15,7 @@ public class DefaultAccount extends AccountFactory {
 
     @Override
     public Result<Account, DomainError> create(UserId userId, String email, String password) {
-        System.out.println("DefaultAccount.create called with userId: " + userId + ", email: " + email);
         if (userId == null) {
-            System.out.println("DefaultAccount.create: userId is null");
             return Result.failure(DomainError.validation("user id", "user id cannot be null"));
         }
         Result<Account, DomainError> result = Email.create(email)
@@ -38,7 +36,6 @@ public class DefaultAccount extends AccountFactory {
                         )
                 )
         );
-        System.out.println("DefaultAccount.create: " + result);
         return result;
     }
 }

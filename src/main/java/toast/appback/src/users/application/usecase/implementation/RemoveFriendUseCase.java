@@ -3,7 +3,6 @@ package toast.appback.src.users.application.usecase.implementation;
 import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.application.AppError;
-import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.domain.FriendShip;

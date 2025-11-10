@@ -39,8 +39,9 @@ public class PhoneTest {
 
             assertTrue(result.isSuccess(), "Expected success for valid phone: " + fullPhone);
             Phone phone = result.getValue();
-            assertEquals(countryCode, phone.countryCode());
-            assertEquals(number, phone.number());
+            assertEquals(countryCode, phone.getCountryCode());
+            assertEquals(number, phone.getNumber());
+            assertEquals(countryCode + "-" + number, phone.getValue());
         }
     }
 

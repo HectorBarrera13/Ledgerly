@@ -1,4 +1,4 @@
-package toast.appback.src.auth.config.auth;
+package toast.appback.src.auth.infrastructure.config.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

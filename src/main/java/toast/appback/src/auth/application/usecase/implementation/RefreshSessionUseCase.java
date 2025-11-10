@@ -52,9 +52,9 @@ public class RefreshSessionUseCase implements RefreshSession {
         }
 
         Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
-                account.getAccountId().value().toString(),
-                sessionId.value().toString(),
-                account.getEmail().value()
+                account.getAccountId().getValue().toString(),
+                sessionId.getValue().toString(),
+                account.getEmail().getValue()
         );
         accessTokenResult.ifFailure(ErrorsHandler::handleErrors);
 

@@ -28,22 +28,22 @@ public class AccountRepositoryMySQL implements AccountRepository {
 
     @Override
     public Optional<Account> findBySessionId(SessionId sessionId) {
-        return jpaAccountRepository.findBySessionId(sessionId.value())
+        return jpaAccountRepository.findBySessionId(sessionId.getValue())
                 .map(AccountMapper::toDomain);
 
     }
 
     @Override
     public Optional<Account> findByAccountIdAndSessionId(AccountId userId, SessionId sessionId) {
-        return jpaAccountRepository.findByAccountIdAndSessionId(userId.value(), sessionId.value())
+        return jpaAccountRepository.findByAccountIdAndSessionId(userId.getValue(), sessionId.getValue())
                 .map(AccountMapper::toDomain);
     }
 
     @Override
     public void save(Account account) {
-        UserEntity userEntity = jpaUserRepository.findByUserId(account.getUserId().value())
+        UserEntity userEntity = jpaUserRepository.findByUserId(account.getUserId().getValue())
                 .orElseThrow(() -> new IllegalStateException("User not found"));
-        AccountEntity accountEntity = jpaAccountRepository.findByEmail(account.getEmail().value())
+        AccountEntity accountEntity = jpaAccountRepository.findByEmail(account.getEmail().getValue())
                 .orElse(new AccountEntity());
         AccountEntity entity = AccountMapper.toEntity(account, userEntity, accountEntity);
         jpaAccountRepository.save(entity);

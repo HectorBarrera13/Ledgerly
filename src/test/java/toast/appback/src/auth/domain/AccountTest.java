@@ -25,10 +25,10 @@ public class AccountTest {
     @Test
     @DisplayName("Should return all account data correctly")
     void testAccountData() {
-        assertEquals(uuid, account.getAccountId().value());
-        assertEquals(uuid, account.getUserId().value());
-        assertEquals(EMAIL, account.getEmail().value());
-        assertEquals(PASSWORD_HASH, account.getPassword().hashed());
+        assertEquals(uuid, account.getAccountId().getValue());
+        assertEquals(uuid, account.getUserId().getValue());
+        assertEquals(EMAIL, account.getEmail().getValue());
+        assertEquals(PASSWORD_HASH, account.getPassword().getHashed());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class AccountTest {
     @DisplayName("Should add session correctly when under limit")
     void testAddSessionUnderLimit() {
         for (int i = 0; i < 5; i++) {
-            Session session = new Session(new SessionId(UUID.randomUUID()), SessionStatus.NORMAL, null);
+            Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
             var result = account.addSession(session);
             assertTrue(result.isSuccess());
         }
@@ -69,10 +69,10 @@ public class AccountTest {
     @DisplayName("Should not add session when limit exceeded")
     void testAddSessionOverLimit() {
         for (int i = 0; i < 5; i++) {
-            Session session = new Session(new SessionId(UUID.randomUUID()), SessionStatus.NORMAL, null);
+            Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
             account.addSession(session);
         }
-        Session extraSession = new Session(new SessionId(UUID.randomUUID()), SessionStatus.NORMAL, null);
+        Session extraSession = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
         var result = account.addSession(extraSession);
         assertTrue(result.isFailure());
         assertEquals("session limit exceeded", result.getErrors().getFirst().message());
@@ -81,7 +81,7 @@ public class AccountTest {
     @Test
     @DisplayName("Should revoke session correctly")
     void testRevokeSession() {
-        Session session = new Session(new SessionId(UUID.randomUUID()), SessionStatus.NORMAL, null);
+        Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
         account.addSession(session);
         var revokeResult = account.revokeSession(session.getSessionId());
         assertTrue(revokeResult.isSuccess());
@@ -91,7 +91,7 @@ public class AccountTest {
     @Test
     @DisplayName("Should not revoke non-existent session")
     void testRevokeNonExistentSession() {
-        var revokeResult = account.revokeSession(new SessionId(UUID.randomUUID()));
+        var revokeResult = account.revokeSession(SessionId.generate());
         assertTrue(revokeResult.isFailure());
         assertEquals("session not found", revokeResult.getErrors().getFirst().message());
     }
@@ -100,7 +100,7 @@ public class AccountTest {
     @DisplayName("Should revoke all sessions correctly")
     void testRevokeAllSessions() {
         for (int i = 0; i < 3; i++) {
-            Session session = new Session(new SessionId(UUID.randomUUID()), SessionStatus.NORMAL, null);
+            Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
             account.addSession(session);
         }
         account.revokeAllSessions();
@@ -126,7 +126,7 @@ public class AccountTest {
     @Test
     @DisplayName("Should generate domain events on session actions")
     void testDomainEventsOnSessionActions() {
-        Session session = new Session(new SessionId(UUID.randomUUID()), SessionStatus.NORMAL, null);
+        Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
         account.addSession(session);
         assertEquals(1, account.pullEvents().size());
 

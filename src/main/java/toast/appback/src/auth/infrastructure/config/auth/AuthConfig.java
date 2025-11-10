@@ -1,4 +1,4 @@
-package toast.appback.src.auth.config.auth;
+package toast.appback.src.auth.infrastructure.config.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -46,8 +46,8 @@ public class AuthConfig {
                     .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found"));
             return new CustomUserDetails(
                     account.getAccountId(),
-                    account.getEmail().value(),
-                    account.getPassword().hashed()
+                    account.getEmail().getValue(),
+                    account.getPassword().getHashed()
             );
         };
     }

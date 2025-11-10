@@ -4,9 +4,46 @@ import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.domain.DomainError;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-public record Name(String firstName, String lastName) {
+public class Name {
+
+    private final String firstName;
+    private final String lastName;
+
+    private Name(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public String toString() {
+        return "Name{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Name name)) return false;
+        return Objects.equals(firstName, name.firstName) && Objects.equals(lastName, name.lastName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName);
+    }
+
     private static final int MIN_LENGTH = 2;
     private static final int MAX_LENGTH = 80;
     private static final String FIELD_FIRST_NAME = "firstName";

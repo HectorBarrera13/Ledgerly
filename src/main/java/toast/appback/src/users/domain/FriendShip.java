@@ -6,6 +6,7 @@ import toast.appback.src.users.domain.event.FriendAdded;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FriendShip {
     private final FriendShipId friendshipId;
@@ -62,5 +63,27 @@ public class FriendShip {
 
     public void recordEvent(DomainEvent event) {
         this.friendshipEvents.add(event);
+    }
+
+    @Override
+    public String toString() {
+        return "FriendShip{" +
+                "friendshipId=" + friendshipId +
+                ", request=" + request +
+                ", receiver=" + receiver +
+                ", addTime=" + addTime +
+                ", friendshipEvents=" + friendshipEvents +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FriendShip that)) return false;
+        return Objects.equals(friendshipId, that.friendshipId) && Objects.equals(request, that.request) && Objects.equals(receiver, that.receiver);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(friendshipId, request, receiver);
     }
 }

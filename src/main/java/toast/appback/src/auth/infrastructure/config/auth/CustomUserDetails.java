@@ -1,4 +1,4 @@
-package toast.appback.src.auth.config.auth;
+package toast.appback.src.auth.infrastructure.config.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

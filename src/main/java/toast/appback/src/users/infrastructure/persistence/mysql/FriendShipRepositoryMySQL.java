@@ -26,7 +26,7 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
 
     @Override
     public Optional<FriendShip> findByUsersIds(UserId userId, UserId friendId) {
-        return jpaFriendShipRepository.findByUserUserIdAndFriendUserId(userId.value(), friendId.value())
+        return jpaFriendShipRepository.findByUserUserIdAndFriendUserId(userId.getValue(), friendId.getValue())
                 .map(FriendMapper::toDomain);
     }
 
@@ -38,6 +38,6 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
 
     @Override
     public void delete(FriendShipId friendshipId) {
-        jpaFriendShipRepository.deleteById(friendshipId.id());
+        jpaFriendShipRepository.deleteById(friendshipId.getValue());
     }
 }

@@ -34,7 +34,7 @@ public class EmailTest {
             Result<Email, DomainError> result = Email.create(email);
             assertTrue(result.isSuccess(), "Expected success for valid email: " + email);
             Email createdEmail = result.getValue();
-            assertEquals(email, createdEmail.value());
+            assertEquals(email, createdEmail.getValue());
         }
     }
 
@@ -113,7 +113,7 @@ public class EmailTest {
             Result<Email, DomainError> result = Email.create(email);
             assertTrue(result.isSuccess());
             Email createdEmail = result.getValue();
-            assertEquals(email, createdEmail.value());
+            assertEquals(email, createdEmail.getValue());
         }
 
         @Test

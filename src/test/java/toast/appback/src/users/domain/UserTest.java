@@ -25,11 +25,11 @@ public class UserTest {
     @Test
     @DisplayName("Should return all user data correctly")
     void testUserData() {
-        assertEquals(uuid, user.getId().value());
-        assertEquals(FIRST_NAME, user.getName().firstName());
-        assertEquals(LAST_NAME, user.getName().lastName());
-        assertEquals(PHONE_COUNTRY_CODE, user.getPhone().countryCode());
-        assertEquals(PHONE_NUMBER, user.getPhone().number());
+        assertEquals(uuid, user.getId().getValue());
+        assertEquals(FIRST_NAME, user.getName().getFirstName());
+        assertEquals(LAST_NAME, user.getName().getLastName());
+        assertEquals(PHONE_COUNTRY_CODE, user.getPhone().getCountryCode());
+        assertEquals(PHONE_NUMBER, user.getPhone().getNumber());
     }
 
     @Test
@@ -48,8 +48,8 @@ public class UserTest {
     void testChangeName() {
         Name newName = Name.load("Alice", "Johnson");
         user.changeName(newName);
-        assertEquals("Alice", user.getName().firstName());
-        assertEquals("Johnson", user.getName().lastName());
+        assertEquals("Alice", user.getName().getFirstName());
+        assertEquals("Johnson", user.getName().getLastName());
     }
 
     @Test

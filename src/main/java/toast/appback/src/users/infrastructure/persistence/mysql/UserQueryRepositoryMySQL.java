@@ -16,7 +16,7 @@ public class UserQueryRepositoryMySQL implements UserQueryRepository {
 
     @Override
     public Optional<UserQueryResult> getUser(UserId userId) {
-        return jpaUserRepository.findByUserId(userId.value())
+        return jpaUserRepository.findByUserId(userId.getValue())
                 .map(user -> new UserQueryResult(
                         user.getUserId(),
                         user.getFirstName(),

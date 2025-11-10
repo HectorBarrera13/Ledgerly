@@ -13,10 +13,10 @@ public class AuthMapper {
         User user = result.user();
         return new RegisterAccountResponse(
                 new UserResponse(
-                        user.getId().value(),
-                        user.getName().firstName(),
-                        user.getName().lastName(),
-                        result.account().getEmail().value(),
+                        user.getId().getValue(),
+                        user.getName().getFirstName(),
+                        user.getName().getLastName(),
+                        result.account().getEmail().getValue(),
                         user.getPhone().getValue()
                 ),
                 result.token().value(),

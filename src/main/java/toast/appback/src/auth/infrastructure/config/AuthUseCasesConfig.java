@@ -1,4 +1,4 @@
-package toast.appback.src.auth.config;
+package toast.appback.src.auth.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

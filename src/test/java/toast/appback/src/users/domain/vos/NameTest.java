@@ -38,8 +38,8 @@ public class NameTest {
             Result<Name, DomainError> result = Name.create(firstName, lastName);
             assertTrue(result.isSuccess(), "Expected success for valid name: " + fullName);
             Name name = result.getValue();
-            assertEquals(firstName, name.firstName());
-            assertEquals(lastName, name.lastName());
+            assertEquals(firstName, name.getFirstName());
+            assertEquals(lastName, name.getLastName());
         }
     }
 
