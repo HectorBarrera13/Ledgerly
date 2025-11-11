@@ -6,6 +6,6 @@ import toast.appback.src.users.domain.User;
 public record RegisterAccountResult(
         User user,
         Account account,
-        TokenInfo token
+        AccessToken accessToken
 ) {
 }

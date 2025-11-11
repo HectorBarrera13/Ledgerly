@@ -7,6 +7,6 @@ public enum AccountBusinessCode implements BusinessCode {
 
     @Override
     public AccountBusinessCode code() {
-        return null;
+        return this;
     }
 }

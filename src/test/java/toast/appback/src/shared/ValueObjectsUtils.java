@@ -38,7 +38,7 @@ public class ValueObjectsUtils {
 
     public static <T extends BusinessCode> void assertBusinessRuleErrorExists(List<DomainError> errors, T businessCode) {
         boolean found = errors.stream()
-                .anyMatch(error -> error.businessCode().equals(businessCode));
+                .anyMatch(error -> error.businessCode().code().equals(businessCode.code()));
         assertTrue(found);
     }
 }

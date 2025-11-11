@@ -20,15 +20,22 @@ public class Password {
     }
 
     public static Result<Password, DomainError> fromPlain(String rawPassword, PasswordHasher hasher) {
-        return validateStrength(rawPassword)
-                .flatMap(() -> {
+        return validateNotEmpty(rawPassword)
+                .captureFirstError(() -> validateStrength(rawPassword))
+                .map(() -> {
                     String hashedPassword = hasher.hash(rawPassword);
-                    return Result.success(new Password(hashedPassword));
+                    return new Password(hashedPassword);
                 });
     }
 
     public static Password fromHashed(String hashedPassword) {
         return new Password(hashedPassword);
+    }
+
+    private static Result<Void, DomainError> validateNotEmpty(String password) {
+        if (password == null || password.isBlank())
+            return Validators.EMPTY_VALUE("password");
+        return Result.success();
     }
 
     private static Result<Void, DomainError> validateStrength(String password) {

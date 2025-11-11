@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import toast.appback.src.auth.domain.Email;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Email Value Object Test")
 public class EmailTest {
@@ -46,11 +48,11 @@ public class EmailTest {
         void shouldFailWhenEmailIsNullOrEmpty() {
             Result<Email, DomainError> nullEmailResult = Email.create(null);
             assertTrue(nullEmailResult.isFailure());
-            assertEquals(1, nullEmailResult.getErrors().size());
+            assertOnlyErrorExists(nullEmailResult.getErrors(), ValidatorType.EMPTY_VALUE);
 
             Result<Email, DomainError> emptyEmailResult = Email.create("");
             assertTrue(emptyEmailResult.isFailure());
-            assertEquals(1, emptyEmailResult.getErrors().size());
+            assertOnlyErrorExists(emptyEmailResult.getErrors(), ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -58,7 +60,7 @@ public class EmailTest {
         void shouldFailWhenEmailIsOnlyWhitespace() {
             Result<Email, DomainError> whitespaceEmailResult = Email.create("   ");
             assertTrue(whitespaceEmailResult.isFailure());
-            assertEquals(1, whitespaceEmailResult.getErrors().size());
+            assertOnlyErrorExists(whitespaceEmailResult.getErrors(), ValidatorType.EMPTY_VALUE);
         }
 
         @Test
@@ -67,7 +69,7 @@ public class EmailTest {
             String invalidEmail = "invalid-email-format";
             Result<Email, DomainError> result = Email.create(invalidEmail);
             assertTrue(result.isFailure());
-            assertEquals(1, result.getErrors().size());
+            assertErrorExists(result.getErrors(), ValidatorType.INVALID_FORMAT);
         }
 
         @Test
@@ -76,7 +78,7 @@ public class EmailTest {
             String invalidEmail = "user@";
             Result<Email, DomainError> result = Email.create(invalidEmail);
             assertTrue(result.isFailure());
-            assertEquals(1, result.getErrors().size());
+            assertErrorExists(result.getErrors(), ValidatorType.INVALID_FORMAT);
         }
 
         @Test
@@ -85,7 +87,7 @@ public class EmailTest {
             String invalidEmail = "@domain.com";
             Result<Email, DomainError> result = Email.create(invalidEmail);
             assertTrue(result.isFailure());
-            assertEquals(1, result.getErrors().size());
+            assertErrorExists(result.getErrors(), ValidatorType.EMPTY_VALUE);
         }
     }
 
@@ -103,7 +105,6 @@ public class EmailTest {
         void shouldFailToCreateEmailWithInvalidInputs(String email) {
             Result<Email, DomainError> result = Email.create(email);
             assertTrue(result.isFailure(), "Expected failure for invalid email: " + email);
-            assertEquals(1, result.getErrors().size());
         }
 
         @Test

@@ -40,19 +40,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         final String token = authHeader.substring(7);
 
-        Result<Void, AppError> validationResult = tokenService.verifyToken(token);
-        if (validationResult.isFailure()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        Result<AccountInfo, AppError> claimsResult = tokenService.extractClaims(token);
-        if (claimsResult.isFailure()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        AccountInfo accountInfo = claimsResult.getValue();
+        AccountInfo accountInfo = tokenService.extractAccountInfo(token);
 
         SessionId sessionId = accountInfo.sessionId();
         String email = accountInfo.email();

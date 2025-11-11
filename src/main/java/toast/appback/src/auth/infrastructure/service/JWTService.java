@@ -10,9 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import toast.appback.src.auth.application.communication.result.AccountInfo;
-import toast.appback.src.auth.application.communication.result.TokenInfo;
+import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
+import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.application.AppError;
 import toast.appback.src.auth.application.port.TokenService;
@@ -45,49 +46,36 @@ public class JWTService implements TokenService {
     }
 
     @Override
-    public Result<TokenInfo, AppError> generateAccessToken(String uuid, String sessionId, String email) {
+    public AccessToken generateAccessToken(String uuid, String sessionId, String email) {
         String accessToken = buildToken(uuid, email, sessionId, accessExpiration);
-        TokenInfo tokenResult = new TokenInfo(
+        return new AccessToken(
                 accessToken,
                 "Bearer",
                 Instant.now().plusSeconds(accessExpiration)
         );
-        return Result.success(tokenResult);
     }
 
     @Override
-    public Result<AccountInfo, AppError> extractClaims(String token) {
-        Result<String, AppError> subjectResult = extractClaim(token, Claims::getSubject);
-        if (subjectResult.isFailure()) {
-            return Result.failure(subjectResult.getErrors());
+    public AccountInfo extractAccountInfo(String token) {
+        if (isTokenExpired(token)) {
+            ErrorsHandler.handleError(AppError.authorizationFailed("Token has expired"));
         }
+
+        Result<String, AppError> subjectResult = extractClaim(token, Claims::getSubject);
+        subjectResult.ifFailure(ErrorsHandler::handleErrors);
 
         Result<String, AppError> idResult = extractClaim(token, Claims::getId);
-        if (idResult.isFailure()) {
-            return Result.failure(idResult.getErrors());
-        }
-        String id = idResult.getValue();
+        idResult.ifFailure(ErrorsHandler::handleErrors);
 
-        Result<String, AppError> sessionIdResult = extractClaim(token, claims -> claims.get("sessionId", String.class));
-        if (sessionIdResult.isFailure()) {
-            return Result.failure(sessionIdResult.getErrors());
-        }
-        String sessionId = sessionIdResult.getValue();
+        Result<String, AppError> sessionIdResult = extractClaim(token,
+                claims -> claims.get("sessionId", String.class));
+        sessionIdResult.ifFailure(ErrorsHandler::handleErrors);
 
-        AccountInfo accountInfo = new AccountInfo(
-                AccountId.load(UUID.fromString(id)),
-                SessionId.load(UUID.fromString(sessionId)),
+        return new AccountInfo(
+                AccountId.load(UUID.fromString(idResult.getValue())),
+                SessionId.load(UUID.fromString(sessionIdResult.getValue())),
                 subjectResult.getValue()
         );
-        return Result.success(accountInfo);
-    }
-
-    @Override
-    public Result<Void, AppError> verifyToken(String token) {
-        if (isTokenExpired(token)) {
-            return Result.failure(AppError.authorizationFailed("Token has expired"));
-        }
-        return Result.success();
     }
 
     private String buildToken(final String id, final String subject, final String sessionId, final long expirationTime) {

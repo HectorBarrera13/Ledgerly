@@ -5,10 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
-import toast.appback.src.auth.application.usecase.implementation.AccountLoginUseCase;
-import toast.appback.src.auth.application.usecase.implementation.AccountLogoutUseCase;
-import toast.appback.src.auth.application.usecase.implementation.RefreshSessionUseCase;
-import toast.appback.src.auth.application.usecase.implementation.RegisterAccountUseCase;
+import toast.appback.src.auth.application.usecase.contract.CreateAccount;
+import toast.appback.src.auth.application.usecase.implementation.*;
 import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.auth.domain.DefaultAccount;
@@ -26,34 +24,44 @@ public class AuthUseCasesConfig {
         return new DefaultAccount(passwordHasher);
     }
 
+    @Bean
+    @Transactional
+    public CreateAccount createAccount(
+            AccountRepository accountRepository,
+            AccountFactory accountFactory
+    ) {
+        return new CreateAccountUseCase(
+                accountRepository,
+                accountFactory
+        );
+    }
+
 
     @Bean
     @Transactional
-    public RegisterAccountUseCase registerAccountUseCase(
-            AccountRepository accountRepository,
-            AccountFactory accountFactory,
+    public RegisterAccountUseCase registerAccountUseCaseV2(
+            CreateAccount createAccount,
+            CreateUser createUser,
             TokenService tokenService,
-            CreateUser createUserUseCase,
             EventBus eventBus
     ) {
         return new RegisterAccountUseCase(
-                accountRepository,
-                accountFactory,
+                createUser,
+                createAccount,
                 tokenService,
-                createUserUseCase,
                 eventBus
         );
     }
 
     @Bean
     @Transactional
-    public AccountLoginUseCase accountLoginUseCase(
+    public AuthenticateAccountUseCase accountLoginUseCase(
             TokenService tokenService,
             AuthService authService,
             AccountRepository accountRepository,
             EventBus eventBus
     ) {
-        return new AccountLoginUseCase(
+        return new AuthenticateAccountUseCase(
                 tokenService,
                 authService,
                 accountRepository,
@@ -63,12 +71,12 @@ public class AuthUseCasesConfig {
 
     @Bean
     @Transactional
-    public AccountLogoutUseCase accountLogoutUseCase(
+    public TerminateSessionUseCase accountLogoutUseCase(
             TokenService tokenService,
             AuthService authService,
             EventBus eventBus
     ) {
-        return new AccountLogoutUseCase(
+        return new TerminateSessionUseCase(
                 tokenService,
                 authService,
                 eventBus

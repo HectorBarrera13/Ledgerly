@@ -1,13 +1,12 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
-import toast.appback.src.auth.application.communication.command.AccountAuthCommand;
-import toast.appback.src.auth.application.communication.result.TokenInfo;
+import toast.appback.src.auth.application.communication.command.AuthenticateAccountCommand;
+import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
-import toast.appback.src.auth.application.usecase.contract.AccountLogin;
+import toast.appback.src.auth.application.usecase.contract.AuthenticateAccount;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
-import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
@@ -17,20 +16,16 @@ import toast.appback.src.shared.domain.DomainError;
 
 import java.util.Optional;
 
-public class AccountLoginUseCase implements AccountLogin {
-
+public class AuthenticateAccountUseCase implements AuthenticateAccount {
     private final TokenService tokenService;
-
     private final AuthService authService;
-
     private final AccountRepository accountRepository;
-
     private final EventBus eventBus;
 
-    public AccountLoginUseCase(TokenService tokenService,
-                               AuthService authService,
-                               AccountRepository accountRepository,
-                               EventBus eventBus) {
+    public AuthenticateAccountUseCase(TokenService tokenService,
+                                      AuthService authService,
+                                      AccountRepository accountRepository,
+                                      EventBus eventBus) {
         this.tokenService = tokenService;
         this.authService = authService;
         this.accountRepository = accountRepository;
@@ -38,7 +33,7 @@ public class AccountLoginUseCase implements AccountLogin {
     }
 
     @Override
-    public TokenInfo execute(AccountAuthCommand command) {
+    public AccessToken execute(AuthenticateAccountCommand command) {
         Optional<Account> foundAccount = accountRepository.findByEmail(command.email());
         if (foundAccount.isEmpty()) {
             ErrorsHandler.handleError(AppError.authorizationFailed("Account not found")
@@ -50,21 +45,16 @@ public class AccountLoginUseCase implements AccountLogin {
         Result<Void, AppError> authResult = authService.authenticate(command);
         authResult.ifFailure(ErrorsHandler::handleErrors);
 
-        SessionId newSessionId = SessionId.generate();
+        Result<Session, DomainError> newSessionResult = account.startSession();
+        newSessionResult.ifFailure(ErrorsHandler::handleErrors);
 
-        Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
+        Session newSession = newSessionResult.getValue();
+
+        AccessToken accessToken = tokenService.generateAccessToken(
                 account.getAccountId().getValue().toString(),
-                newSessionId.getValue().toString(),
+                newSession.getSessionId().getValue().toString(),
                 account.getEmail().getValue()
         );
-        accessTokenResult.ifFailure(ErrorsHandler::handleErrors);
-
-        TokenInfo accessToken = accessTokenResult.getValue();
-
-        Session newSession = Session.create(newSessionId);
-
-        Result<Void, DomainError> result = account.addSession(newSession);
-        result.ifFailure(ErrorsHandler::handleErrors);
 
         accountRepository.updateSessions(account);
 
