@@ -36,7 +36,7 @@ public class DebtMoneyTest {
         @Test
         @DisplayName("Should create DebtMoney successfully with valid inputs")
         void shouldCreateDebtMoneySuccessfullyWithValidInputs() {
-            Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, VALID_AMOUNT_LONG, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, VALID_AMOUNT_LONG);
 
             assertTrue(result.isSuccess(), "Expected success for valid currency and amount.");
 
@@ -61,7 +61,7 @@ public class DebtMoneyTest {
         void shouldFailWhenAmountIsNegative() {
             Long negativeAmount = -1L;
 
-            Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, negativeAmount, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, negativeAmount );
 
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
@@ -74,7 +74,7 @@ public class DebtMoneyTest {
         void shouldFailWhenCurrencyFormatIsInvalid() {
             String invalidCurrency = "usd"; // Debería ser mayúsculas
 
-            Result<DebtMoney, DomainError> result = DebtMoney.create(invalidCurrency, VALID_AMOUNT_LONG, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result = DebtMoney.create(invalidCurrency, VALID_AMOUNT_LONG );
 
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
@@ -85,7 +85,7 @@ public class DebtMoneyTest {
         @Test
         @DisplayName("Should fail when currency is null (EMPTY_VALUE)")
         void shouldFailWhenCurrencyIsNull() {
-            Result<DebtMoney, DomainError> result = DebtMoney.create(null, VALID_AMOUNT_LONG, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result = DebtMoney.create(null, VALID_AMOUNT_LONG );
 
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
@@ -96,7 +96,7 @@ public class DebtMoneyTest {
         @Test
         @DisplayName("Should fail when amount is null (EMPTY_VALUE)")
         void shouldFailWhenAmountIsNull() {
-            Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, null, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, null );
 
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
@@ -111,7 +111,7 @@ public class DebtMoneyTest {
             Long negativeAmount = -5L;    // Negativo
 
             // Result.combine() debe acumular ambos errores
-            Result<DebtMoney, DomainError> result = DebtMoney.create(invalidCurrency, negativeAmount, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result = DebtMoney.create(invalidCurrency, negativeAmount );
 
             assertTrue(result.isFailure());
             List<DomainError> errors = result.getErrors();
@@ -132,8 +132,8 @@ public class DebtMoneyTest {
         @Test
         @DisplayName("Should be equal for same currency and amount")
         void shouldBeEqualForSameCurrencyAndAmount() {
-            Result<DebtMoney, DomainError> result1 = DebtMoney.create("EUR", 500L, DUMMY_UNIT_SCALE);
-            Result<DebtMoney, DomainError> result2 = DebtMoney.create("EUR", 500L, DUMMY_UNIT_SCALE);
+            Result<DebtMoney, DomainError> result1 = DebtMoney.create("EUR", 500L );
+            Result<DebtMoney, DomainError> result2 = DebtMoney.create("EUR", 500L );
 
             assertTrue(result1.isSuccess());
             assertTrue(result2.isSuccess());
@@ -145,9 +145,9 @@ public class DebtMoneyTest {
         @Test
         @DisplayName("Should not be equal for different currency or amount")
         void shouldNotBeEqualForDifferentValues() {
-            Result<DebtMoney, DomainError> result1 = DebtMoney.create("EUR", 500L, DUMMY_UNIT_SCALE); // 5.00 EUR
-            Result<DebtMoney, DomainError> result2 = DebtMoney.create("USD", 500L, DUMMY_UNIT_SCALE); // 5.00 USD
-            Result<DebtMoney, DomainError> result3 = DebtMoney.create("EUR", 600L, DUMMY_UNIT_SCALE); // 6.00 EUR
+            Result<DebtMoney, DomainError> result1 = DebtMoney.create("EUR", 500L); // 5.00 EUR
+            Result<DebtMoney, DomainError> result2 = DebtMoney.create("USD", 500L ); // 5.00 USD
+            Result<DebtMoney, DomainError> result3 = DebtMoney.create("EUR", 600L ); // 6.00 EUR
 
             assertTrue(result1.isSuccess());
             assertTrue(result2.isSuccess());
@@ -160,7 +160,7 @@ public class DebtMoneyTest {
         @Test
         @DisplayName("Should have correct getters")
         void shouldHaveCorrectGetters() {
-            Result<DebtMoney, DomainError> result = DebtMoney.create("CAD", 123L, DUMMY_UNIT_SCALE); // 1.23 CAD
+            Result<DebtMoney, DomainError> result = DebtMoney.create("CAD", 123L); // 1.23 CAD
             assertTrue(result.isSuccess());
             DebtMoney money = result.getValue();
 

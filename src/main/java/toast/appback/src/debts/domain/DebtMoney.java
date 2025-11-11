@@ -37,7 +37,7 @@ public class DebtMoney {
         this.currency = currency;
     }
 
-    public static Result<DebtMoney, DomainError> create(String currency, Long amount, String UNIT_SCALE) {
+    public static Result<DebtMoney, DomainError> create(String currency, Long amount) {
         return Result.combine(
                 currencyValidation(currency,REGEX_CURRENCY, FIELD_CURRENCY),
                 amountValidation(amount, FIELD_AMOUNT)

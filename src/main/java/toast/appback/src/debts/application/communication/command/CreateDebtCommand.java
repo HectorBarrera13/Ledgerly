@@ -1,5 +1,16 @@
 package toast.appback.src.debts.application.communication.command;
 
-public record CreateDebtCommand(String purpose, String description, String currency, Long amount) {
+import toast.appback.src.users.domain.UserId;
+
+import java.util.UUID;
+
+public record CreateDebtCommand(
+        String purpose,
+        String description,
+        String currency,
+        Long amount,
+        UserId debtorId,
+        UserId creditorId
+        ) {
 
 }

@@ -1,9 +1,11 @@
 package toast.appback.src.debts.domain;
 
+import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.User;
+import toast.appback.src.users.domain.UserId;
 
 import java.util.List;
 
@@ -32,6 +34,16 @@ public class Debt {
         this.debtEvents = debtEvents;
     }
 
+    public static Result<Debt,DomainError> create(String purpose,String description, String currency, Long amount, User creditor, User debtor){
+        DebtId debtId = DebtId.generate();
+        Result<Context, DomainError> context = Context.create(purpose,description);
+        Result<DebtMoney, DomainError> debtMoney = DebtMoney.create(currency, amount);
+        Result<Debt, DomainError> debt = Result.combine(
+                context,
+                debtMoney
+        ).map(r->new Debt(debtId,context.getValue(),debtMoney.getValue(),creditor,debtor));
+        return debt;
+    }
 
     public DebtId getId() {return id;}
 
@@ -43,7 +55,7 @@ public class Debt {
 
     public Status getStatus() {return status;}
 
-    public DebtMoney getAmount() {return debtMoney;}
+    public DebtMoney getDebtMoney() {return debtMoney;}
 
     public List<DomainEvent> getDebtEvents() {return debtEvents;}
 
@@ -77,7 +89,7 @@ public class Debt {
         return Result.success();
     }
 
-    public Result< Void, DomainError> editAmount(DebtMoney debtMoney) {
+    public Result< Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
         boolean isDebtSent = status == Status.PENDING;
         if (!isDebtSent) {
             return Result.failure(DomainError
@@ -86,6 +98,23 @@ public class Debt {
         }
         this.debtMoney = debtMoney;
         return Result.success();
+    }
+
+    public Result< Void, DomainError> editContext(Context context) {
+        boolean isDebtPending = status == Status.PENDING;
+        if (!isDebtPending) {
+            return Result.failure(DomainError
+                    .businessRule("A debt can only be edited if the status is 'Pending'")
+                    .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
+        }
+        this.context = context;
+        return Result.success();
+    }
+
+    public List<DomainEvent> pullEvents() {
+        List<DomainEvent> events = new ArrayList<>(debtEvents);
+        debtEvents.clear();
+        return events;
     }
 
 }
