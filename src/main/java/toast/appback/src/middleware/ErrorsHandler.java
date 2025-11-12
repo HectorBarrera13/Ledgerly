@@ -13,7 +13,7 @@ import java.util.List;
 public class ErrorsHandler {
 
 
-    public static void handleErrors(List<? extends IError> error) throws ApplicationException {
+    public static void handleErrors(List<? extends IError> error) {
         if (error.isEmpty()) {
             throw new IllegalArgumentException("Error list cannot be empty");
         }

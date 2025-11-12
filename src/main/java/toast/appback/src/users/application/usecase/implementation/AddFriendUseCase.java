@@ -1,9 +1,9 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.application.AppError;
 import toast.appback.src.users.application.communication.command.AddFriendCommand;
+import toast.appback.src.users.application.exceptions.ReceiverNotFound;
+import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.User;
@@ -28,12 +28,12 @@ public class AddFriendUseCase implements AddFriend {
     public void execute(AddFriendCommand command) {
         Optional<User> requester = userRepository.findById(UserId.load(command.requesterId()));
         if (requester.isEmpty()) {
-            ErrorsHandler.handleError(AppError.entityNotFound("Requester user", "not found"));
+            throw new RequesterNotFound(command.requesterId(), "requester user not found");
         }
 
         Optional<User> receiver = userRepository.findById(UserId.load(command.receiverId()));
         if (receiver.isEmpty()) {
-            ErrorsHandler.handleError(AppError.entityNotFound("Receiver user", "not found"));
+            throw new ReceiverNotFound(command.receiverId(), "receiver user not found");
         }
 
         User requestUser = requester.get();

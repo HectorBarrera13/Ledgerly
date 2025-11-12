@@ -1,6 +1,5 @@
 package toast.appback.src.shared.application;
 
-import toast.appback.src.middleware.ApplicationException;
 import toast.appback.src.shared.utils.Result;
 
 /**
@@ -10,5 +9,5 @@ import toast.appback.src.shared.utils.Result;
  * @param <C> The type of command or input required to execute the use case.
  */
 public interface UseCaseFunction<R, C> {
-    R execute(C command) throws ApplicationException;
+    R execute(C command);
 }

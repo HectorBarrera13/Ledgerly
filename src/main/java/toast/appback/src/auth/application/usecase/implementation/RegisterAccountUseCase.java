@@ -5,13 +5,12 @@ import toast.appback.src.auth.application.communication.command.CreateAccountCom
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
 import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
 import toast.appback.src.auth.application.communication.result.AccessToken;
+import toast.appback.src.auth.application.exceptions.SessionStartException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
-import toast.appback.src.middleware.ApplicationException;
-import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
@@ -36,7 +35,7 @@ public class RegisterAccountUseCase implements RegisterAccount {
     }
 
     @Override
-    public RegisterAccountResult execute(RegisterAccountCommand command) throws ApplicationException {
+    public RegisterAccountResult execute(RegisterAccountCommand command) {
         CreateUserCommand createUserCommand = AuthCommandMapper.accountCommandToCreateCommand(command);
         User newUser = createUser.execute(createUserCommand);
 
@@ -45,7 +44,7 @@ public class RegisterAccountUseCase implements RegisterAccount {
         Account newAccount = createAccount.execute(createAccountCommand);
 
         Result<Session, DomainError> sessionResult = newAccount.startSession();
-        sessionResult.ifFailure(ErrorsHandler::handleErrors);
+        sessionResult.ifFailureThrows(SessionStartException::new);
 
         Session newSession = sessionResult.getValue();
 

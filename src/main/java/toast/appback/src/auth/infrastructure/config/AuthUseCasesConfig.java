@@ -74,11 +74,13 @@ public class AuthUseCasesConfig {
     public TerminateSessionUseCase accountLogoutUseCase(
             TokenService tokenService,
             AuthService authService,
+            AccountRepository accountRepository,
             EventBus eventBus
     ) {
         return new TerminateSessionUseCase(
                 tokenService,
                 authService,
+                accountRepository,
                 eventBus
         );
     }
@@ -86,13 +88,11 @@ public class AuthUseCasesConfig {
     @Bean
     public RefreshSessionUseCase refreshSessionUseCase(
             TokenService tokenService,
-            AccountRepository accountRepository,
-            EventBus eventBus
+            AccountRepository accountRepository
     ) {
         return new RefreshSessionUseCase(
                 tokenService,
-                accountRepository,
-                eventBus
+                accountRepository
         );
     }
 }

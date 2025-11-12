@@ -1,9 +1,9 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
+import toast.appback.src.users.application.exceptions.CreationUserException;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserFactory;
@@ -26,10 +26,10 @@ public class CreateUserUseCase implements CreateUser {
         Result<User, DomainError> newUser = userFactory.create(
                         command.firstName(),
                         command.lastName(),
-                        command.phone().countryCode(),
-                        command.phone().number()
+                        command.phoneCountryCode(),
+                        command.phoneNumber()
                 );
-        newUser.ifFailure(ErrorsHandler::handleErrors);
+        newUser.ifFailureThrows(CreationUserException::new);
 
         userRepository.save(newUser.getValue());
 

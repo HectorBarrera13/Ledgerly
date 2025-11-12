@@ -67,7 +67,7 @@ public class PhoneTest {
             Result<Phone, DomainError> bothNull = Phone.create(null, null);
             assertTrue(bothNull.isFailure());
             assertEquals(2, bothNull.getErrors().size());
-            assertErrorExistsForField(bothNull.getErrors(), ValidatorType.EMPTY_VALUE, "countryCode");
+            assertErrorExistsForField(bothNull.getErrors(), ValidatorType.EMPTY_VALUE, "phoneCountryCode");
             assertErrorExistsForField(bothNull.getErrors(), ValidatorType.EMPTY_VALUE, "number");
         }
 
@@ -85,7 +85,7 @@ public class PhoneTest {
             Result<Phone, DomainError> bothEmpty = Phone.create("", "");
             assertTrue(bothEmpty.isFailure());
             assertEquals(2, bothEmpty.getErrors().size());
-            assertOnlyErrorExistsForField(bothEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "countryCode");
+            assertOnlyErrorExistsForField(bothEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "phoneCountryCode");
             assertOnlyErrorExistsForField(bothEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "number");
         }
 
@@ -104,7 +104,7 @@ public class PhoneTest {
             Result<Phone, DomainError> bothWhite = Phone.create(whitespace, whitespace);
             assertTrue(bothWhite.isFailure());
             assertEquals(2, bothWhite.getErrors().size());
-            assertOnlyErrorExistsForField(bothWhite.getErrors(), ValidatorType.EMPTY_VALUE, "countryCode");
+            assertOnlyErrorExistsForField(bothWhite.getErrors(), ValidatorType.EMPTY_VALUE, "phoneCountryCode");
             assertOnlyErrorExistsForField(bothWhite.getErrors(), ValidatorType.EMPTY_VALUE, "number");
         }
 

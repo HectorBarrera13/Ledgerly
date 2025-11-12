@@ -51,10 +51,10 @@ public class Phone {
 
     private static Result<Void, DomainError> isValidCode(String code) {
         if (code == null || code.isBlank()) {
-            return Validators.EMPTY_VALUE("countryCode");
+            return Validators.EMPTY_VALUE("phoneCountryCode");
         }
         if (!code.matches("\\+\\d{1,4}")) {
-            return Validators.INVALID_FORMAT("countryCode", code, "must start with '+' followed by 1 to 4 digits");
+            return Validators.INVALID_FORMAT("phoneCountryCode", code, "must start with '+' followed by 1 to 4 digits");
         }
         return Result.success();
     }
@@ -62,7 +62,7 @@ public class Phone {
     @Override
     public String toString() {
         return "Phone{" +
-                "countryCode='" + countryCode + '\'' +
+                "phoneCountryCode='" + countryCode + '\'' +
                 ", number='" + number + '\'' +
                 '}';
     }

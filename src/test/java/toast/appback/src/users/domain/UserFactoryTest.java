@@ -31,7 +31,7 @@ public class UserFactoryTest {
         assertEquals(4, result.getErrors().size(), "Expected 4 validation errors");
         assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
         assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
-        assertErrorExistsForField(result.getErrors(), ValidatorType.INVALID_FORMAT, "countryCode");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.INVALID_FORMAT, "phoneCountryCode");
         assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "number");
     }
 

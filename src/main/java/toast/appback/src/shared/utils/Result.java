@@ -104,6 +104,12 @@ public class Result<T, E extends IError> {
         }
     }
 
+    public <X extends Throwable> void ifFailureThrows(Function<List<E>, ? extends X> exceptionFunction) throws X {
+        if (isFailure()) {
+            throw exceptionFunction.apply(errors);
+        }
+    }
+
     public static <A, B, E extends IError> Result<Pair<A, B>, E> combine(Result<A, E> ra, Result<B, E> rb) {
         if (ra.isSuccess() && rb.isSuccess()) {
             return Result.success(new Pair<>(ra.getValue(), rb.getValue()));

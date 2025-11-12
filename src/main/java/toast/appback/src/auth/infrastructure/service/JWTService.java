@@ -13,9 +13,8 @@ import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
-import toast.appback.src.middleware.ErrorsHandler;
-import toast.appback.src.shared.utils.Result;
-import toast.appback.src.shared.application.AppError;
+import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
+import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
 import toast.appback.src.auth.application.port.TokenService;
 
 import javax.crypto.SecretKey;
@@ -58,23 +57,20 @@ public class JWTService implements TokenService {
     @Override
     public AccountInfo extractAccountInfo(String token) {
         if (isTokenExpired(token)) {
-            ErrorsHandler.handleError(AppError.authorizationFailed("Token has expired"));
+            throw new TokenExpiredException();
         }
 
-        Result<String, AppError> subjectResult = extractClaim(token, Claims::getSubject);
-        subjectResult.ifFailure(ErrorsHandler::handleErrors);
+        String subject = extractClaim(token, Claims::getSubject);
 
-        Result<String, AppError> idResult = extractClaim(token, Claims::getId);
-        idResult.ifFailure(ErrorsHandler::handleErrors);
+        String id = extractClaim(token, Claims::getId);
 
-        Result<String, AppError> sessionIdResult = extractClaim(token,
+        String sessionId = extractClaim(token,
                 claims -> claims.get("sessionId", String.class));
-        sessionIdResult.ifFailure(ErrorsHandler::handleErrors);
 
         return new AccountInfo(
-                AccountId.load(UUID.fromString(idResult.getValue())),
-                SessionId.load(UUID.fromString(sessionIdResult.getValue())),
-                subjectResult.getValue()
+                AccountId.load(UUID.fromString(id)),
+                SessionId.load(UUID.fromString(sessionId)),
+                subject
         );
     }
 
@@ -89,34 +85,33 @@ public class JWTService implements TokenService {
                 .compact();
     }
 
-    private <T> Result<T, AppError> extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         try {
             Claims claims = jwtParser.parseSignedClaims(token).getPayload();
-            return Result.success(claimsResolver.apply(claims));
+            return claimsResolver.apply(claims);
         } catch (SignatureException e) {
             logger.warn("JWT signature inválida: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Invalid JWT signature").withDetails(e.getMessage()));
+            throw new TokenClaimsException("Invalid JWT signature", e);
         } catch (MalformedJwtException e) {
             logger.warn("JWT value malformado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Malformed JWT value").withDetails(e.getMessage()));
+            throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
             logger.warn("JWT value expirado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Expired JWT value").withDetails(e.getMessage()));
+            throw new TokenExpiredException();
         } catch (UnsupportedJwtException e) {
             logger.warn("JWT value no soportado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Unsupported JWT value").withDetails(e.getMessage()));
+            throw new TokenClaimsException("Unsupported JWT token", e);
         } catch (IllegalArgumentException e) {
             logger.warn("JWT claims string vacío o nulo: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("JWT claims string is empty or null").withDetails(e.getMessage()));
+            throw new TokenClaimsException("JWT claims string is empty or null", e);
         } catch (Exception e) {
-            logger.error("Error inesperado al extraer claim del JWT: {}", e.getMessage(), e);
-            return Result.failure(AppError.authorizationFailed("Unexpected error while extracting JWT claim").withDetails(e.getMessage()));
+            logger.error("Error al extraer claims del JWT: {}", e.getMessage());
+            throw new TokenClaimsException("Error extracting JWT claims", e);
         }
     }
 
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration)
-                .map(d -> d.before(new Date()))
-                .isSuccess();
+                .before(new Date());
     }
 }

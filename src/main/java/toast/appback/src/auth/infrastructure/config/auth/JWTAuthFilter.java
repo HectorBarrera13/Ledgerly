@@ -15,8 +15,6 @@ import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
-import toast.appback.src.shared.utils.Result;
-import toast.appback.src.shared.application.AppError;
 
 import java.io.IOException;
 

@@ -3,11 +3,7 @@ package toast.appback.src.users.application.communication.command;
 public record CreateUserCommand(
         String firstName,
         String lastName,
-        Phone phone
+        String phoneCountryCode,
+        String phoneNumber
 ) {
-    public record Phone(
-            String countryCode,
-            String number
-    ) {
-    }
 }
