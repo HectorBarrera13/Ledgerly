@@ -1,5 +1,6 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
@@ -41,9 +42,11 @@ public class RefreshSessionUseCase implements RefreshSession {
         result.ifFailureThrows(InvalidSessionException::new);
 
         return tokenService.generateAccessToken(
-                account.getAccountId().getValue().toString(),
-                sessionId.getValue().toString(),
-                account.getEmail().getValue()
+                new TokenClaims(
+                        account.getAccountId(),
+                        sessionId,
+                        account.getEmail().getValue()
+                )
         );
     }
 }

@@ -78,7 +78,7 @@ public class RegisterAccountTest {
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenReturn(createAccountResult);
-        when(tokenService.generateAccessToken(anyString(), anyString(), anyString()))
+        when(tokenService.generateAccessToken(any()))
                 .thenReturn(accessToken);
         // Execute the use case
         RegisterAccountResult result = registerAccountUseCase.execute(command);
@@ -89,7 +89,7 @@ public class RegisterAccountTest {
         // Verify interactions
         verify(createUser, times(1)).execute(any());
         verify(createAccount, times(1)).execute(any());
-        verify(tokenService, times(1)).generateAccessToken(anyString(), anyString(), anyString());
+        verify(tokenService, times(1)).generateAccessToken(any());
         // Events should be published for both user and account
         verify(eventBus, times(2)).publishAll(anyList());
     }
@@ -115,7 +115,7 @@ public class RegisterAccountTest {
         // Verify interactions
         verify(createUser, times(1)).execute(any());
         verify(createAccount, times(1)).execute(any());
-        verify(tokenService, never()).generateAccessToken(anyString(), anyString(), anyString());
+        verify(tokenService, never()).generateAccessToken(any());
         verify(eventBus, never()).publishAll(anyList());
     }
 
@@ -134,7 +134,7 @@ public class RegisterAccountTest {
         // Verify interactions
         verify(createUser, times(1)).execute(any());
         verify(createAccount, never()).execute(any());
-        verify(tokenService, never()).generateAccessToken(anyString(), anyString(), anyString());
+        verify(tokenService, never()).generateAccessToken(any());
         verify(eventBus, never()).publishAll(anyList());
     }
 
@@ -160,14 +160,14 @@ public class RegisterAccountTest {
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenReturn(createAccountResult);
-        when(tokenService.generateAccessToken(anyString(), anyString(), anyString()))
+        when(tokenService.generateAccessToken(any()))
                 .thenThrow(RuntimeException.class);
         // Execute the use case and expect an exception
         assertThrows(RuntimeException.class, () -> registerAccountUseCase.execute(command));
         // Verify interactions
         verify(createUser, times(1)).execute(any());
         verify(createAccount, times(1)).execute(any());
-        verify(tokenService, times(1)).generateAccessToken(anyString(), anyString(), anyString());
+        verify(tokenService, times(1)).generateAccessToken(any());
         verify(eventBus, never()).publishAll(anyList());
     }
 }
