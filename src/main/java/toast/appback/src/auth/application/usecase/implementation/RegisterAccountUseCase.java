@@ -3,6 +3,7 @@ package toast.appback.src.auth.application.usecase.implementation;
 import toast.appback.src.auth.application.communication.AuthCommandMapper;
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.CreateAccountResult;
 import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
 import toast.appback.src.auth.application.communication.result.AccessToken;
@@ -46,9 +47,11 @@ public class RegisterAccountUseCase implements RegisterAccount {
         SessionId sessionId = accountResult.sessionId();
 
         AccessToken accessToken = tokenService.generateAccessToken(
-                newAccount.getAccountId().getValue().toString(),
-                sessionId.getValue().toString(),
-                newAccount.getEmail().getValue()
+                new TokenClaims(
+                        newAccount.getAccountId(),
+                        sessionId,
+                        newAccount.getEmail().getValue()
+                )
         );
 
         eventBus.publishAll(newUser.pullEvents());

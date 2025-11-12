@@ -5,10 +5,12 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.domain.AccountId;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JWTService implements TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(JWTService.class);
@@ -45,8 +48,11 @@ public class JWTService implements TokenService {
     }
 
     @Override
-    public AccessToken generateAccessToken(String uuid, String sessionId, String email) {
-        String accessToken = buildToken(uuid, email, sessionId, accessExpiration);
+    public AccessToken generateAccessToken(TokenClaims tokenClaims) {
+        String accountId = tokenClaims.accountId().getValue().toString();
+        String sessionId = tokenClaims.sessionId().getValue().toString();
+        String email = tokenClaims.email();
+        String accessToken = buildToken(accountId, email, sessionId, accessExpiration);
         return new AccessToken(
                 accessToken,
                 "Bearer",
@@ -113,5 +119,13 @@ public class JWTService implements TokenService {
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration)
                 .before(new Date());
+    }
+
+    public void setJwtSecret(String jwtSecret) {
+        this.jwtSecret = jwtSecret;
+    }
+
+    public void setAccessExpiration(long accessExpiration) {
+        this.accessExpiration = accessExpiration;
     }
 }

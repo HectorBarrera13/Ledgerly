@@ -1,6 +1,7 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
 import toast.appback.src.auth.application.communication.command.AuthenticateAccountCommand;
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.application.exceptions.AccountNotFoundException;
 import toast.appback.src.auth.application.exceptions.domain.SessionStartException;
@@ -49,9 +50,11 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
         Session newSession = newSessionResult.getValue();
 
         AccessToken accessToken = tokenService.generateAccessToken(
-                account.getAccountId().getValue().toString(),
-                newSession.getSessionId().getValue().toString(),
-                account.getEmail().getValue()
+                new TokenClaims(
+                        account.getAccountId(),
+                        newSession.getSessionId(),
+                        account.getEmail().getValue()
+                )
         );
 
         accountRepository.updateSessions(account);
