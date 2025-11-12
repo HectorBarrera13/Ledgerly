@@ -8,7 +8,7 @@ public class UserMapper {
     public static UserEntity toEntity(User user) {
         if (user == null) return null;
         UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(user.getId().getValue());
+        userEntity.setUserId(user.getUserId().getValue());
         userEntity.setFirstName(user.getName().getFirstName());
         userEntity.setLastName(user.getName().getLastName());
 

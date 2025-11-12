@@ -7,7 +7,6 @@ import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
 
@@ -26,14 +25,14 @@ public class AddFriendUseCase implements AddFriend {
 
     @Override
     public void execute(AddFriendCommand command) {
-        Optional<User> requester = userRepository.findById(UserId.load(command.requesterId()));
+        Optional<User> requester = userRepository.findById(command.requesterId());
         if (requester.isEmpty()) {
-            throw new RequesterNotFound(command.requesterId(), "requester user not found");
+            throw new RequesterNotFound(command.requesterId());
         }
 
-        Optional<User> receiver = userRepository.findById(UserId.load(command.receiverId()));
+        Optional<User> receiver = userRepository.findById(command.receiverId());
         if (receiver.isEmpty()) {
-            throw new ReceiverNotFound(command.receiverId(), "receiver user not found");
+            throw new ReceiverNotFound(command.receiverId());
         }
 
         User requestUser = requester.get();

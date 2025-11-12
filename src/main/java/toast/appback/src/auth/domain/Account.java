@@ -69,24 +69,39 @@ public class Account {
     }
 
     public Result<Void, DomainError> revokeSession(SessionId sessionId) {
-        boolean removed = this.sessions.stream()
-                .filter(s -> s.getSessionId().equals(sessionId))
-                .findFirst()
-                .map(s -> {
-                    s.revoke();
-                    return true;
-                }).orElse(false);
-        if (!removed) {
-            return Result.failure(DomainError.unexpected("session not found",
+        Optional<Session> foundSession = this.findSession(sessionId);
+        if (foundSession.isEmpty()) {
+            return Result.failure(DomainError.integrity("session not found",
                     "session with ID: " + sessionId + " could not be revoked from account " + accountId));
         }
+        Session session = foundSession.get();
+        if (session.isRevoked()) {
+            return Result.failure(DomainError.integrity("session already revoked",
+                    "session with ID: " + sessionId + " is already revoked for account " + accountId));
+        }
+        session.revoke();
         this.recordEvent(new SessionRevoked(this.accountId, sessionId));
         return Result.success();
     }
 
-    public boolean hasActiveSession(SessionId sessionId) {
+    public Optional<Session> findSession(SessionId sessionId) {
         return this.sessions.stream()
-                .anyMatch(s -> s.getSessionId().equals(sessionId) && s.isValid());
+                .filter(s -> s.getSessionId().equals(sessionId))
+                .findFirst();
+    }
+
+    public Result<Void, DomainError> verifyValidSessionStatus(SessionId sessionId) {
+        Optional<Session> foundSession = this.findSession(sessionId);
+        if (foundSession.isEmpty()) {
+            return Result.failure(DomainError.integrity("session not found",
+                    "session with ID: " + sessionId + " not found for account " + accountId));
+        }
+        Session session = foundSession.get();
+        if (!session.isValid()) {
+            return Result.failure(DomainError.integrity("inactive session",
+                    "session with ID: " + sessionId + " is not active for account " + accountId));
+        }
+        return Result.success();
     }
 
     public void revokeAllSessions() {

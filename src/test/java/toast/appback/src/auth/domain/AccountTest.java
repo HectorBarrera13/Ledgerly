@@ -6,6 +6,7 @@ import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.UserId;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +63,6 @@ public class AccountTest {
     @DisplayName("Should add session correctly when under limit")
     void testStartSessionUnderLimit() {
         for (int i = 0; i < 5; i++) {
-            Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
             var result = account.startSession();
             assertTrue(result.isSuccess());
         }
@@ -107,6 +107,29 @@ public class AccountTest {
         for (Session session : account.getSessions()) {
             assertTrue(session.isRevoked());
         }
+    }
+
+    @Test
+    @DisplayName("Should return correct errors when verifying session status")
+    public void testVerifyValidSessionStatus() {
+        Result<Session, DomainError> startedSession = account.startSession();
+        Session session = startedSession.getValue();
+
+        // Valid session
+        var validResult = account.verifyValidSessionStatus(session.getSessionId());
+        assertTrue(validResult.isSuccess());
+
+        // Revoke session and verify
+        account.revokeSession(session.getSessionId());
+        var revokedResult = account.verifyValidSessionStatus(session.getSessionId());
+        assertTrue(revokedResult.isFailure());
+        List<DomainError> errors = revokedResult.getErrors();
+        assertEquals("inactive session", errors.getFirst().message());
+
+        // Verify non-existent session
+        var nonExistentResult = account.verifyValidSessionStatus(SessionId.generate());
+        assertTrue(nonExistentResult.isFailure());
+        assertEquals("session not found", nonExistentResult.getErrors().getFirst().message());
     }
 
     @Test

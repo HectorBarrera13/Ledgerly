@@ -1,9 +1,9 @@
 package toast.appback.src.users.application.communication.command;
 
-import java.util.UUID;
+import toast.appback.src.users.domain.UserId;
 
 public record RemoveFriendCommand(
-        UUID requesterId,
-        UUID friendId
+        UserId requesterId,
+        UserId friendId
 ) {
 }

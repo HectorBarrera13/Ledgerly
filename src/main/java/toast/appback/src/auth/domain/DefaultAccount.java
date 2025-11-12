@@ -1,4 +1,5 @@
 package toast.appback.src.auth.domain;
+import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
 import toast.appback.src.auth.domain.event.AccountCreated;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.utils.Result;
@@ -13,8 +14,7 @@ public class DefaultAccount extends AccountFactory {
         this.passwordHasher = passwordHasher;
     }
 
-    @Override
-    public Result<Account, DomainError> create(UserId userId, String email, String password) {
+    private Result<Account, DomainError> create(UserId userId, String email, String password) {
         if (userId == null) {
             return Result.failure(DomainError.validation("user id", "user id cannot be null"));
         }
@@ -37,5 +37,14 @@ public class DefaultAccount extends AccountFactory {
                 )
         );
         return result;
+    }
+
+    @Override
+    public Result<Account, DomainError> create(CreateAccountCommand command) {
+        return create(
+                command.userId(),
+                command.email(),
+                command.password()
+        );
     }
 }

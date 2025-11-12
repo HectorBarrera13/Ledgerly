@@ -1,9 +1,8 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
 import toast.appback.src.auth.application.communication.result.AccountInfo;
-import toast.appback.src.auth.application.exceptions.InvalidateSessionException;
-import toast.appback.src.auth.application.exceptions.SessionNotFound;
-import toast.appback.src.auth.application.port.AuthService;
+import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
+import toast.appback.src.auth.application.exceptions.domain.InvalidateSessionException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.domain.Account;
@@ -16,16 +15,13 @@ import java.util.Optional;
 
 public class TerminateSessionUseCase implements TerminateSession {
     private final TokenService tokenService;
-    private final AuthService authService;
     private final AccountRepository accountRepository;
     private final EventBus eventBus;
 
     public TerminateSessionUseCase(TokenService tokenService,
-                                   AuthService authService,
                                    AccountRepository accountRepository,
                                    EventBus eventBus) {
         this.tokenService = tokenService;
-        this.authService = authService;
         this.accountRepository = accountRepository;
         this.eventBus = eventBus;
     }
@@ -33,12 +29,9 @@ public class TerminateSessionUseCase implements TerminateSession {
     @Override
     public void execute(String accessToken) {
         AccountInfo accountInfo = tokenService.extractAccountInfo(accessToken);
-        Optional<Account> foundAccount = accountRepository.findByAccountIdAndSessionId(
-                accountInfo.accountId(),
-                accountInfo.sessionId()
-        );
+        Optional<Account> foundAccount = accountRepository.findById(accountInfo.accountId());
         if (foundAccount.isEmpty()) {
-            throw new SessionNotFound(accountInfo.sessionId().getValue(), accountInfo.accountId().getValue());
+            throw new InvalidClaimsException(String.format("Account with id %s not found", accountInfo.accountId()));
         }
         Account account = foundAccount.get();
         Result<Void, DomainError> result = account.revokeSession(accountInfo.sessionId());

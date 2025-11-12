@@ -32,8 +32,8 @@ public class FriendShip {
         FriendShip friendship = new FriendShip(null, request, receiver, now);
         friendship.recordEvent(
                 new FriendAdded(
-                        request.getId(),
-                        receiver.getId()
+                        request.getUserId(),
+                        receiver.getUserId()
                 )
         );
         return friendship;
