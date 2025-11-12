@@ -1,14 +1,13 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.EditDebtCommand;
+import toast.appback.src.debts.application.exceptions.DebtNotFound;
+import toast.appback.src.debts.application.exceptions.EditDebtException;
 import toast.appback.src.debts.application.usecase.contract.EditDebt;
 import toast.appback.src.debts.domain.Context;
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.debts.domain.repository.DebtRepository;
-import toast.appback.src.middleware.ApplicationException;
-import toast.appback.src.middleware.ErrorsHandler;
-import toast.appback.src.shared.application.AppError;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
@@ -25,27 +24,20 @@ public class EditDebtUseCase implements EditDebt{
     }
 
     @Override
-    public Debt execute(EditDebtCommand command) throws ApplicationException {
+    public Debt execute(EditDebtCommand command) {
         Optional<Debt> foundDebt = debtRepository.findById(command.debtId());
         if(foundDebt.isEmpty()){
-            ErrorsHandler.handleError(AppError.entityNotFound("Debt","Debt not found"));
+            throw new DebtNotFound(command.debtId().getValue());
         }
         Debt debt = foundDebt.get();
 
-        Result<Context, DomainError> context = Context.create(command.purpose(), command.description());
-        if(context.isFailure()){
-            ErrorsHandler.handleError(AppError.dataIntegrityViolation("Datos incorrectos"));
-        }
-        Context newContext = context.getValue();
-
-        Result<DebtMoney, DomainError> debtMonet = DebtMoney.create(command.currency(), command.amount());
-        if(debtMonet.isFailure()){
-            ErrorsHandler.handleError(AppError.dataIntegrityViolation("Datos incorrectos"));
-        }
-        DebtMoney newDebtMoney = debtMonet.getValue();
-
-        debt.editDebtMoney(newDebtMoney);
-        debt.editContext(newContext);
+        Result<Void, DomainError> edit = Context.create(command.purpose(), command.description())
+                .flatMap(_context -> DebtMoney.create(command.currency(), command.amount())
+                        .consume(_debtMoney -> {
+                            debt.editDebtMoney(_debtMoney);
+                            debt.editContext(_context);
+                        }));
+        edit.ifFailureThrows(EditDebtException::new);
 
         debtRepository.save(debt);
 

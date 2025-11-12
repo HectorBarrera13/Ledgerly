@@ -1,8 +1,10 @@
 package toast.appback.src.auth.application.exceptions;
 
+import toast.appback.src.shared.application.ApplicationException;
+
 import java.util.UUID;
 
-public class SessionNotFound extends RuntimeException {
+public class SessionNotFound extends ApplicationException {
     private final UUID sessionId;
     private final UUID accountId;
 

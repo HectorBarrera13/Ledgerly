@@ -1,6 +1,8 @@
 package toast.appback.src.auth.application.exceptions;
 
-public class AccountNotFoundException extends RuntimeException {
+import toast.appback.src.shared.application.ApplicationException;
+
+public class AccountNotFoundException extends ApplicationException {
     private final String email;
     public AccountNotFoundException(String email) {
         super("Account with email " + email + " not found.");

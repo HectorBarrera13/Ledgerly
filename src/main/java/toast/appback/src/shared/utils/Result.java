@@ -139,14 +139,11 @@ public class Result<T, E extends IError> {
         }
     }
 
-    // Map all result
-    public <R> T mapResult(Consumer<Result<R, E>> consumer) {
+    public Result<Void, E> consume(Consumer<T> consumer) {
         if (isSuccess()) {
-            consumer.accept(Result.success());
-        } else {
-            consumer.accept(Result.failure(this.errors));
+            consumer.accept(this.value);
         }
-        return this.value;
+        return Result.failure(this.errors);
     }
 
     /**

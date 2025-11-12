@@ -1,6 +1,8 @@
 package toast.appback.src.auth.application.exceptions;
 
-public class AccountExistsException extends RuntimeException {
+import toast.appback.src.shared.application.ApplicationException;
+
+public class AccountExistsException extends ApplicationException {
     private final String email;
 
     public AccountExistsException(String email) {
