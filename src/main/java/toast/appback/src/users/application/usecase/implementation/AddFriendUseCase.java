@@ -7,7 +7,6 @@ import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
 

@@ -3,7 +3,6 @@ package toast.appback.src.auth.application.usecase.implementation;
 import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
 import toast.appback.src.auth.application.exceptions.domain.InvalidateSessionException;
-import toast.appback.src.auth.application.exceptions.SessionNotFound;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.domain.Account;
