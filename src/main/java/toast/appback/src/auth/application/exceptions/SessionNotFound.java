@@ -1,24 +1,26 @@
 package toast.appback.src.auth.application.exceptions;
 
+import toast.appback.src.auth.domain.AccountId;
+import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.shared.application.ApplicationException;
 
-import java.util.UUID;
-
 public class SessionNotFound extends ApplicationException {
-    private final UUID sessionId;
-    private final UUID accountId;
+    private static final String MESSAGE_TEMPLATE = "session with id %s for account with id %s not found.";
+    private static final String FRIENDLY_MESSAGE = "the session for the account was not found.";
+    private final SessionId sessionId;
+    private final AccountId accountId;
 
-    public SessionNotFound(UUID sessionId, UUID accountId) {
-        super("session with ID " + sessionId + " for account with ID " + accountId + " not found.");
+    public SessionNotFound(SessionId sessionId, AccountId accountId) {
+        super(String.format(MESSAGE_TEMPLATE, sessionId, accountId), FRIENDLY_MESSAGE);
         this.sessionId = sessionId;
         this.accountId = accountId;
     }
 
-    public UUID getSessionId() {
+    public SessionId getSessionId() {
         return sessionId;
     }
 
-    public UUID getAccountId() {
+    public AccountId getAccountId() {
         return accountId;
     }
 }

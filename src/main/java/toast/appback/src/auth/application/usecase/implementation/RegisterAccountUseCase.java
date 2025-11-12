@@ -3,17 +3,15 @@ package toast.appback.src.auth.application.usecase.implementation;
 import toast.appback.src.auth.application.communication.AuthCommandMapper;
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
+import toast.appback.src.auth.application.communication.result.CreateAccountResult;
 import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
 import toast.appback.src.auth.application.communication.result.AccessToken;
-import toast.appback.src.auth.application.exceptions.SessionStartException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
 import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.Session;
+import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
@@ -40,17 +38,16 @@ public class RegisterAccountUseCase implements RegisterAccount {
         User newUser = createUser.execute(createUserCommand);
 
         CreateAccountCommand createAccountCommand =
-                new CreateAccountCommand(newUser.getId(), command.email(), command.password());
-        Account newAccount = createAccount.execute(createAccountCommand);
+                new CreateAccountCommand(newUser.getUserId(), command.email(), command.password());
+        CreateAccountResult accountResult = createAccount.execute(createAccountCommand);
 
-        Result<Session, DomainError> sessionResult = newAccount.startSession();
-        sessionResult.ifFailureThrows(SessionStartException::new);
+        Account newAccount = accountResult.account();
 
-        Session newSession = sessionResult.getValue();
+        SessionId sessionId = accountResult.sessionId();
 
         AccessToken accessToken = tokenService.generateAccessToken(
                 newAccount.getAccountId().getValue().toString(),
-                newSession.getSessionId().getValue().toString(),
+                sessionId.getValue().toString(),
                 newAccount.getEmail().getValue()
         );
 

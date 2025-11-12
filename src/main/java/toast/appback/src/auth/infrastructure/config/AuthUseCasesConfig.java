@@ -73,13 +73,11 @@ public class AuthUseCasesConfig {
     @Transactional
     public TerminateSessionUseCase accountLogoutUseCase(
             TokenService tokenService,
-            AuthService authService,
             AccountRepository accountRepository,
             EventBus eventBus
     ) {
         return new TerminateSessionUseCase(
                 tokenService,
-                authService,
                 accountRepository,
                 eventBus
         );

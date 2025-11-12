@@ -7,24 +7,24 @@ import java.util.List;
 import java.util.Objects;
 
 public class User {
-    private final UserId id;
+    private final UserId userId;
     private Name name;
     private final Phone phone;
     private List<DomainEvent> domainEvents = new ArrayList<>();
 
-    public User(UserId id, Name name, Phone phone) {
-        this.id = id;
+    public User(UserId userId, Name name, Phone phone) {
+        this.userId = userId;
         this.name = name;
         this.phone = phone;
     }
 
-    public User(UserId id, Name name, Phone phone, List<DomainEvent> domainEvents) {
-        this(id, name, phone);
+    public User(UserId userId, Name name, Phone phone, List<DomainEvent> domainEvents) {
+        this(userId, name, phone);
         this.domainEvents = new ArrayList<>(domainEvents);
     }
 
-    public UserId getId() {
-        return id;
+    public UserId getUserId() {
+        return userId;
     }
 
     public Name getName() {
@@ -52,7 +52,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "accountId=" + id +
+                "accountId=" + userId +
                 ", name=" + name +
                 ", phone=" + phone +
                 ", domainEvents=" + domainEvents +
@@ -62,11 +62,11 @@ public class User {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof User user)) return false;
-        return Objects.equals(id, user.id);
+        return Objects.equals(userId, user.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(userId);
     }
 }

@@ -21,6 +21,10 @@ public record DomainError(
         return new DomainError(message, null, DomainErrType.BUSINESS_RULE_VIOLATION, null, ValidatorType.BUSINESS_RULE_VIOLATION, null);
     }
 
+    public static DomainError integrity(String message, String details) {
+        return new DomainError(message, details, DomainErrType.BUSINESS_RULE_VIOLATION, null, ValidatorType.INVALID_STATE, null);
+    }
+
     public static DomainError unexpected(String message, String details) {
         return new DomainError(message, details, DomainErrType.UNEXPECTED_ERROR, null, ValidatorType.UNEXPECTED_ERROR, null);
     }

@@ -30,7 +30,12 @@ public class AccountRepositoryMySQL implements AccountRepository {
     public Optional<Account> findBySessionId(SessionId sessionId) {
         return jpaAccountRepository.findBySessionId(sessionId.getValue())
                 .map(AccountMapper::toDomain);
+    }
 
+    @Override
+    public Optional<Account> findById(AccountId accountId) {
+        return jpaAccountRepository.findByAccountId(accountId.getValue())
+                .map(AccountMapper::toDomain);
     }
 
     @Override

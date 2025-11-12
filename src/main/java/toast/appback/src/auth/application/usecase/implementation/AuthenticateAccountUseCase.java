@@ -3,7 +3,7 @@ package toast.appback.src.auth.application.usecase.implementation;
 import toast.appback.src.auth.application.communication.command.AuthenticateAccountCommand;
 import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.application.exceptions.AccountNotFoundException;
-import toast.appback.src.auth.application.exceptions.SessionStartException;
+import toast.appback.src.auth.application.exceptions.domain.SessionStartException;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.AuthenticateAccount;

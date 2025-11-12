@@ -2,6 +2,7 @@ package toast.appback.src.auth.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
 import toast.appback.src.auth.domain.event.AccountCreated;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.domain.DomainEvent;
@@ -34,11 +35,12 @@ public class AccountFactoryTest {
     @Test
     @DisplayName("Collect all errors when creating a user with invalid data")
     void testCreateUserWithInvalidData() {
-        Result<Account, DomainError> result = accountFactory.create(
+        CreateAccountCommand command = new CreateAccountCommand(
                 UserId.load(UUID.randomUUID()),
                 "invalidEmail.com",
                 "1234123"
         );
+        Result<Account, DomainError> result = accountFactory.create(command);
         assertFalse(result.isSuccess(), "Expected successful account creation");
         assertEquals(2, result.getErrors().size(), "Expected 2 validation errors");
     }
@@ -46,11 +48,12 @@ public class AccountFactoryTest {
     @Test
     @DisplayName("Collect some errors when creating a user with partially invalid data")
     void testCreateUserWithPartiallyInvalidData() {
-        Result<Account, DomainError> result = accountFactory.create(
+        CreateAccountCommand command = new CreateAccountCommand(
                 UserId.load(UUID.randomUUID()),
-                "inValidEmail@gmail.com",
-                "sdawdawdad2awdawd"
+                "johndoe@gmail.com",
+                "123"
         );
+        Result<Account, DomainError> result = accountFactory.create(command);
         assertFalse(result.isSuccess(), "Expected successful account creation");
         assertEquals(1, result.getErrors().size(), "Expected 1 validation errors");
     }
@@ -58,26 +61,28 @@ public class AccountFactoryTest {
     @Test
     @DisplayName("Successfully create a user with valid data")
     void testCreateUserWithValidData() {
-        Result<Account, DomainError> result = accountFactory.create(
+        CreateAccountCommand command = new CreateAccountCommand(
                 UserId.load(UUID.randomUUID()),
-                "validemail@gmail.com",
-                "StrongPassword123"
+                "johndoe@gmail.com",
+                "123AWDAAWDW"
         );
+        Result<Account, DomainError> result = accountFactory.create(command);
         assertTrue(result.isSuccess(), "Expected successful account creation");
         Account account = result.getValue();
-        assertEquals("validemail@gmail.com", account.getEmail().getValue());
-        assertTrue(passwordHasher.verify("StrongPassword123", account.getPassword().getHashed()), "Password should be hashed correctly");
+        assertEquals("johndoe@gmail.com", account.getEmail().getValue());
+        assertTrue(passwordHasher.verify("123AWDAAWDW", account.getPassword().getHashed()), "Password should be hashed correctly");
         assertNotNull(account.getAccountId());
     }
 
     @Test
     @DisplayName("Should generate a domain event upon user creation")
     void testUserCreationGeneratesDomainEvent() {
-        Result<Account, DomainError> result = accountFactory.create(
+        CreateAccountCommand command = new CreateAccountCommand(
                 UserId.load(UUID.randomUUID()),
-                "adada@gmail.com",
-                "AnotherStrongPasswor2d!"
+                "johndoe@gmail.com",
+                "123F2ASCASD!"
         );
+        Result<Account, DomainError> result = accountFactory.create(command);
         assertTrue(result.isSuccess(), "Expected successful account creation");
         Account account = result.getValue();
         List<DomainEvent> events = account.pullEvents();

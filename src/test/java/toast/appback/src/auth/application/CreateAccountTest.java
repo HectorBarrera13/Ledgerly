@@ -4,12 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
+import toast.appback.src.auth.application.communication.result.CreateAccountResult;
 import toast.appback.src.auth.application.exceptions.AccountExistsException;
-import toast.appback.src.auth.application.exceptions.CreationAccountException;
+import toast.appback.src.auth.application.exceptions.domain.CreationAccountException;
+import toast.appback.src.auth.application.exceptions.domain.SessionStartException;
 import toast.appback.src.auth.application.usecase.implementation.CreateAccountUseCase;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.AccountId;
+import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
@@ -46,19 +49,22 @@ public class CreateAccountTest {
         when(accountRepository.findByEmail(any())).thenReturn(Optional.empty());
         // Mock account creation
         Account account = mock(Account.class);
-        when(accountFactory.create(any(), any(), any()))
+        when(accountFactory.create(any()))
                 .thenReturn(Result.success(account));
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
+        when(account.startSession()).thenReturn(Result.success(Session.create()));
         CreateAccountCommand command = new CreateAccountCommand(
                 UserId.generate(),
                 "johndoe@gmail.com",
                 "securePassword123"
         );
 
-        Account result = createAccountUseCase.execute(command);
-        assertEquals(account, result);
-        verify(accountFactory, times(1)).create(any(), any(), any());
+        CreateAccountResult result = createAccountUseCase.execute(command);
+        assertNotNull(result);
+        assertEquals(account, result.account());
+        verify(accountFactory, times(1)).create(any());
+        verify(accountRepository, times(1)).findByEmail(any());
         verify(accountRepository, times(1)).save(account);
     }
 
@@ -74,7 +80,7 @@ public class CreateAccountTest {
         // No existing account with the same email
         when(accountRepository.findByEmail(any())).thenReturn(Optional.empty());
         // Mock account creation failure
-        when(accountFactory.create(any(), any(), any()))
+        when(accountFactory.create(any()))
                 .thenReturn(Result.failure(DomainError.businessRule(message)));
         CreateAccountCommand command = new CreateAccountCommand(
                 UserId.generate(),
@@ -83,6 +89,9 @@ public class CreateAccountTest {
         );
 
         assertThrows(CreationAccountException.class, () -> createAccountUseCase.execute(command));
+        verify(accountRepository, never()).save(any());
+        verify(accountFactory, times(1)).create(any());
+        verify(accountRepository, times(1)).findByEmail(any());
         verify(accountRepository, never()).save(any());
     }
 
@@ -103,7 +112,36 @@ public class CreateAccountTest {
                 "securePassword123"
         );
         assertThrows(AccountExistsException.class, () -> createAccountUseCase.execute(command));
-        verify(accountFactory, never()).create(any(), any(), any());
+        verify(accountFactory, never()).create(any());
+        verify(accountRepository, never()).save(any());
+        verify(accountRepository, times(1)).findByEmail(any());
+    }
+
+    /**
+     * <p>Test case: Create account fails due to session start failure
+     * <p>Precondition: Valid CreateAccountCommand is provided but session start fails
+     * <p>Expected outcome: {@link SessionStartException} is thrown
+     */
+    @Test
+    @DisplayName("Should fail to create account when session start fails")
+    public void testCreateAccountFailsWhenSessionStartFails() {
+        // No existing account with the same email
+        when(accountRepository.findByEmail(any())).thenReturn(Optional.empty());
+        // Mock account creation
+        Account account = mock(Account.class);
+        when(accountFactory.create(any()))
+                .thenReturn(Result.success(account));
+        // Mock session start failure
+        when(account.startSession())
+                .thenReturn(Result.failure(DomainError.businessRule("SESSION_START_ERROR")));
+        CreateAccountCommand command = new CreateAccountCommand(
+                UserId.generate(),
+                "johndoe@gmail.com",
+                "securePassword123"
+        );
+        assertThrows(SessionStartException.class, () -> createAccountUseCase.execute(command));
+        verify(accountFactory, times(1)).create(any());
+        verify(accountRepository, times(1)).findByEmail(any());
         verify(accountRepository, never()).save(any());
     }
 }

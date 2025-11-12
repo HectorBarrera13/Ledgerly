@@ -1,11 +1,14 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
+import toast.appback.src.auth.application.communication.result.CreateAccountResult;
 import toast.appback.src.auth.application.exceptions.AccountExistsException;
-import toast.appback.src.auth.application.exceptions.CreationAccountException;
+import toast.appback.src.auth.application.exceptions.domain.CreationAccountException;
+import toast.appback.src.auth.application.exceptions.domain.SessionStartException;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.AccountFactory;
+import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
@@ -22,21 +25,22 @@ public class CreateAccountUseCase implements CreateAccount {
     }
 
     @Override
-    public Account execute(CreateAccountCommand command) {
+    public CreateAccountResult execute(CreateAccountCommand command) {
         Optional<Account> foundAccount = accountRepository.findByEmail(command.email());
         if (foundAccount.isPresent()) {
             throw new AccountExistsException(command.email());
         }
 
-        Result<Account, DomainError> newAccount = accountFactory.create(
-                command.userId(),
-                command.email(),
-                command.password()
-        );
+        Result<Account, DomainError> newAccount = accountFactory.create(command);
         newAccount.ifFailureThrows(CreationAccountException::new);
 
         Account account = newAccount.getValue();
+        Result<Session, DomainError> newSession = account.startSession();
+        newSession.ifFailureThrows(SessionStartException::new);
+
+        Session session = newSession.getValue();
+
         accountRepository.save(account);
-        return account;
+        return new CreateAccountResult(account, session.getSessionId());
     }
 }

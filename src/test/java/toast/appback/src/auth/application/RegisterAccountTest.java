@@ -4,17 +4,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
 import toast.appback.src.auth.application.communication.result.AccessToken;
+import toast.appback.src.auth.application.communication.result.CreateAccountResult;
 import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
-import toast.appback.src.auth.application.exceptions.SessionStartException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.implementation.RegisterAccountUseCase;
-import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.AccountId;
-import toast.appback.src.auth.domain.Email;
-import toast.appback.src.auth.domain.Session;
+import toast.appback.src.auth.domain.*;
 import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
@@ -69,17 +65,19 @@ public class RegisterAccountTest {
     public void testRegisterAccountSuccessfully() {
         // Mocking entities
         Account account = mock(Account.class);
+        SessionId sessionId = SessionId.generate();
         User user = mock(User.class);
+        CreateAccountResult createAccountResult = new CreateAccountResult(account, sessionId);
 
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
-        when(user.getId()).thenReturn(UserId.generate());
+        when(user.getUserId()).thenReturn(UserId.generate());
         // Mocking session dependencies
         when(account.startSession()).thenReturn(Result.success(Session.create()));
         when(account.getEmail()).thenReturn(Email.load(email));
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
-        when(createAccount.execute(any())).thenReturn(account);
+        when(createAccount.execute(any())).thenReturn(createAccountResult);
         when(tokenService.generateAccessToken(anyString(), anyString(), anyString()))
                 .thenReturn(accessToken);
         // Execute the use case
@@ -108,7 +106,7 @@ public class RegisterAccountTest {
         User user = mock(User.class);
 
         // Mocking equals for assertion
-        when(user.getId()).thenReturn(UserId.generate());
+        when(user.getUserId()).thenReturn(UserId.generate());
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenThrow(RuntimeException.class);
@@ -141,35 +139,6 @@ public class RegisterAccountTest {
     }
 
     /**
-     * <p>Test case: Register account fails when session creation fails
-     * <p>Precondition: Session creation fails
-     * <p>Expected outcome: Exception is thrown
-     */
-    @Test
-    @DisplayName("Should fail to register account when session creation fails")
-    public void testRegisterAccountFailsWhenSessionCreationFails() {
-        // Mocking entities
-        Account account = mock(Account.class);
-        User user = mock(User.class);
-        // Mocking equals for assertion
-        when(account.getAccountId()).thenReturn(AccountId.generate());
-        when(user.getId()).thenReturn(UserId.generate());
-        // Mocking session dependencies
-        when(account.startSession()).thenReturn(Result.failure(DomainError.businessRule("Session creation failed")));
-        when(account.getEmail()).thenReturn(Email.load(email));
-        // Mocking the dependencies
-        when(createUser.execute(any())).thenReturn(user);
-        when(createAccount.execute(any())).thenReturn(account);
-        // Execute the use case and expect an exception
-        assertThrows(SessionStartException.class, () -> registerAccountUseCase.execute(command));
-        // Verify interactions
-        verify(createUser, times(1)).execute(any());
-        verify(createAccount, times(1)).execute(any());
-        verify(tokenService, never()).generateAccessToken(anyString(), anyString(), anyString());
-        verify(eventBus, never()).publishAll(anyList());
-    }
-
-    /**
      * <p>Test case: Register account fails when token generation fails
      * <p>Precondition: Token generation fails
      * <p>Expected outcome: Exception is thrown
@@ -180,15 +149,17 @@ public class RegisterAccountTest {
         // Mocking entities
         Account account = mock(Account.class);
         User user = mock(User.class);
+        SessionId sessionId = SessionId.generate();
+        CreateAccountResult createAccountResult = new CreateAccountResult(account, sessionId);
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
-        when(user.getId()).thenReturn(UserId.generate());
+        when(user.getUserId()).thenReturn(UserId.generate());
         // Mocking session dependencies
         when(account.startSession()).thenReturn(Result.success(Session.create()));
         when(account.getEmail()).thenReturn(Email.load(email));
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
-        when(createAccount.execute(any())).thenReturn(account);
+        when(createAccount.execute(any())).thenReturn(createAccountResult);
         when(tokenService.generateAccessToken(anyString(), anyString(), anyString()))
                 .thenThrow(RuntimeException.class);
         // Execute the use case and expect an exception

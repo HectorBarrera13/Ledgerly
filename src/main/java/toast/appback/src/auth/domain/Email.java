@@ -41,7 +41,6 @@ public class Email {
     }
 
     public static Result<Email, DomainError> create(String email) {
-        System.out.println("Creating email: " + email);
         Result<EmailParts, DomainError> generalValidation = verifyGeneral(email);
         if (generalValidation.isFailure()) {
             return Result.failure(generalValidation.getErrors());

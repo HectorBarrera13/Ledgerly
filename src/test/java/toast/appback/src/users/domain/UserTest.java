@@ -25,7 +25,7 @@ public class UserTest {
     @Test
     @DisplayName("Should return all user data correctly")
     void testUserData() {
-        assertEquals(uuid, user.getId().getValue());
+        assertEquals(uuid, user.getUserId().getValue());
         assertEquals(FIRST_NAME, user.getName().getFirstName());
         assertEquals(LAST_NAME, user.getName().getLastName());
         assertEquals(PHONE_COUNTRY_CODE, user.getPhone().getCountryCode());
@@ -70,7 +70,7 @@ public class UserTest {
     @DisplayName("toString should return correct representation")
     void testToString() {
         String expected = "User{" +
-                "accountId=" + user.getId() +
+                "accountId=" + user.getUserId() +
                 ", name=" + user.getName() +
                 ", phone=" + user.getPhone() +
                 ", domainEvents=[]" +
