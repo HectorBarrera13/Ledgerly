@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import toast.appback.src.auth.domain.Email;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +34,7 @@ public class EmailTest {
             Result<Email, DomainError> result = Email.create(email);
             assertTrue(result.isSuccess(), "Expected success for valid email: " + email);
             Email createdEmail = result.getValue();
-            assertEquals(email, createdEmail.value());
+            assertEquals(email, createdEmail.getValue());
         }
     }
 
@@ -113,7 +113,7 @@ public class EmailTest {
             Result<Email, DomainError> result = Email.create(email);
             assertTrue(result.isSuccess());
             Email createdEmail = result.getValue();
-            assertEquals(email, createdEmail.value());
+            assertEquals(email, createdEmail.getValue());
         }
 
         @Test

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Session Domain Test")
 public class SessionTest {
 
-    private final SessionId sessionId = new SessionId(UUID.randomUUID());
+    private final SessionId sessionId = SessionId.generate();
     private final Session session = Session.create(sessionId);
 
     @Test
@@ -45,7 +45,7 @@ public class SessionTest {
     @Test
     @DisplayName("Should not be equal when having different session ids")
     void testSessionInequality() {
-        Session anotherSession = Session.create(new SessionId(UUID.randomUUID()));
+        Session anotherSession = Session.create(SessionId.generate());
         assertNotEquals(session, anotherSession);
     }
 }

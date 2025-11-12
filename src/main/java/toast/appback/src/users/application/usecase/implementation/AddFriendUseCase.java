@@ -1,8 +1,8 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.errors.AppError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.middleware.ErrorsHandler;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.AppError;
 import toast.appback.src.users.application.communication.command.AddFriendCommand;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
@@ -14,7 +14,6 @@ import toast.appback.src.users.domain.repository.UserRepository;
 import java.util.Optional;
 
 public class AddFriendUseCase implements AddFriend {
-
     private final FriendShipRepository friendShipRepository;
     private final UserRepository userRepository;
     private final EventBus eventBus;
@@ -26,20 +25,24 @@ public class AddFriendUseCase implements AddFriend {
     }
 
     @Override
-    public Result<Void, AppError> execute(AddFriendCommand command) {
+    public void execute(AddFriendCommand command) {
         Optional<User> requester = userRepository.findById(UserId.load(command.requesterId()));
         if (requester.isEmpty()) {
-            return Result.failure(AppError.entityNotFound("Requester user", "not found"));
+            ErrorsHandler.handleError(AppError.entityNotFound("Requester user", "not found"));
         }
+
         Optional<User> receiver = userRepository.findById(UserId.load(command.receiverId()));
         if (receiver.isEmpty()) {
-            return Result.failure(AppError.entityNotFound("Receiver user", "not found"));
+            ErrorsHandler.handleError(AppError.entityNotFound("Receiver user", "not found"));
         }
+
         User requestUser = requester.get();
         User receiverUser = receiver.get();
+
         FriendShip newfriendShip = FriendShip.create(requestUser, receiverUser);
+
         friendShipRepository.save(newfriendShip);
+
         eventBus.publishAll(newfriendShip.pullEvents());
-        return Result.success();
     }
 }

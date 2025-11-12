@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class ExceptionAdvisor {
 
-    @ExceptionHandler(ErrorHandler.class)
-    public ResponseEntity<ErrorData> handleCustomException(ErrorHandler ex) {
+    @ExceptionHandler(ApplicationException.class)
+    public ResponseEntity<ErrorData> handleCustomException(ApplicationException ex) {
         System.err.println("Handled custom exception: " + ex.getMessage() + " - " + ex.getErrorData().details());
         return new ResponseEntity<>(ex.getErrorData(), HttpStatusCode.valueOf(ex.getErrorData().status()));
     }

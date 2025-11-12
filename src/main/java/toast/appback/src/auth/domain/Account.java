@@ -3,9 +3,9 @@ package toast.appback.src.auth.domain;
 import toast.appback.src.auth.domain.event.AllSessionsRevoked;
 import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.auth.domain.event.SessionRevoked;
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.*;
@@ -57,7 +57,9 @@ public class Account {
                 .filter(Session::isValid)
                 .count();
         if (notRevokedSessions >= MAX_SESSIONS) {
-            return Result.failure(DomainError.businessRule("session limit exceeded")
+            return Result.failure(DomainError
+                    .businessRule("session limit exceeded")
+                    .withBusinessCode(AccountBusinessCode.SESSION_LIMIT_EXCEEDED)
                     .withDetails("account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
         }
         this.sessions.add(session);

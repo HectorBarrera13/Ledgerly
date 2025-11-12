@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.Name;
 
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class NameTest {
             Result<Name, DomainError> result = Name.create(firstName, lastName);
             assertTrue(result.isSuccess(), "Expected success for valid name: " + fullName);
             Name name = result.getValue();
-            assertEquals(firstName, name.firstName());
-            assertEquals(lastName, name.lastName());
+            assertEquals(firstName, name.getFirstName());
+            assertEquals(lastName, name.getLastName());
         }
     }
 

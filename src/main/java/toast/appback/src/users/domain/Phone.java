@@ -1,10 +1,33 @@
 package toast.appback.src.users.domain;
 
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.Validators;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.Validators;
+import toast.appback.src.shared.domain.DomainError;
 
-public record Phone(String countryCode, String number) {
+import java.util.Objects;
+
+public class Phone {
+
+    private final String countryCode;
+    private final String number;
+
+    private Phone(String countryCode, String number) {
+        this.countryCode = countryCode;
+        this.number = number;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public String getValue() {
+        return countryCode + "-" + number;
+    }
+
 
     public static Result<Phone, DomainError> create(String countryCode, String number) {
         return isValidCode(countryCode)
@@ -36,7 +59,22 @@ public record Phone(String countryCode, String number) {
         return Result.success();
     }
 
-    public String getValue() {
-        return countryCode + "-" + number;
+    @Override
+    public String toString() {
+        return "Phone{" +
+                "countryCode='" + countryCode + '\'' +
+                ", number='" + number + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Phone phone)) return false;
+        return Objects.equals(countryCode, phone.countryCode) && Objects.equals(number, phone.number);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(countryCode, number);
     }
 }

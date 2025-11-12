@@ -49,6 +49,15 @@ public class Session {
     }
 
     @Override
+    public String toString() {
+        return "Session{" +
+                "sessionId=" + sessionId +
+                ", status=" + status +
+                ", expiration=" + expiration +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Session session)) return false;
         return Objects.equals(sessionId, session.sessionId);

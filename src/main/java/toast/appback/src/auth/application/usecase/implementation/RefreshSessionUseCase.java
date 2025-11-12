@@ -7,9 +7,10 @@ import toast.appback.src.auth.application.usecase.contract.RefreshSession;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
+import toast.appback.src.middleware.ErrorsHandler;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.AppError;
 
 import java.util.Optional;
 
@@ -30,36 +31,37 @@ public class RefreshSessionUseCase implements RefreshSession {
     }
 
     @Override
-    public Result<TokenInfo, AppError> execute(String accessToken) {
+    public TokenInfo execute(String accessToken) {
         Result<AccountInfo, AppError> claimsResult = tokenService.extractClaims(accessToken);
-        if (claimsResult.isFailure()) {
-            return Result.failure(claimsResult.getErrors());
-        }
+        claimsResult.ifFailure(ErrorsHandler::handleErrors);
+
         AccountInfo accountInfo = claimsResult.getValue();
+
         Optional<Account> foundAccount = accountRepository.findBySessionId(accountInfo.sessionId());
         if (foundAccount.isEmpty()) {
-            return Result.failure(AppError.authorizationFailed("Session not found")
+            ErrorsHandler.handleError(AppError.authorizationFailed("Session not found")
                     .withDetails("sessionId: " + accountInfo.sessionId()));
         }
+
         Account account = foundAccount.get();
+
         SessionId sessionId = accountInfo.sessionId();
         if (!account.hasActiveSession(sessionId)) {
-            return Result.failure(AppError.authorizationFailed("Session is not active")
+            ErrorsHandler.handleError(AppError.authorizationFailed("Session is not active")
                     .withDetails("sessionId: " + accountInfo.sessionId()));
         }
 
         Result<TokenInfo, AppError> accessTokenResult = tokenService.generateAccessToken(
-                account.getAccountId().value().toString(),
-                sessionId.value().toString(),
-                account.getEmail().value()
+                account.getAccountId().getValue().toString(),
+                sessionId.getValue().toString(),
+                account.getEmail().getValue()
         );
+        accessTokenResult.ifFailure(ErrorsHandler::handleErrors);
 
-        if (accessTokenResult.isFailure()) {
-            return Result.failure(accessTokenResult.getErrors());
-        }
         TokenInfo accessTokenRefreshed = accessTokenResult.getValue();
 
         eventBus.publishAll(account.pullEvents());
-        return Result.success(accessTokenRefreshed);
+
+        return accessTokenRefreshed;
     }
 }

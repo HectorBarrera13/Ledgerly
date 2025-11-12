@@ -2,9 +2,9 @@ package toast.appback.src.users.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.shared.DomainEvent;
-import toast.appback.src.shared.errors.DomainError;
-import toast.appback.src.shared.types.Result;
+import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.event.UserCreated;
 
 import java.util.List;
@@ -53,10 +53,10 @@ public class UserFactoryTest {
         );
         assertTrue(result.isSuccess(), "Expected successful user creation");
         User user = result.getValue();
-        assertEquals("John", user.getName().firstName());
-        assertEquals("Doe", user.getName().lastName());
-        assertEquals("+1", user.getPhone().countryCode());
-        assertEquals("1234567890", user.getPhone().number());
+        assertEquals("John", user.getName().getFirstName());
+        assertEquals("Doe", user.getName().getLastName());
+        assertEquals("+1", user.getPhone().getCountryCode());
+        assertEquals("1234567890", user.getPhone().getNumber());
     }
 
     @Test

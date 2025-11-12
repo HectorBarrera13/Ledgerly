@@ -1,9 +1,9 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.EventBus;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.errors.AppError;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.middleware.ErrorsHandler;
+import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
@@ -27,17 +27,22 @@ public class CreateUserUseCase implements CreateUser {
     }
 
     @Override
-    public Result<User, AppError> execute(CreateUserCommand command) {
+    public User execute(CreateUserCommand command) {
         Result<User, DomainError> newUser = userFactory.create(
                         command.firstName(),
                         command.lastName(),
                         command.phone().countryCode(),
                         command.phone().number()
                 );
-        if (newUser.isFailure()) return Result.failure(AppError.domainError(newUser.getErrors()));
+        System.out.println(newUser.getErrors());
+        newUser.ifFailure(ErrorsHandler::handleErrors);
+
         userRepository.save(newUser.getValue());
+
         User user = newUser.getValue();
+
         eventBus.publishAll(user.pullEvents());
-        return Result.success(user);
+
+        return user;
     }
 }

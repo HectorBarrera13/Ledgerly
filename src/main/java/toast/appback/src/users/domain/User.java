@@ -1,6 +1,6 @@
 package toast.appback.src.users.domain;
 
-import toast.appback.src.shared.DomainEvent;
+import toast.appback.src.shared.domain.DomainEvent;
 
 import java.util.ArrayList;
 import java.util.List;

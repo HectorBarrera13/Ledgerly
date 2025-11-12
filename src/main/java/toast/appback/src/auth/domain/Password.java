@@ -1,13 +1,24 @@
 package toast.appback.src.auth.domain;
 
 import toast.appback.src.auth.domain.service.PasswordHasher;
-import toast.appback.src.shared.types.Result;
-import toast.appback.src.shared.Validators;
-import toast.appback.src.shared.errors.DomainError;
+import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.Validators;
+import toast.appback.src.shared.domain.DomainError;
 
-public record Password(
-        String hashed
-) {
+import java.util.Objects;
+
+public class Password {
+
+    private final String hashedPassword;
+
+    private Password(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
+
+    public String getHashed() {
+        return hashedPassword;
+    }
+
     public static Result<Password, DomainError> fromPlain(String rawPassword, PasswordHasher hasher) {
         return validateStrength(rawPassword)
                 .flatMap(() -> {
@@ -28,5 +39,23 @@ public record Password(
         if (!password.matches(".*[0-9].*"))
             return Validators.INVALID_FORMAT("password", password, "must contain at least one digit");
         return Result.success();
+    }
+
+    @Override
+    public String toString() {
+        return "Password{" +
+                "hashedPassword='" + hashedPassword + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Password password)) return false;
+        return Objects.equals(hashedPassword, password.hashedPassword);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(hashedPassword);
     }
 }
