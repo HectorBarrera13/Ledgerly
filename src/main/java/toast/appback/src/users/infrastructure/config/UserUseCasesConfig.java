@@ -24,13 +24,11 @@ public class UserUseCasesConfig {
     @Transactional
     public CreateUserUseCase createUserUseCase(
             UserRepository userRepository,
-            UserFactory userFactory,
-            EventBus eventBus
+            UserFactory userFactory
     ) {
         return new CreateUserUseCase(
                 userRepository,
-                userFactory,
-                eventBus
+                userFactory
         );
     }
 

@@ -15,8 +15,6 @@ import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
-import toast.appback.src.shared.utils.Result;
-import toast.appback.src.shared.application.AppError;
 
 import java.io.IOException;
 
@@ -40,19 +38,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         final String token = authHeader.substring(7);
 
-        Result<Void, AppError> validationResult = tokenService.verifyToken(token);
-        if (validationResult.isFailure()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        Result<AccountInfo, AppError> claimsResult = tokenService.extractClaims(token);
-        if (claimsResult.isFailure()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        AccountInfo accountInfo = claimsResult.getValue();
+        AccountInfo accountInfo = tokenService.extractAccountInfo(token);
 
         SessionId sessionId = accountInfo.sessionId();
         String email = accountInfo.email();

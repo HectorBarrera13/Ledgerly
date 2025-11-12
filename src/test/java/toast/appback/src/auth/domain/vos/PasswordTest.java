@@ -6,9 +6,11 @@ import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.domain.Password;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Password Value Object Test")
 public class PasswordTest {
@@ -42,12 +44,29 @@ public class PasswordTest {
     @Nested
     @DisplayName("Invalid Cases")
     class InvalidCases {
+
+        @Test
+        @DisplayName("Fail to create password when null")
+        void failToCreatePasswordWhenNull() {
+            Result<Password, DomainError> result = Password.fromPlain(null, passwordHasher);
+            assertTrue(result.isFailure());
+            assertOnlyErrorExists(result.getErrors(), ValidatorType.EMPTY_VALUE);
+        }
+
+        @Test
+        @DisplayName("Fail to create password when empty")
+        void failToCreatePasswordWhenEmpty() {
+            Result<Password, DomainError> result = Password.fromPlain("", passwordHasher);
+            assertTrue(result.isFailure());
+            assertOnlyErrorExists(result.getErrors(), ValidatorType.EMPTY_VALUE);
+        }
+
         @Test
         @DisplayName("Fail to create password when too short (less than 8 characters)")
         void failToCreatePasswordWhenTooShort() {
             Result<Password, DomainError> result = Password.fromPlain("Short1!", passwordHasher);
             assertTrue(result.isFailure());
-            assertEquals(1, result.getErrors().size());
+            assertErrorExists(result.getErrors(), ValidatorType.TOO_SHORT);
         }
 
         @Test
@@ -55,7 +74,7 @@ public class PasswordTest {
         void failToCreatePasswordWhenMissingUppercase() {
             Result<Password, DomainError> result = Password.fromPlain("nouppercase1!", passwordHasher);
             assertTrue(result.isFailure());
-            assertEquals(1, result.getErrors().size());
+            assertErrorExists(result.getErrors(), ValidatorType.INVALID_FORMAT);
         }
 
         @Test
@@ -63,7 +82,7 @@ public class PasswordTest {
         void failToCreatePasswordWhenMissingDigit() {
             Result<Password, DomainError> result = Password.fromPlain("NoDigitPass!", passwordHasher);
             assertTrue(result.isFailure());
-            assertEquals(1, result.getErrors().size());
+            assertErrorExists(result.getErrors(), ValidatorType.INVALID_FORMAT);
         }
     }
 }

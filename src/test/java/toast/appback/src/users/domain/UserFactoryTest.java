@@ -4,12 +4,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.event.UserCreated;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("UserFactory Domain Tests")
 public class UserFactoryTest {
@@ -27,6 +29,10 @@ public class UserFactoryTest {
         );
         assertTrue(result.isFailure());
         assertEquals(4, result.getErrors().size(), "Expected 4 validation errors");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.INVALID_FORMAT, "phoneCountryCode");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "number");
     }
 
     @Test
@@ -40,6 +46,8 @@ public class UserFactoryTest {
         );
         assertTrue(result.isFailure());
         assertEquals(2, result.getErrors().size(), "Expected 2 validation errors");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
+        assertErrorExistsForField(result.getErrors(), ValidatorType.INVALID_FORMAT, "number");
     }
 
     @Test

@@ -28,11 +28,11 @@ public class Session {
         return expiration;
     }
 
-    public static Session create(SessionId sessionId) {
-        return new Session(sessionId, SessionStatus.NORMAL, Instant.now().plusSeconds(MAX_DURATION_SECONDS));
+    public static Session create() {
+        return new Session(SessionId.generate(), SessionStatus.NORMAL, Instant.now().plusSeconds(MAX_DURATION_SECONDS));
     }
 
-    public static Session load(SessionId sessionId, Instant expiration, SessionStatus status) {
+    public static Session load(SessionId sessionId, SessionStatus status, Instant expiration) {
         return new Session(sessionId, status, expiration);
     }
 

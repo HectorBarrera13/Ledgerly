@@ -8,10 +8,8 @@ public class AuthCommandMapper {
         return new CreateUserCommand(
                 command.firstName(),
                 command.lastName(),
-                new CreateUserCommand.Phone(
-                        command.phone().countryCode(),
-                        command.phone().number()
-                )
+                command.phoneCountryCode(),
+                command.phoneNumber()
         );
     }
 }

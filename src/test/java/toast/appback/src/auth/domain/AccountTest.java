@@ -2,11 +2,14 @@ package toast.appback.src.auth.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Account Domain Test")
 public class AccountTest {
@@ -57,32 +60,30 @@ public class AccountTest {
 
     @Test
     @DisplayName("Should add session correctly when under limit")
-    void testAddSessionUnderLimit() {
+    void testStartSessionUnderLimit() {
         for (int i = 0; i < 5; i++) {
             Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
-            var result = account.addSession(session);
+            var result = account.startSession();
             assertTrue(result.isSuccess());
         }
     }
 
     @Test
     @DisplayName("Should not add session when limit exceeded")
-    void testAddSessionOverLimit() {
+    void testStartSessionOverLimit() {
         for (int i = 0; i < 5; i++) {
-            Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
-            account.addSession(session);
+            account.startSession();
         }
-        Session extraSession = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
-        var result = account.addSession(extraSession);
+        var result = account.startSession();
         assertTrue(result.isFailure());
-        assertEquals("session limit exceeded", result.getErrors().getFirst().message());
+        assertBusinessRuleErrorExists(result.getErrors(), AccountBusinessCode.SESSION_LIMIT_EXCEEDED);
     }
 
     @Test
     @DisplayName("Should revoke session correctly")
     void testRevokeSession() {
-        Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
-        account.addSession(session);
+        Result<Session, DomainError> startedSession = account.startSession();
+        Session session = startedSession.getValue();
         var revokeResult = account.revokeSession(session.getSessionId());
         assertTrue(revokeResult.isSuccess());
         assertTrue(session.isRevoked());
@@ -100,8 +101,7 @@ public class AccountTest {
     @DisplayName("Should revoke all sessions correctly")
     void testRevokeAllSessions() {
         for (int i = 0; i < 3; i++) {
-            Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
-            account.addSession(session);
+            account.startSession();
         }
         account.revokeAllSessions();
         for (Session session : account.getSessions()) {
@@ -126,8 +126,8 @@ public class AccountTest {
     @Test
     @DisplayName("Should generate domain events on session actions")
     void testDomainEventsOnSessionActions() {
-        Session session = new Session(SessionId.generate(), SessionStatus.NORMAL, null);
-        account.addSession(session);
+        Result<Session, DomainError> startedSession = account.startSession();
+        Session session = startedSession.getValue();
         assertEquals(1, account.pullEvents().size());
 
         account.revokeSession(session.getSessionId());

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.Phone;
 
@@ -15,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Phone Value Object Test")
 public class PhoneTest {
@@ -54,15 +57,18 @@ public class PhoneTest {
         void shouldFailWhenPhonePartsAreNull() {
             Result<Phone, DomainError> nullCountry = Phone.create(null, "5544332211");
             assertTrue(nullCountry.isFailure());
-            assertEquals(1, nullCountry.getErrors().size());
+            assertErrorExists(nullCountry.getErrors(), ValidatorType.EMPTY_VALUE);
+
 
             Result<Phone, DomainError> nullNumber = Phone.create("+52", null);
             assertTrue(nullNumber.isFailure());
-            assertEquals(1, nullNumber.getErrors().size());
+            assertErrorExists(nullNumber.getErrors(), ValidatorType.EMPTY_VALUE);
 
             Result<Phone, DomainError> bothNull = Phone.create(null, null);
             assertTrue(bothNull.isFailure());
             assertEquals(2, bothNull.getErrors().size());
+            assertErrorExistsForField(bothNull.getErrors(), ValidatorType.EMPTY_VALUE, "phoneCountryCode");
+            assertErrorExistsForField(bothNull.getErrors(), ValidatorType.EMPTY_VALUE, "number");
         }
 
         @Test
@@ -70,15 +76,17 @@ public class PhoneTest {
         void shouldFailWhenPhonePartsAreEmpty() {
             Result<Phone, DomainError> emptyCountry = Phone.create("", "5544332211");
             assertTrue(emptyCountry.isFailure());
-            assertEquals(1, emptyCountry.getErrors().size());
+            assertOnlyErrorExists(emptyCountry.getErrors(), ValidatorType.EMPTY_VALUE);
 
             Result<Phone, DomainError> emptyNumber = Phone.create("+52", "");
             assertTrue(emptyNumber.isFailure());
-            assertEquals(1, emptyNumber.getErrors().size());
+            assertOnlyErrorExists(emptyNumber.getErrors(), ValidatorType.EMPTY_VALUE);
 
             Result<Phone, DomainError> bothEmpty = Phone.create("", "");
             assertTrue(bothEmpty.isFailure());
             assertEquals(2, bothEmpty.getErrors().size());
+            assertOnlyErrorExistsForField(bothEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "phoneCountryCode");
+            assertOnlyErrorExistsForField(bothEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "number");
         }
 
         @Test
@@ -87,15 +95,17 @@ public class PhoneTest {
             String whitespace = "   ";
             Result<Phone, DomainError> whiteCountry = Phone.create(whitespace, "5544332211");
             assertTrue(whiteCountry.isFailure());
-            assertEquals(1, whiteCountry.getErrors().size());
+            assertOnlyErrorExists(whiteCountry.getErrors(), ValidatorType.EMPTY_VALUE);
 
             Result<Phone, DomainError> whiteNumber = Phone.create("+52", whitespace);
             assertTrue(whiteNumber.isFailure());
-            assertEquals(1, whiteNumber.getErrors().size());
+            assertOnlyErrorExists(whiteNumber.getErrors(), ValidatorType.EMPTY_VALUE);
 
             Result<Phone, DomainError> bothWhite = Phone.create(whitespace, whitespace);
             assertTrue(bothWhite.isFailure());
             assertEquals(2, bothWhite.getErrors().size());
+            assertOnlyErrorExistsForField(bothWhite.getErrors(), ValidatorType.EMPTY_VALUE, "phoneCountryCode");
+            assertOnlyErrorExistsForField(bothWhite.getErrors(), ValidatorType.EMPTY_VALUE, "number");
         }
 
         @Test
@@ -106,6 +116,7 @@ public class PhoneTest {
             for (String invalid : invalidNumbers) {
                 Result<Phone, DomainError> result = Phone.create("+52", invalid);
                 assertTrue(result.isFailure(), "Expected failure for invalid number: " + invalid);
+                assertOnlyErrorExists(result.getErrors(), ValidatorType.INVALID_FORMAT);
             }
         }
 
@@ -117,6 +128,7 @@ public class PhoneTest {
             for (String invalid : invalidCodes) {
                 Result<Phone, DomainError> result = Phone.create(invalid, "5544332211");
                 assertTrue(result.isFailure(), "Expected failure for invalid country code: " + invalid);
+                assertOnlyErrorExists(result.getErrors(), ValidatorType.INVALID_FORMAT);
             }
         }
     }

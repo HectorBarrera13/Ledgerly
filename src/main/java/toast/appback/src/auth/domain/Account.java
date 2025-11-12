@@ -14,8 +14,8 @@ public class Account {
     private static final int MAX_SESSIONS = 5;
     private final AccountId accountId;
     private final UserId userId;
-    private Email email;
-    private Password password;
+    private final Email email;
+    private final Password password;
     private List<Session> sessions = new ArrayList<>(); // Only five active sessions allowed
     private List<DomainEvent> userEvents = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class Account {
         return Collections.unmodifiableList(sessions);
     }
 
-    public Result<Void, DomainError> addSession(Session session) {
+    public Result<Session, DomainError> startSession() {
         long notRevokedSessions = this.sessions.stream()
                 .filter(Session::isValid)
                 .count();
@@ -62,9 +62,10 @@ public class Account {
                     .withBusinessCode(AccountBusinessCode.SESSION_LIMIT_EXCEEDED)
                     .withDetails("account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
         }
-        this.sessions.add(session);
-        this.recordEvent(new SessionAdded(this.accountId, session.getSessionId()));
-        return Result.success();
+        Session newSession = Session.create();
+        this.sessions.add(newSession);
+        this.recordEvent(new SessionAdded(this.accountId, newSession.getSessionId()));
+        return Result.success(newSession);
     }
 
     public Result<Void, DomainError> revokeSession(SessionId sessionId) {

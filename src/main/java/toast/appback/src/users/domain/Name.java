@@ -60,7 +60,7 @@ public class Name {
         Result<Void, DomainError> lastNameValidation = generalValidation(lastName, FIELD_LAST_NAME)
                 .captureFirstError(() -> validate(lastName, FIELD_LAST_NAME));
         return firstNameValidation
-                .andThen(() -> lastNameValidation)
+                .flatMap(() -> lastNameValidation)
                 .map(() -> new Name(firstName, lastName));
     }
 

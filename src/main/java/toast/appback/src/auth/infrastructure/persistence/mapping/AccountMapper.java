@@ -74,8 +74,8 @@ public class AccountMapper {
     private static Session toDomainSession(SessionEntity entity) {
         return Session.load(
                 SessionId.load(entity.getSessionId()),
-                entity.getExpiration(),
-                SessionStatus.valueOf(entity.getSessionStatus().name())
+                SessionStatus.valueOf(entity.getSessionStatus().name()),
+                entity.getExpiration()
         );
     }
 

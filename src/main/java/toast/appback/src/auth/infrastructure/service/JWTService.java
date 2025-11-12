@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import toast.appback.src.auth.application.communication.result.AccountInfo;
-import toast.appback.src.auth.application.communication.result.TokenInfo;
+import toast.appback.src.auth.application.communication.result.AccessToken;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
-import toast.appback.src.shared.utils.Result;
-import toast.appback.src.shared.application.AppError;
+import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
+import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
 import toast.appback.src.auth.application.port.TokenService;
 
 import javax.crypto.SecretKey;
@@ -45,49 +45,33 @@ public class JWTService implements TokenService {
     }
 
     @Override
-    public Result<TokenInfo, AppError> generateAccessToken(String uuid, String sessionId, String email) {
+    public AccessToken generateAccessToken(String uuid, String sessionId, String email) {
         String accessToken = buildToken(uuid, email, sessionId, accessExpiration);
-        TokenInfo tokenResult = new TokenInfo(
+        return new AccessToken(
                 accessToken,
                 "Bearer",
                 Instant.now().plusSeconds(accessExpiration)
         );
-        return Result.success(tokenResult);
     }
 
     @Override
-    public Result<AccountInfo, AppError> extractClaims(String token) {
-        Result<String, AppError> subjectResult = extractClaim(token, Claims::getSubject);
-        if (subjectResult.isFailure()) {
-            return Result.failure(subjectResult.getErrors());
+    public AccountInfo extractAccountInfo(String token) {
+        if (isTokenExpired(token)) {
+            throw new TokenExpiredException();
         }
 
-        Result<String, AppError> idResult = extractClaim(token, Claims::getId);
-        if (idResult.isFailure()) {
-            return Result.failure(idResult.getErrors());
-        }
-        String id = idResult.getValue();
+        String subject = extractClaim(token, Claims::getSubject);
 
-        Result<String, AppError> sessionIdResult = extractClaim(token, claims -> claims.get("sessionId", String.class));
-        if (sessionIdResult.isFailure()) {
-            return Result.failure(sessionIdResult.getErrors());
-        }
-        String sessionId = sessionIdResult.getValue();
+        String id = extractClaim(token, Claims::getId);
 
-        AccountInfo accountInfo = new AccountInfo(
+        String sessionId = extractClaim(token,
+                claims -> claims.get("sessionId", String.class));
+
+        return new AccountInfo(
                 AccountId.load(UUID.fromString(id)),
                 SessionId.load(UUID.fromString(sessionId)),
-                subjectResult.getValue()
+                subject
         );
-        return Result.success(accountInfo);
-    }
-
-    @Override
-    public Result<Void, AppError> verifyToken(String token) {
-        if (isTokenExpired(token)) {
-            return Result.failure(AppError.authorizationFailed("Token has expired"));
-        }
-        return Result.success();
     }
 
     private String buildToken(final String id, final String subject, final String sessionId, final long expirationTime) {
@@ -101,34 +85,33 @@ public class JWTService implements TokenService {
                 .compact();
     }
 
-    private <T> Result<T, AppError> extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         try {
             Claims claims = jwtParser.parseSignedClaims(token).getPayload();
-            return Result.success(claimsResolver.apply(claims));
+            return claimsResolver.apply(claims);
         } catch (SignatureException e) {
             logger.warn("JWT signature inválida: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Invalid JWT signature").withDetails(e.getMessage()));
+            throw new TokenClaimsException("Invalid JWT signature", e);
         } catch (MalformedJwtException e) {
             logger.warn("JWT value malformado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Malformed JWT value").withDetails(e.getMessage()));
+            throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
             logger.warn("JWT value expirado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Expired JWT value").withDetails(e.getMessage()));
+            throw new TokenExpiredException();
         } catch (UnsupportedJwtException e) {
             logger.warn("JWT value no soportado: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("Unsupported JWT value").withDetails(e.getMessage()));
+            throw new TokenClaimsException("Unsupported JWT token", e);
         } catch (IllegalArgumentException e) {
             logger.warn("JWT claims string vacío o nulo: {}", e.getMessage());
-            return Result.failure(AppError.authorizationFailed("JWT claims string is empty or null").withDetails(e.getMessage()));
+            throw new TokenClaimsException("JWT claims string is empty or null", e);
         } catch (Exception e) {
-            logger.error("Error inesperado al extraer claim del JWT: {}", e.getMessage(), e);
-            return Result.failure(AppError.authorizationFailed("Unexpected error while extracting JWT claim").withDetails(e.getMessage()));
+            logger.error("Error al extraer claims del JWT: {}", e.getMessage());
+            throw new TokenClaimsException("Error extracting JWT claims", e);
         }
     }
 
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration)
-                .map(d -> d.before(new Date()))
-                .isSuccess();
+                .before(new Date());
     }
 }

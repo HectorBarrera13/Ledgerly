@@ -5,6 +5,7 @@ public record RegisterAccountCommand(
         String lastName,
         String email,
         String password,
-        PhoneCommand phone
+        String phoneCountryCode,
+        String phoneNumber
 ) {
 }

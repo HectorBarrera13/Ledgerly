@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.domain.Name;
 
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Name Value Object Test")
 public class NameTest {
@@ -53,15 +55,17 @@ public class NameTest {
             String emptyName = "";
             Result<Name, DomainError> resultWithFirstNameEmpty = Name.create(emptyName, "ValidLastName");
             assertTrue(resultWithFirstNameEmpty.isFailure());
-            assertEquals(1, resultWithFirstNameEmpty.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithFirstNameEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
 
             Result<Name, DomainError> resultWithLastNameEmpty = Name.create("ValidFirstName", emptyName);
             assertTrue(resultWithLastNameEmpty.isFailure());
-            assertEquals(1, resultWithLastNameEmpty.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithLastNameEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
 
             Result<Name, DomainError> resultWithBothNamesEmpty = Name.create(emptyName, emptyName);
             assertTrue(resultWithBothNamesEmpty.isFailure());
             assertEquals(2, resultWithBothNamesEmpty.getErrors().size());
+            assertErrorExistsForField(resultWithBothNamesEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
+            assertErrorExistsForField(resultWithBothNamesEmpty.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
         }
 
         @Test
@@ -70,15 +74,17 @@ public class NameTest {
             String whitespaceName = "   ";
             Result<Name, DomainError> resultWithFirstNameWhitespace = Name.create(whitespaceName, "ValidLastName");
             assertTrue(resultWithFirstNameWhitespace.isFailure());
-            assertEquals(1, resultWithFirstNameWhitespace.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithFirstNameWhitespace.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
 
             Result<Name, DomainError> resultWithLastNameWhitespace = Name.create("ValidFirstName", whitespaceName);
             assertTrue(resultWithLastNameWhitespace.isFailure());
-            assertEquals(1, resultWithLastNameWhitespace.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithLastNameWhitespace.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
 
             Result<Name, DomainError> resultWithBothNamesWhitespace = Name.create(whitespaceName, whitespaceName);
             assertTrue(resultWithBothNamesWhitespace.isFailure());
             assertEquals(2, resultWithBothNamesWhitespace.getErrors().size());
+            assertErrorExistsForField(resultWithBothNamesWhitespace.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
+            assertErrorExistsForField(resultWithBothNamesWhitespace.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
         }
 
         @Test
@@ -86,15 +92,17 @@ public class NameTest {
         void shouldFailWhenNameIsNull() {
             Result<Name, DomainError> resultWithFirstNameNull = Name.create(null, "ValidLastName");
             assertTrue(resultWithFirstNameNull.isFailure());
-            assertEquals(1, resultWithFirstNameNull.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithFirstNameNull.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
 
             Result<Name, DomainError> resultWithLastNameNull = Name.create("ValidFirstName", null);
             assertTrue(resultWithLastNameNull.isFailure());
-            assertEquals(1, resultWithLastNameNull.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithLastNameNull.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
 
             Result<Name, DomainError> resultWithBothNamesNull = Name.create(null, null);
             assertTrue(resultWithBothNamesNull.isFailure());
             assertEquals(2, resultWithBothNamesNull.getErrors().size());
+            assertErrorExistsForField(resultWithBothNamesNull.getErrors(), ValidatorType.EMPTY_VALUE, "firstName");
+            assertErrorExistsForField(resultWithBothNamesNull.getErrors(), ValidatorType.EMPTY_VALUE, "lastName");
         }
 
         @Test
@@ -103,15 +111,17 @@ public class NameTest {
             String longName = "A".repeat(101);
             Result<Name, DomainError> resultWithFirstNameTooLong = Name.create(longName, "ValidLastName");
             assertTrue(resultWithFirstNameTooLong.isFailure());
-            assertEquals(1, resultWithFirstNameTooLong.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithFirstNameTooLong.getErrors(), ValidatorType.TOO_LONG, "firstName");
 
             Result<Name, DomainError> resultWithLastNameTooLong = Name.create("ValidFirstName", longName);
             assertTrue(resultWithLastNameTooLong.isFailure());
-            assertEquals(1, resultWithLastNameTooLong.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithLastNameTooLong.getErrors(), ValidatorType.TOO_LONG, "lastName");
 
             Result<Name, DomainError> resultWithBothNamesTooLong = Name.create(longName, longName);
             assertTrue(resultWithBothNamesTooLong.isFailure());
             assertEquals(2, resultWithBothNamesTooLong.getErrors().size());
+            assertErrorExistsForField(resultWithBothNamesTooLong.getErrors(), ValidatorType.TOO_LONG, "firstName");
+            assertErrorExistsForField(resultWithBothNamesTooLong.getErrors(), ValidatorType.TOO_LONG, "lastName");
         }
 
         @Test
@@ -120,15 +130,17 @@ public class NameTest {
             String shortName = "A";
             Result<Name, DomainError> resultWithFirstNameTooShort = Name.create(shortName, "ValidLastName");
             assertTrue(resultWithFirstNameTooShort.isFailure());
-            assertEquals(1, resultWithFirstNameTooShort.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithFirstNameTooShort.getErrors(), ValidatorType.TOO_SHORT, "firstName");
 
             Result<Name, DomainError> resultWithLastNameTooShort = Name.create("ValidFirstName", shortName);
             assertTrue(resultWithLastNameTooShort.isFailure());
-            assertEquals(1, resultWithLastNameTooShort.getErrors().size());
+            assertOnlyErrorExistsForField(resultWithLastNameTooShort.getErrors(), ValidatorType.TOO_SHORT, "lastName");
 
             Result<Name, DomainError> resultWithBothNamesTooShort = Name.create(shortName, shortName);
             assertTrue(resultWithBothNamesTooShort.isFailure());
             assertEquals(2, resultWithBothNamesTooShort.getErrors().size());
+            assertErrorExistsForField(resultWithBothNamesTooShort.getErrors(), ValidatorType.TOO_SHORT, "firstName");
+            assertErrorExistsForField(resultWithBothNamesTooShort.getErrors(), ValidatorType.TOO_SHORT, "lastName");
         }
     }
 

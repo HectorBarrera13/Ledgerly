@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import toast.appback.src.auth.application.usecase.contract.AccountLogin;
-import toast.appback.src.auth.application.usecase.contract.AccountLogout;
+import toast.appback.src.auth.application.usecase.contract.AuthenticateAccount;
+import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.application.usecase.contract.RefreshSession;
 import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
 import toast.appback.src.auth.infrastructure.api.dto.*;
@@ -21,8 +21,8 @@ import toast.appback.src.auth.infrastructure.api.dto.response.RegisterAccountRes
 @RequiredArgsConstructor
 public class AuthController {
     private final RegisterAccount registerAccount;
-    private final AccountLogin accountLogin;
-    private final AccountLogout accountLogout;
+    private final AuthenticateAccount authenticateAccount;
+    private final TerminateSession terminateSession;
     private final RefreshSession refreshSession;
 
     @PostMapping("/register")
@@ -34,7 +34,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AccountLoginResponse> login(@RequestBody AccountLoginRequest accountLoginRequest) {
-        var result = accountLogin.execute(accountLoginRequest.toCommand());
+        var result = authenticateAccount.execute(accountLoginRequest.toCommand());
         var response = AuthMapper.loginToResponse(result);
         return ResponseEntity.ok(response);
     }
@@ -51,7 +51,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
             @RequestBody SessionRequest sessionRequest) {
-        accountLogout.execute(sessionRequest.refreshToken());
+        terminateSession.execute(sessionRequest.refreshToken());
         return ResponseEntity.noContent().build();
     }
 

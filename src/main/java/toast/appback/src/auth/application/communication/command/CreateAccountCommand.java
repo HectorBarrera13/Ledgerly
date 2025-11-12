@@ -1,6 +1,9 @@
 package toast.appback.src.auth.application.communication.command;
 
-public record AccountAuthCommand(
+import toast.appback.src.users.domain.UserId;
+
+public record CreateAccountCommand(
+        UserId userId,
         String email,
         String password
 ) {

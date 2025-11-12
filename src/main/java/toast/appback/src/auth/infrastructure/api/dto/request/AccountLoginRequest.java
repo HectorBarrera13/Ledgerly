@@ -1,12 +1,12 @@
 package toast.appback.src.auth.infrastructure.api.dto.request;
 
-import toast.appback.src.auth.application.communication.command.AccountAuthCommand;
+import toast.appback.src.auth.application.communication.command.AuthenticateAccountCommand;
 
 public record AccountLoginRequest(
     String email,
     String password
 ) {
-    public AccountAuthCommand toCommand() {
-        return new AccountAuthCommand(email, password);
+    public AuthenticateAccountCommand toCommand() {
+        return new AuthenticateAccountCommand(email, password);
     }
 }
