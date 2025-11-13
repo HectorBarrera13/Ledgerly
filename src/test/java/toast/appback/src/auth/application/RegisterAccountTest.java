@@ -13,6 +13,8 @@ import toast.appback.src.auth.domain.*;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.utils.Result;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
+import toast.appback.src.users.domain.Name;
+import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 
@@ -28,6 +30,12 @@ public class RegisterAccountTest {
     private final CreateAccount createAccount = mock(CreateAccount.class);
     private final TokenService tokenService = mock(TokenService.class);
     private final EventBus eventBus = mock(EventBus.class);
+
+    private final User user = new User(
+            UserId.generate(),
+            Name.load("John", "Doe"),
+            Phone.load("+1", "5551234567")
+    );
 
     private final String email = "johndoe@gmail.com";
 
@@ -66,12 +74,10 @@ public class RegisterAccountTest {
         // Mocking entities
         Account account = mock(Account.class);
         SessionId sessionId = SessionId.generate();
-        User user = mock(User.class);
         CreateAccountResult createAccountResult = new CreateAccountResult(account, sessionId);
 
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
-        when(user.getUserId()).thenReturn(UserId.generate());
         // Mocking session dependencies
         when(account.startSession()).thenReturn(Result.success(Session.create()));
         when(account.getEmail()).thenReturn(Email.load(email));
@@ -83,8 +89,8 @@ public class RegisterAccountTest {
         // Execute the use case
         RegisterAccountResult result = registerAccountUseCase.execute(command);
         // Verify the result
-        assertEquals(account, result.account());
-        assertEquals(user, result.user());
+        assertEquals(account.getEmail().getValue(), result.email());
+        assertEquals(user.getUserId().getValue(), result.user().userId());
         assertEquals(accessToken, result.accessToken());
         // Verify interactions
         verify(createUser, times(1)).execute(any());
@@ -102,11 +108,6 @@ public class RegisterAccountTest {
     @Test
     @DisplayName("Should fail to register account when account creation fails")
     public void testRegisterAccountFailsWhenAccountCreationFails() {
-        // Mocking entities
-        User user = mock(User.class);
-
-        // Mocking equals for assertion
-        when(user.getUserId()).thenReturn(UserId.generate());
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenThrow(RuntimeException.class);
@@ -148,12 +149,10 @@ public class RegisterAccountTest {
     public void testRegisterAccountFailsWhenTokenGenerationFails() {
         // Mocking entities
         Account account = mock(Account.class);
-        User user = mock(User.class);
         SessionId sessionId = SessionId.generate();
         CreateAccountResult createAccountResult = new CreateAccountResult(account, sessionId);
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
-        when(user.getUserId()).thenReturn(UserId.generate());
         // Mocking session dependencies
         when(account.startSession()).thenReturn(Result.success(Session.create()));
         when(account.getEmail()).thenReturn(Email.load(email));

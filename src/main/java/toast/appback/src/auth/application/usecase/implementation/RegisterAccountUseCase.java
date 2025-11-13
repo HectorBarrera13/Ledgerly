@@ -1,6 +1,4 @@
 package toast.appback.src.auth.application.usecase.implementation;
-
-import toast.appback.src.auth.application.communication.AuthCommandMapper;
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
@@ -14,6 +12,7 @@ import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
+import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
 
@@ -35,7 +34,13 @@ public class RegisterAccountUseCase implements RegisterAccount {
 
     @Override
     public RegisterAccountResult execute(RegisterAccountCommand command) {
-        CreateUserCommand createUserCommand = AuthCommandMapper.accountCommandToCreateCommand(command);
+        CreateUserCommand createUserCommand = new CreateUserCommand(
+                command.firstName(),
+                command.lastName(),
+                command.phoneCountryCode(),
+                command.phoneNumber()
+        );
+
         User newUser = createUser.execute(createUserCommand);
 
         CreateAccountCommand createAccountCommand =
@@ -49,6 +54,7 @@ public class RegisterAccountUseCase implements RegisterAccount {
         AccessToken accessToken = tokenService.generateAccessToken(
                 new TokenClaims(
                         newAccount.getAccountId(),
+                        newUser.getUserId(),
                         sessionId,
                         newAccount.getEmail().getValue()
                 )
@@ -56,6 +62,13 @@ public class RegisterAccountUseCase implements RegisterAccount {
 
         eventBus.publishAll(newUser.pullEvents());
         eventBus.publishAll(newAccount.pullEvents());
-        return new RegisterAccountResult(newUser, newAccount, accessToken);
+        UserView userView = new UserView(
+                newUser.getUserId().getValue(),
+                newUser.getName().getFirstName(),
+                newUser.getName().getLastName(),
+                newUser.getPhone().getValue()
+        );
+        String email = newAccount.getEmail().getValue();
+        return new RegisterAccountResult(userView, email, accessToken);
     }
 }

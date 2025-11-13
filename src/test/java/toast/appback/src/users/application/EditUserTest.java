@@ -4,9 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.users.application.communication.command.EditUserCommand;
+import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.application.exceptions.domain.UserEditionException;
 import toast.appback.src.users.application.usecase.implementation.EditUserUseCase;
+import toast.appback.src.users.domain.Name;
+import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
@@ -39,6 +42,8 @@ public class EditUserTest {
         User user = mock(User.class);
         // Mock user retrieval
         when(user.getUserId()).thenReturn(UserId.generate());
+        when(user.getName()).thenReturn(Name.load("John", "Smith"));
+        when(user.getPhone()).thenReturn(Phone.load("+1", "5551234567"));
         when(userRepository.findById(any()))
                 .thenReturn(Optional.of(user));
         EditUserCommand command = new EditUserCommand(
@@ -46,9 +51,9 @@ public class EditUserTest {
                 "Jane",
                 "Doe"
         );
-        User editedUser = editUserUseCase.execute(command);
+        UserView editedUser = editUserUseCase.execute(command);
         // Verify edited user
-        assertEquals(user, editedUser);
+        assertEquals(editedUser.userId(), user.getUserId().getValue());
         verify(userRepository, times(1)).findById(any());
         verify(userRepository, times(1)).save(any());
         verifyNoMoreInteractions(userRepository);

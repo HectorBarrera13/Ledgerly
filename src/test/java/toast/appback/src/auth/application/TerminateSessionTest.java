@@ -15,6 +15,7 @@ import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
+import toast.appback.src.users.domain.UserId;
 
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class TerminateSessionTest {
     private final EventBus eventBus = mock(EventBus.class);
 
     private final AccountId accountId = AccountId.generate();
+    private final UserId userId = UserId.generate();
     private final SessionId sessionId = SessionId.generate();
     private final String email = "johndoe@gmail.com";
 
@@ -46,6 +48,7 @@ public class TerminateSessionTest {
     public void testTerminateSessionSuccessfully() {
         AccountInfo accountInfo = new AccountInfo(
                 accountId,
+                userId,
                 sessionId,
                 email
         );
@@ -68,6 +71,7 @@ public class TerminateSessionTest {
     public void testTerminateSessionAccountNotFound() {
         AccountInfo accountInfo = new AccountInfo(
                 accountId,
+                userId,
                 sessionId,
                 email
         );
@@ -88,6 +92,7 @@ public class TerminateSessionTest {
     public void testTerminateSessionRevocationFails() {
         AccountInfo accountInfo = new AccountInfo(
                 accountId,
+                userId,
                 sessionId,
                 email
         );

@@ -29,7 +29,7 @@ public class FriendShip {
 
     public static FriendShip create(User request, User receiver) {
         Instant now = Instant.now();
-        FriendShip friendship = new FriendShip(null, request, receiver, now);
+        FriendShip friendship = new FriendShip(FriendShipId.load(null), request, receiver, now);
         friendship.recordEvent(
                 new FriendAdded(
                         request.getUserId(),

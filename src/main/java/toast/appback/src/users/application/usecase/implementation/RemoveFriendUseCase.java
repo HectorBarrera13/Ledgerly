@@ -3,6 +3,7 @@ package toast.appback.src.users.application.usecase.implementation;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
 import toast.appback.src.users.application.exceptions.FriendNotFound;
+import toast.appback.src.users.application.exceptions.RemoveMySelfFromFriendsException;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.event.FriendRemoved;
@@ -21,6 +22,9 @@ public class RemoveFriendUseCase implements RemoveFriend {
 
     @Override
     public void execute(RemoveFriendCommand command) {
+        if (command.requesterId().equals(command.friendId())) {
+            throw new RemoveMySelfFromFriendsException();
+        }
         Optional<FriendShip> foundUser = friendShipRepository.findByUsersIds(
                 command.requesterId(),
                 command.friendId()

@@ -18,6 +18,7 @@ import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
 import toast.appback.src.auth.application.port.TokenService;
+import toast.appback.src.users.domain.UserId;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -50,9 +51,10 @@ public class JWTService implements TokenService {
     @Override
     public AccessToken generateAccessToken(TokenClaims tokenClaims) {
         String accountId = tokenClaims.accountId().getValue().toString();
+        String userId = tokenClaims.userId().getValue().toString();
         String sessionId = tokenClaims.sessionId().getValue().toString();
         String email = tokenClaims.email();
-        String accessToken = buildToken(accountId, email, sessionId, accessExpiration);
+        String accessToken = buildToken(accountId, email, userId, sessionId, accessExpiration);
         return new AccessToken(
                 accessToken,
                 "Bearer",
@@ -68,23 +70,28 @@ public class JWTService implements TokenService {
 
         String subject = extractClaim(token, Claims::getSubject);
 
-        String id = extractClaim(token, Claims::getId);
+        String accountId = extractClaim(token, Claims::getId);
+
+        String userId = extractClaim(token,
+                claims -> claims.get("userId", String.class));
 
         String sessionId = extractClaim(token,
                 claims -> claims.get("sessionId", String.class));
 
         return new AccountInfo(
-                AccountId.load(UUID.fromString(id)),
+                AccountId.load(UUID.fromString(accountId)),
+                UserId.load(UUID.fromString(userId)),
                 SessionId.load(UUID.fromString(sessionId)),
                 subject
         );
     }
 
-    private String buildToken(final String id, final String subject, final String sessionId, final long expirationTime) {
+    private String buildToken(final String id, final String subject, final String userId, final String sessionId, final long expirationTime) {
         return Jwts.builder()
                 .id(id)
                 .subject(subject)
                 .claim("sessionId", sessionId)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey)

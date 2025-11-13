@@ -16,6 +16,7 @@ import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.Result;
+import toast.appback.src.users.domain.UserId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class RefreshSessionTest {
     private final TokenService tokenService = mock(TokenService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
     private final AccountId accountId = AccountId.generate();
+    private final UserId userId = UserId.generate();
     private final SessionId sessionId = SessionId.generate();
     private final String email = "johndoe@gmail.com";
 
@@ -45,6 +47,7 @@ public class RefreshSessionTest {
     public void testRefreshSessionSuccessfully() {
         AccountInfo accountInfo = new AccountInfo(
                 accountId,
+                userId,
                 sessionId,
                 email
         );
@@ -78,6 +81,7 @@ public class RefreshSessionTest {
     public void testRefreshSessionAccountNotFound() {
         AccountInfo accountInfo = new AccountInfo(
                 accountId,
+                userId,
                 sessionId,
                 email
         );
@@ -96,6 +100,7 @@ public class RefreshSessionTest {
     public void testRefreshSessionInvalidSession() {
         AccountInfo accountInfo = new AccountInfo(
                 accountId,
+                userId,
                 sessionId,
                 email
         );

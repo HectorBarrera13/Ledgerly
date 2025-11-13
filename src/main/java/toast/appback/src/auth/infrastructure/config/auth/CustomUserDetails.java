@@ -4,24 +4,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
+import toast.appback.src.users.domain.UserId;
 
 import java.util.Collection;
 import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
-
-    private final AccountId id;
-
+    private final AccountId accountId;
+    private final UserId userId;
     private final String email;
-
     private final String hashedPassword;
-
     private final Collection<? extends GrantedAuthority> authorities;
-
     private SessionId sessionId;
 
-    public CustomUserDetails(AccountId id, String email, String hashedPassword) {
-        this.id = id;
+    public CustomUserDetails(AccountId accountId, UserId userId, String email, String hashedPassword) {
+        this.accountId = accountId;
+        this.userId = userId;
         this.email = email;
         this.hashedPassword = hashedPassword;
         this.authorities = List.of();
@@ -32,8 +30,12 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
-    public AccountId getId() {
-        return id;
+    public AccountId getAccountId() {
+        return accountId;
+    }
+
+    public UserId getUserId() {
+        return userId;
     }
 
     public SessionId getSessionId() {

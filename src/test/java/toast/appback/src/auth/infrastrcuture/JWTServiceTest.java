@@ -11,13 +11,17 @@ import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
 import toast.appback.src.auth.infrastructure.service.JWTService;
+import toast.appback.src.users.domain.UserId;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("JWTService partial integration tests")
 class JWTServiceTest {
-
     private JWTService jwtService;
+
+    private final AccountId accountId = AccountId.generate();
+    private final UserId userId = UserId.generate();
+    private final SessionId sessionId = SessionId.generate();
 
     @BeforeEach
     void setUp() {
@@ -30,10 +34,7 @@ class JWTServiceTest {
     @Test
     @DisplayName("Should generate and extract account info successfully")
     void shouldGenerateAndExtractAccountInfo() {
-        AccountId accountId = AccountId.generate();
-        SessionId sessionId = SessionId.generate();
-
-        TokenClaims claims = new TokenClaims(accountId, sessionId, "test@example.com");
+        TokenClaims claims = new TokenClaims(accountId, userId, sessionId, "test@example.com");
         AccessToken token = jwtService.generateAccessToken(claims);
 
         assertNotNull(token);
@@ -53,9 +54,7 @@ class JWTServiceTest {
         jwtService.setAccessExpiration(10); // 10 ms
         jwtService.init();
 
-        AccountId accountId = AccountId.generate();
-        SessionId sessionId = SessionId.generate();
-        TokenClaims claims = new TokenClaims(accountId, sessionId, "expired@example.com");
+        TokenClaims claims = new TokenClaims(accountId, userId, sessionId, "expired@example.com");
 
         AccessToken token = jwtService.generateAccessToken(claims);
 

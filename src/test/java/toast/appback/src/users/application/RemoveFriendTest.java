@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
 import toast.appback.src.users.application.exceptions.FriendNotFound;
+import toast.appback.src.users.application.exceptions.RemoveMySelfFromFriendsException;
 import toast.appback.src.users.application.usecase.implementation.RemoveFriendUseCase;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.FriendShipId;
@@ -74,6 +75,25 @@ public class RemoveFriendTest {
         assertThrows(FriendNotFound.class, () -> removeFriendUseCase.execute(command));
         verify(friendShipRepository, times(1))
                 .findByUsersIds(command.requesterId(), command.friendId());
+        verify(friendShipRepository, times(0)).delete(any());
+        verify(eventBus, times(0)).publish(any());
+    }
+
+    /**
+     * <p>Test case: Remove friend with the same user IDs
+     * <p>Precondition: RemoveFriendCommand is provided with the same requesterId and friendId
+     * <p>Expected outcome: RemoveMySelfFromFriendsException is thrown
+     */
+    @Test
+    @DisplayName("Should throw RemoveMySelfFromFriendsException when requesterId and friendId are the same")
+    public void testRemoveFriendWithSameUserIds() {
+        UserId userId = UserId.generate();
+        RemoveFriendCommand command = new RemoveFriendCommand(
+                userId,
+                userId
+        );
+        assertThrows(RemoveMySelfFromFriendsException.class, () -> removeFriendUseCase.execute(command));
+        verify(friendShipRepository, times(0)).findByUsersIds(any(), any());
         verify(friendShipRepository, times(0)).delete(any());
         verify(eventBus, times(0)).publish(any());
     }

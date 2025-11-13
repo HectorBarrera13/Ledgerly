@@ -5,9 +5,8 @@ import toast.model.entities.users.PhoneEmbeddable;
 import toast.model.entities.users.UserEntity;
 
 public class UserMapper {
-    public static UserEntity toEntity(User user) {
-        if (user == null) return null;
-        UserEntity userEntity = new UserEntity();
+    public static UserEntity toEntity(User user, UserEntity existingEntity) {
+        UserEntity userEntity = existingEntity != null ? existingEntity : new UserEntity();
         userEntity.setUserId(user.getUserId().getValue());
         userEntity.setFirstName(user.getName().getFirstName());
         userEntity.setLastName(user.getName().getLastName());

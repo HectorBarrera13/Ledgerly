@@ -7,8 +7,10 @@ import toast.appback.src.users.domain.FriendShipId;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaFriendShipRepository;
+import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 import toast.appback.src.users.infrastructure.persistence.mapping.FriendMapper;
 import toast.model.entities.users.FriendEntity;
+import toast.model.entities.users.UserEntity;
 
 import java.util.Optional;
 
@@ -17,16 +19,43 @@ import java.util.Optional;
 public class FriendShipRepositoryMySQL implements FriendShipRepository {
 
     private final JpaFriendShipRepository jpaFriendShipRepository;
+    private final JpaUserRepository jpaUserRepository;
 
     @Override
     public void save(FriendShip friendship) {
-        FriendEntity friendEntity = FriendMapper.toEntity(friendship);
+        Optional<FriendEntity> existingEntityOpt = jpaFriendShipRepository
+                .findByUserIdAndFriendId(
+                        friendship.getRequest().getUserId().getValue(),
+                        friendship.getReceiver().getUserId().getValue()
+                );
+
+        if (existingEntityOpt.isPresent()) {
+            updateExistingFriendship(friendship, existingEntityOpt.get());
+        } else {
+            saveNewFriendship(friendship);
+        }
+    }
+
+    private void saveNewFriendship(FriendShip friendship) {
+        FriendEntity friendEntity = new FriendEntity();
+        UserEntity userEntity = jpaUserRepository.findByUserId(friendship.getRequest().getUserId().getValue())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        UserEntity friendUserEntity = jpaUserRepository.findByUserId(friendship.getReceiver().getUserId().getValue())
+                .orElseThrow(() -> new IllegalStateException("Friend user not found"));
+        friendEntity.setUser(userEntity);
+        friendEntity.setFriend(friendUserEntity);
+        friendEntity.setAddedAt(friendship.getAddTime());
         jpaFriendShipRepository.save(friendEntity);
+    }
+
+    private void updateExistingFriendship(FriendShip friendship, FriendEntity existingEntity) {
+        FriendEntity updatedEntity = FriendMapper.toEntity(friendship, existingEntity);
+        jpaFriendShipRepository.save(updatedEntity);
     }
 
     @Override
     public Optional<FriendShip> findByUsersIds(UserId userId, UserId friendId) {
-        return jpaFriendShipRepository.findByUserUserIdAndFriendUserId(userId.getValue(), friendId.getValue())
+        return jpaFriendShipRepository.findByUserIdAndFriendId(userId.getValue(), friendId.getValue())
                 .map(FriendMapper::toDomain);
     }
 

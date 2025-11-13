@@ -30,6 +30,8 @@ public class FriendShipTest {
 
         FriendShip friendShip = FriendShip.create(requester, receiver);
         assertNotNull(friendShip);
+        assertNotNull(friendShip.getFriendshipId());
+        assertNotNull(friendShip.getAddTime());
         assertEquals(requester, friendShip.getRequest());
         assertEquals(receiver, friendShip.getReceiver());
         List<DomainEvent> events = friendShip.pullEvents();

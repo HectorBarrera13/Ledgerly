@@ -36,6 +36,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.12.6")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation(project(":model"))
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.zxing:javase:3.5.3")
 }
 
 tasks.withType<Test> {

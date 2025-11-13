@@ -19,8 +19,10 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public void save(User user) {
-        UserEntity userEntity = UserMapper.toEntity(user);
-        jpaUserRepository.save(userEntity);
+        UserEntity userEntity = jpaUserRepository.findByUserId(user.getUserId().getValue())
+                .orElse(new UserEntity());
+        UserEntity mappedEntity = UserMapper.toEntity(user, userEntity);
+        jpaUserRepository.save(mappedEntity);
     }
 
     @Override

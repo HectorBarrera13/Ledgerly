@@ -34,6 +34,7 @@ public class ExceptionAdvisor {
     public ResponseEntity<ErrorData> handleAllExceptions(Exception ex) {
         // Log the exception or perform other actions as needed
         System.err.println("An unexpected error occurred: " + ex.getMessage());
+        ex.printStackTrace();
         ErrorData errorData = ErrorsHandler.unknownError();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorData);
     }
