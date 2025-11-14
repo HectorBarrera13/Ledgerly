@@ -44,6 +44,7 @@ public class RefreshSessionUseCase implements RefreshSession {
         return tokenService.generateAccessToken(
                 new TokenClaims(
                         account.getAccountId(),
+                        account.getUserId(),
                         sessionId,
                         account.getEmail().getValue()
                 )

@@ -38,8 +38,12 @@ public class AccountRepositoryMySQL implements AccountRepository {
                 .orElseThrow(() -> new IllegalStateException("User not found"));
         AccountEntity accountEntity = jpaAccountRepository.findByEmail(account.getEmail().getValue())
                 .orElse(new AccountEntity());
-        AccountEntity entity = AccountMapper.toEntity(account, userEntity, accountEntity);
-        jpaAccountRepository.save(entity);
+        accountEntity.setAccountId(account.getAccountId().getValue());
+        accountEntity.setEmail(account.getEmail().getValue());
+        accountEntity.setPasswordHash(account.getPassword().getHashed());
+        accountEntity.setUser(userEntity);
+        AccountMapper.syncSessions(account.getSessions(), accountEntity);
+        jpaAccountRepository.save(accountEntity);
     }
 
     @Override

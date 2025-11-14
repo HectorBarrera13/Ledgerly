@@ -3,8 +3,6 @@ package toast.model.entities.users;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,9 +19,6 @@ public class UserEntity {
     @Column(nullable = false, unique = true, updatable = false)
     private UUID userId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FriendEntity> friends = new ArrayList<>();
-
     @Column(nullable = false)
     private String firstName;
 
@@ -32,11 +27,4 @@ public class UserEntity {
 
     @Embedded
     private PhoneEmbeddable phone;
-
-    public String getPhoneAsString() {
-        if (phone == null) {
-            return null;
-        }
-        return phone.getCountryCode() + "-" + phone.getNumber();
-    }
 }

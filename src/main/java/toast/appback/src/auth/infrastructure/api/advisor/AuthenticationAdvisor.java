@@ -1,5 +1,6 @@
 package toast.appback.src.auth.infrastructure.api.advisor;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +11,7 @@ import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
 import toast.appback.src.middleware.ErrorData;
 
+@Order(1)
 @RestControllerAdvice
 public class AuthenticationAdvisor {
 

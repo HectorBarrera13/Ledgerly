@@ -2,11 +2,15 @@ package toast.appback.src.users.application.usecase.implementation;
 
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.communication.command.AddFriendCommand;
+import toast.appback.src.users.application.communication.result.FriendView;
+import toast.appback.src.users.application.exceptions.ExistingFriendShipException;
+import toast.appback.src.users.application.exceptions.FriendToMySelfException;
 import toast.appback.src.users.application.exceptions.ReceiverNotFound;
 import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.User;
+import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
 
@@ -24,24 +28,47 @@ public class AddFriendUseCase implements AddFriend {
     }
 
     @Override
-    public void execute(AddFriendCommand command) {
-        Optional<User> requester = userRepository.findById(command.requesterId());
-        if (requester.isEmpty()) {
-            throw new RequesterNotFound(command.requesterId());
+    public FriendView execute(AddFriendCommand command) {
+        if (command.firstUserId().equals(command.secondUserId())) {
+            throw new FriendToMySelfException();
         }
 
-        Optional<User> receiver = userRepository.findById(command.receiverId());
-        if (receiver.isEmpty()) {
-            throw new ReceiverNotFound(command.receiverId());
+        Optional<User> firstUser = userRepository.findById(command.firstUserId());
+        if (firstUser.isEmpty()) {
+            throw new RequesterNotFound(command.firstUserId());
         }
 
-        User requestUser = requester.get();
-        User receiverUser = receiver.get();
+        Optional<User> secondUser = userRepository.findById(command.secondUserId());
+        if (secondUser.isEmpty()) {
+            throw new ReceiverNotFound(command.secondUserId());
+        }
 
-        FriendShip newfriendShip = FriendShip.create(requestUser, receiverUser);
+        boolean existsFriendShip = friendShipRepository.existsFriendShip(
+                command.firstUserId(),
+                command.secondUserId()
+        );
+
+        if (existsFriendShip) {
+            throw new ExistingFriendShipException(command.firstUserId(), command.secondUserId());
+        }
+
+        UserId first = firstUser.get().getUserId();
+        UserId second = secondUser.get().getUserId();
+
+        FriendShip newfriendShip = FriendShip.create(first, second);
 
         friendShipRepository.save(newfriendShip);
 
+        User targetUser = secondUser.get();
+
         eventBus.publishAll(newfriendShip.pullEvents());
+
+        return new FriendView(
+                targetUser.getUserId().getValue(),
+                targetUser.getName().getFirstName(),
+                targetUser.getName().getLastName(),
+                targetUser.getPhone().getValue(),
+                newfriendShip.getCreatedAt()
+        );
     }
 }

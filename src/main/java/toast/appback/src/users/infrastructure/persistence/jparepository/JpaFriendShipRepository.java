@@ -1,11 +1,46 @@
 package toast.appback.src.users.infrastructure.persistence.jparepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import toast.model.entities.users.FriendEntity;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import toast.appback.src.users.infrastructure.persistence.jparepository.projection.FriendProjection;
+import toast.model.entities.users.FriendShipEntity;
+import toast.model.entities.users.FriendShipId;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.List;
 
-public interface JpaFriendShipRepository extends JpaRepository<FriendEntity, Long> {
-    Optional<FriendEntity> findByUserUserIdAndFriendUserId(UUID userUserId, UUID friendUserId);
+public interface JpaFriendShipRepository extends JpaRepository<FriendShipEntity, FriendShipId> {
+
+    @Query("""
+            SELECT u.userId AS userId,
+                   u.firstName AS firstName,
+                   u.lastName AS lastName,
+                   CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone,
+                   f.createdAt AS addedAt
+            FROM FriendShipEntity f
+            JOIN UserEntity u
+                ON (u.id = CASE WHEN f.id.userOneId = :me THEN f.id.userTwoId ELSE f.id.userOneId END)
+            WHERE f.id.userOneId = :me OR f.id.userTwoId = :me
+    """)
+    List<FriendProjection> findAllUserFriendsByUserId(@Param("me") Long userId, @Param("limit") int limit);
+
+
+    @Query("""
+            SELECT u.userId AS userId,
+                   u.firstName AS firstName,
+                   u.lastName AS lastName,
+                   CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone,
+                   f.createdAt AS addedAt
+            FROM FriendShipEntity f
+            JOIN UserEntity u
+                ON (u.id = CASE WHEN f.id.userOneId = :userId THEN f.id.userTwoId ELSE f.id.userOneId END)
+            WHERE (f.id.userOneId = :userId OR f.id.userTwoId = :userId)
+              AND u.userId > :cursor
+            ORDER BY u.userId ASC
+    """)
+    List<FriendProjection> findAllUserFriendsByUserIdAfterCursor(
+            @Param("userId") Long userId,
+            @Param("cursor") Long cursor,
+            @Param("limit") int limit
+    );
 }

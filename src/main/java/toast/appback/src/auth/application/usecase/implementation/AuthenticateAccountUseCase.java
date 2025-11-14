@@ -52,6 +52,7 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
         AccessToken accessToken = tokenService.generateAccessToken(
                 new TokenClaims(
                         account.getAccountId(),
+                        account.getUserId(),
                         newSession.getSessionId(),
                         account.getEmail().getValue()
                 )

@@ -16,22 +16,23 @@ public class FriendShipTest {
     @Test
     @DisplayName("Should create a friendship between two users")
     void testCreateFriendship() {
-        User requester = new User(
+        User firstUser = new User(
                 UserId.load(UUID.randomUUID()),
                 Name.load("Alice", "Smith"),
                 Phone.load("+24", "1234567890")
         );
 
-        User receiver = new User(
+        User secondUser = new User(
                 UserId.load(UUID.randomUUID()),
                 Name.load("Bob", "Johnson"),
                 Phone.load("+24", "0987654321")
         );
 
-        FriendShip friendShip = FriendShip.create(requester, receiver);
+        FriendShip friendShip = FriendShip.create(firstUser.getUserId(), secondUser.getUserId());
         assertNotNull(friendShip);
-        assertEquals(requester, friendShip.getRequest());
-        assertEquals(receiver, friendShip.getReceiver());
+        assertNotNull(friendShip.getCreatedAt());
+        assertEquals(firstUser.getUserId(), friendShip.getFirstUser());
+        assertEquals(secondUser.getUserId(), friendShip.getSecondUser());
         List<DomainEvent> events = friendShip.pullEvents();
         assertEquals(1, events.size());
         assertInstanceOf(FriendAdded.class, events.getFirst());

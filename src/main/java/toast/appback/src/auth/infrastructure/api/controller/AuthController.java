@@ -39,7 +39,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/refresh")
+    @GetMapping("/refresh")
     public ResponseEntity<RefreshTokenResponse> refresh(
             @RequestBody SessionRequest sessionRequest
             ) {

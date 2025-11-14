@@ -46,6 +46,7 @@ public class AuthConfig {
                     .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found"));
             return new CustomUserDetails(
                     account.getAccountId(),
+                    account.getUserId(),
                     account.getEmail().getValue(),
                     account.getPassword().getHashed()
             );

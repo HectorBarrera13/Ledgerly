@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.usecase.implementation.AddFriendUseCase;
 import toast.appback.src.users.application.usecase.implementation.CreateUserUseCase;
+import toast.appback.src.users.application.usecase.implementation.EditUserUseCase;
 import toast.appback.src.users.application.usecase.implementation.RemoveFriendUseCase;
 import toast.appback.src.users.domain.DefaultUser;
 import toast.appback.src.users.domain.UserFactory;
@@ -55,6 +56,15 @@ public class UserUseCasesConfig {
         return new RemoveFriendUseCase(
                 friendShipRepository,
                 eventBus
+        );
+    }
+
+    @Bean
+    public EditUserUseCase editUserUseCase(
+            UserRepository userRepository
+    ) {
+        return new EditUserUseCase(
+                userRepository
         );
     }
 }

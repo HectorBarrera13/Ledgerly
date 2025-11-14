@@ -3,6 +3,7 @@ package toast.appback.src.users.application.usecase.implementation;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
 import toast.appback.src.users.application.exceptions.FriendNotFound;
+import toast.appback.src.users.application.exceptions.RemoveMySelfFromFriendsException;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.event.FriendRemoved;
@@ -21,24 +22,25 @@ public class RemoveFriendUseCase implements RemoveFriend {
 
     @Override
     public void execute(RemoveFriendCommand command) {
-        Optional<FriendShip> foundUser = friendShipRepository.findByUsersIds(
+        if (command.requesterId().equals(command.friendId())) {
+            throw new RemoveMySelfFromFriendsException();
+        }
+        boolean existsFriendShip = friendShipRepository.existsFriendShip(
                 command.requesterId(),
                 command.friendId()
         );
 
-        if (foundUser.isEmpty()) {
+        if (!existsFriendShip) {
             throw new FriendNotFound(command.friendId());
         }
 
-        FriendShip friendShip = foundUser.get();
-
-        friendShipRepository.delete(friendShip.getFriendshipId());
+        friendShipRepository.delete(command.requesterId(), command.friendId());
 
         eventBus.publish(
                 new FriendRemoved(
-                        friendShip.getFriendshipId(),
-                        friendShip.getRequest().getUserId(),
-                        friendShip.getReceiver().getUserId())
+                        command.requesterId(),
+                        command.friendId()
+                )
         );
     }
 }

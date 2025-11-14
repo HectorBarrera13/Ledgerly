@@ -15,6 +15,7 @@ import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
+import toast.appback.src.users.domain.UserId;
 
 import java.io.IOException;
 
@@ -40,14 +41,16 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         AccountInfo accountInfo = tokenService.extractAccountInfo(token);
 
-        SessionId sessionId = accountInfo.sessionId();
         String email = accountInfo.email();
         AccountId accountId = accountInfo.accountId();
+        UserId userId = accountInfo.userId();
+        SessionId sessionId = accountInfo.sessionId();
 
 
         if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             CustomUserDetails userDetails = new CustomUserDetails(
                     accountId,
+                    userId,
                     email,
                     ""
             );
@@ -62,5 +65,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             );
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
+        filterChain.doFilter(request, response);
     }
 }
