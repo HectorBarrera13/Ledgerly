@@ -10,7 +10,7 @@ import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.shared.application.EventBus;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 

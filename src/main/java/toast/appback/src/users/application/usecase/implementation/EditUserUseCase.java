@@ -1,7 +1,7 @@
 package toast.appback.src.users.application.usecase.implementation;
 
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.communication.command.EditUserCommand;
 import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.exceptions.UserNotFound;

@@ -11,7 +11,7 @@ import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.implementation.RegisterAccountUseCase;
 import toast.appback.src.auth.domain.*;
 import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.Phone;

@@ -7,7 +7,7 @@ import toast.appback.src.auth.domain.Password;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static toast.appback.src.shared.ValueObjectsUtils.*;

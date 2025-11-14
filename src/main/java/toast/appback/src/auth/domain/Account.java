@@ -4,7 +4,7 @@ import toast.appback.src.auth.domain.event.AllSessionsRevoked;
 import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.auth.domain.event.SessionRevoked;
 import toast.appback.src.shared.domain.DomainEvent;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.UserId;
 

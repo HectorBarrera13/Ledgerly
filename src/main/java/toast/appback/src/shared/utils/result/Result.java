@@ -1,6 +1,7 @@
-package toast.appback.src.shared.utils;
+package toast.appback.src.shared.utils.result;
 
 import toast.appback.src.shared.errors.IError;
+import toast.appback.src.shared.utils.Pair;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -59,6 +60,14 @@ public class Result<T, E extends IError> {
 
     public static <T, E extends IError> Result<T, E> failure(List<E> errors) {
         return new Result<>(errors);
+    }
+
+    public static <E extends IError> Chain.Chain0<E> chain() {
+        return Chain.start();
+    }
+
+    public static <E extends IError> ResultAggregator<E> aggregator() {
+        return new ResultAggregator<>();
     }
 
     public static <T, E extends IError> Result<T, E> failure(E error) {

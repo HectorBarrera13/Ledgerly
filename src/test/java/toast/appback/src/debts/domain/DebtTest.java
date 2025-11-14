@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.DomainEvent;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User;

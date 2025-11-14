@@ -2,7 +2,7 @@ package toast.appback.src.debts.domain;
 
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 public class Context {
     private final String purpose;

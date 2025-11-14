@@ -3,7 +3,7 @@ package toast.appback.src.auth.domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.List;

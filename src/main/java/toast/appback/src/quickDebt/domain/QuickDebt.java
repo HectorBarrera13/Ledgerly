@@ -4,7 +4,7 @@ import toast.appback.src.debts.domain.Context;
 import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.User;
 
 import java.util.List;

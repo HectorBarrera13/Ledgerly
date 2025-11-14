@@ -1,7 +1,7 @@
 package toast.appback.src.auth.domain;
 
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.domain.DomainError;
 
 public abstract class AccountFactory {

@@ -1,6 +1,6 @@
 package toast.appback.src.shared.domain;
 
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 /**
  * A utility class providing static methods for generating standardized validation error results.

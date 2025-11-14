@@ -11,7 +11,7 @@ import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Optional;
 

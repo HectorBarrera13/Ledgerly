@@ -3,7 +3,7 @@ package toast.appback.src.users.application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.application.exceptions.domain.CreationUserException;
 import toast.appback.src.users.application.usecase.implementation.CreateUserUseCase;

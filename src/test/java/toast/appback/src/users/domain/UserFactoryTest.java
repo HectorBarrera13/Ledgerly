@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.domain.event.UserCreated;
 

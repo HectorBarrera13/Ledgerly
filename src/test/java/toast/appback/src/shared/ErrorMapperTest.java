@@ -2,7 +2,7 @@ package toast.appback.src.shared;
 
 import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 import static org.junit.jupiter.api.Assertions.*;
 

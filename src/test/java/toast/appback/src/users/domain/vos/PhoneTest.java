@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.Phone;
 
 import java.io.IOException;
