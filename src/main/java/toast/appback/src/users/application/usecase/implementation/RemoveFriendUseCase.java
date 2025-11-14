@@ -25,23 +25,22 @@ public class RemoveFriendUseCase implements RemoveFriend {
         if (command.requesterId().equals(command.friendId())) {
             throw new RemoveMySelfFromFriendsException();
         }
-        Optional<FriendShip> foundUser = friendShipRepository.findByUsersIds(
+        boolean existsFriendShip = friendShipRepository.existsFriendShip(
                 command.requesterId(),
                 command.friendId()
         );
 
-        if (foundUser.isEmpty()) {
+        if (!existsFriendShip) {
             throw new FriendNotFound(command.friendId());
         }
 
-        FriendShip friendShip = foundUser.get();
-
-        friendShipRepository.delete(friendShip);
+        friendShipRepository.delete(command.requesterId(), command.friendId());
 
         eventBus.publish(
                 new FriendRemoved(
-                        friendShip.getFirstUser(),
-                        friendShip.getSecondUser())
+                        command.requesterId(),
+                        command.friendId()
+                )
         );
     }
 }

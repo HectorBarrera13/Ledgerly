@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface FriendShipRepository {
     void save(FriendShip friendship);
-    Optional<FriendShip> findByUsersIds(UserId userId, UserId friendId);
-    Optional<FriendShip> findById(Long id);
-    void delete(FriendShip friendship);
+    boolean existsFriendShip(UserId userIdA, UserId userIdB);
+    void delete(UserId userIdA, UserId userIdB);
 }

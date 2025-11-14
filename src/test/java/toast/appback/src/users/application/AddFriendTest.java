@@ -53,8 +53,8 @@ public class AddFriendTest {
         when(receiver.getUserId()).thenReturn(receiverId);
         when(receiver.getName()).thenReturn(Name.load("example", "user"));
         when(receiver.getPhone()).thenReturn(Phone.load("+31", "612345678"));
-        when(friendShipRepository.findByUsersIds(requesterId, receiverId))
-                .thenReturn(Optional.empty());
+        when(friendShipRepository.existsFriendShip(requesterId, receiverId))
+                .thenReturn(false);
         AddFriendCommand command = new AddFriendCommand(
                 requesterId,
                 receiverId
@@ -142,15 +142,15 @@ public class AddFriendTest {
         UserId receiverId = UserId.generate();
         when(userRepository.findById(requesterId)).thenReturn(Optional.of(requester));
         when(userRepository.findById(receiverId)).thenReturn(Optional.of(receiver));
-        when(friendShipRepository.findByUsersIds(requesterId, receiverId))
-                .thenReturn(Optional.of(mock(FriendShip.class)));
+        when(friendShipRepository.existsFriendShip(requesterId, receiverId))
+                .thenReturn(true);
         AddFriendCommand command = new AddFriendCommand(
                 requesterId,
                 receiverId
         );
         assertThrows(ExistingFriendShipException.class, () -> addFriendUseCase.execute(command));
         verify(userRepository, times(2)).findById(any());
-        verify(friendShipRepository, times(1)).findByUsersIds(requesterId, receiverId);
+        verify(friendShipRepository, times(1)).existsFriendShip(requesterId, receiverId);
         verify(friendShipRepository, never()).save(any());
         verify(eventBus, never()).publishAll(any());
     }

@@ -6,6 +6,7 @@ import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.port.FriendReadRepository;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaFriendShipRepository;
+import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,10 +15,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FriendReadRepositoryMySQL implements FriendReadRepository {
     private final JpaFriendShipRepository jpaFriendShipRepository;
+    private final JpaUserRepository jpaUserRepository;
 
     @Override
     public List<FriendView> findFriendsByUserId(UserId userId, int limit) {
-        return jpaFriendShipRepository.findAllUserFriendsByUserId(userId.getValue(), limit).stream()
+        Long userDbId = jpaUserRepository.findByUserId(userId.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        return jpaFriendShipRepository.findAllUserFriendsByUserId(userDbId, limit).stream()
                 .map(projection -> new FriendView(
                         projection.getUserId(),
                         projection.getFirstName(),
@@ -29,7 +34,13 @@ public class FriendReadRepositoryMySQL implements FriendReadRepository {
 
     @Override
     public List<FriendView> findFriendsByUserIdAfterCursor(UserId userId, UUID cursor, int limit) {
-        return jpaFriendShipRepository.findAllUserFriendsByUserIdAfterCursor(userId.getValue(), cursor,limit).stream()
+        Long userDbId = jpaUserRepository.findByUserId(userId.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        Long cursorDbId = jpaUserRepository.findByUserId(cursor)
+                .orElseThrow(() -> new IllegalArgumentException("Cursor user not found"))
+                .getId();
+        return jpaFriendShipRepository.findAllUserFriendsByUserIdAfterCursor(userDbId, cursorDbId,limit).stream()
                 .map(projection -> new FriendView(
                         projection.getUserId(),
                         projection.getFirstName(),

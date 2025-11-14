@@ -9,9 +9,7 @@ import toast.appback.src.users.infrastructure.persistence.jparepository.JpaFrien
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 import toast.appback.src.users.infrastructure.persistence.mapping.FriendMapper;
 import toast.model.entities.users.FriendShipEntity;
-import toast.model.entities.users.UserEntity;
-
-import java.util.Optional;
+import toast.model.entities.users.FriendShipId;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,47 +17,36 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
 
     private final JpaFriendShipRepository jpaFriendShipRepository;
     private final JpaUserRepository jpaUserRepository;
+    private final FriendMapper friendMapper;
 
     @Override
     public void save(FriendShip friendship) {
-        // 1. Find existing friendship or create a new one
-        FriendShipEntity friendShip = jpaFriendShipRepository
-                .findByFirstUser_UserIdAndSecondUser_UserId(
-                        friendship.getFirstUser().getValue(),
-                        friendship.getSecondUser().getValue()
-                )
-                .orElseGet(FriendShipEntity::new);
-
-        // 2. Get valid references
-        UserEntity firstRef = jpaUserRepository.getReferenceByUserId(friendship.getFirstUser().getValue());
-        UserEntity secondRef = jpaUserRepository.getReferenceByUserId(friendship.getSecondUser().getValue());
-
-        // 3. Set values
-        friendShip.setFirstUser(firstRef);
-        friendShip.setSecondUser(secondRef);
-        friendShip.setCreatedAt(friendship.getCreatedAt());
-
-        // 4. Save the entity
-        jpaFriendShipRepository.save(friendShip);
+        FriendShipEntity friendshipEntity = friendMapper.toEntity(friendship);
+        jpaFriendShipRepository.save(friendshipEntity);
     }
 
     @Override
-    public Optional<FriendShip> findByUsersIds(UserId userId, UserId friendId) {
-        return jpaFriendShipRepository.findByFirstUser_UserIdAndSecondUser_UserId(userId.getValue(), friendId.getValue())
-                .map(FriendMapper::toDomain);
+    public boolean existsFriendShip(UserId userId, UserId friendId) {
+        Long userIdA = jpaUserRepository.findByUserId(userId.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        Long userIdB = jpaUserRepository.findByUserId(friendId.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        FriendShipId friendShipId = friendMapper.normalizeAndGetId(userIdA, userIdB);
+        return jpaFriendShipRepository.existsById(friendShipId);
     }
 
-    @Override
-    public Optional<FriendShip> findById(Long id) {
-        return jpaFriendShipRepository.findById(id)
-                .map(FriendMapper::toDomain);
-    }
 
     @Override
-    public void delete(FriendShip friendship) {
-        jpaFriendShipRepository.deleteByUserIdAndFriendId(
-                friendship.getFirstUser().getValue(),
-                friendship.getSecondUser().getValue()
-        );
+    public void delete(UserId userIdA, UserId userIdB) {
+        Long idA = jpaUserRepository.findByUserId(userIdA.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        Long idB = jpaUserRepository.findByUserId(userIdB.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        FriendShipId friendShipId = friendMapper.normalizeAndGetId(idA, idB);
+        jpaFriendShipRepository.deleteById(friendShipId);
     }
 }

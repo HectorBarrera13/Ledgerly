@@ -1,7 +1,6 @@
 package toast.appback.src.auth.infrastructure.persistence.jparepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import toast.model.entities.account.AccountEntity;
 
 import java.util.Optional;

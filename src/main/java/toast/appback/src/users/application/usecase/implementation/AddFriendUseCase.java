@@ -43,12 +43,12 @@ public class AddFriendUseCase implements AddFriend {
             throw new ReceiverNotFound(command.secondUserId());
         }
 
-        Optional<FriendShip> existingFriendship = friendShipRepository.findByUsersIds(
+        boolean existsFriendShip = friendShipRepository.existsFriendShip(
                 command.firstUserId(),
                 command.secondUserId()
         );
 
-        if (existingFriendship.isPresent()) {
+        if (existsFriendShip) {
             throw new ExistingFriendShipException(command.firstUserId(), command.secondUserId());
         }
 

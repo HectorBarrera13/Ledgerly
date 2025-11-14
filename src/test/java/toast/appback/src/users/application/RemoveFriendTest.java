@@ -8,11 +8,8 @@ import toast.appback.src.users.application.communication.command.RemoveFriendCom
 import toast.appback.src.users.application.exceptions.FriendNotFound;
 import toast.appback.src.users.application.exceptions.RemoveMySelfFromFriendsException;
 import toast.appback.src.users.application.usecase.implementation.RemoveFriendUseCase;
-import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
-
-import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,22 +33,17 @@ public class RemoveFriendTest {
     @Test
     @DisplayName("Should remove friend successfully")
     public void testRemoveFriendSuccessfully() {
-        FriendShip friendShip = mock(FriendShip.class);
         UserId requester = UserId.generate();
         UserId receiver = UserId.generate();
-        when(friendShip.getFirstUser()).thenReturn(requester);
-        when(friendShip.getSecondUser()).thenReturn(receiver);
-        when(friendShipRepository.findByUsersIds(any(), any()))
-                .thenReturn(Optional.of(friendShip));
-        when(friendShip.getSecondUser()).thenReturn(UserId.generate());
-        when(friendShip.getFirstUser()).thenReturn(UserId.generate());
+        when(friendShipRepository.existsFriendShip(any(), any()))
+                .thenReturn(true);
         RemoveFriendCommand command = new RemoveFriendCommand(
-                UserId.generate(),
-                UserId.generate()
+                requester,
+                receiver
         );
         assertDoesNotThrow(() -> removeFriendUseCase.execute(command));
         verify(friendShipRepository, times(1))
-                .delete(friendShip);
+                .delete(requester, receiver);
         verify(eventBus, times(1)).publish(any());
     }
 
@@ -63,16 +55,16 @@ public class RemoveFriendTest {
     @Test
     @DisplayName("Should throw FriendNotFound when friendship does not exist")
     public void testRemoveFriendFailsWhenFriendshipDoesNotExist() {
-        when(friendShipRepository.findByUsersIds(any(), any()))
-                .thenReturn(Optional.empty());
+        when(friendShipRepository.existsFriendShip(any(), any()))
+                .thenReturn(false);
         RemoveFriendCommand command = new RemoveFriendCommand(
                 UserId.generate(),
                 UserId.generate()
         );
         assertThrows(FriendNotFound.class, () -> removeFriendUseCase.execute(command));
         verify(friendShipRepository, times(1))
-                .findByUsersIds(command.requesterId(), command.friendId());
-        verify(friendShipRepository, times(0)).delete(any());
+                .existsFriendShip(command.requesterId(), command.friendId());
+        verify(friendShipRepository, times(0)).delete(any(), any());
         verify(eventBus, times(0)).publish(any());
     }
 
@@ -90,8 +82,8 @@ public class RemoveFriendTest {
                 userId
         );
         assertThrows(RemoveMySelfFromFriendsException.class, () -> removeFriendUseCase.execute(command));
-        verify(friendShipRepository, times(0)).findByUsersIds(any(), any());
-        verify(friendShipRepository, times(0)).delete(any());
+        verify(friendShipRepository, times(0)).existsFriendShip(any(), any());
+        verify(friendShipRepository, times(0)).delete(any(), any());
         verify(eventBus, times(0)).publish(any());
     }
 }

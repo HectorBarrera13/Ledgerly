@@ -12,17 +12,12 @@ public class FriendShip {
     private final UserId firstUser;
     private final UserId secondUser;
     private final Instant createdAt;
-    private List<DomainEvent> friendshipEvents = new ArrayList<>();
+    private final List<DomainEvent> friendshipEvents = new ArrayList<>();
 
     private FriendShip(UserId firstUser, UserId secondUser, Instant createdAt) {
         this.firstUser = firstUser;
         this.secondUser = secondUser;
         this.createdAt = createdAt;
-    }
-
-    private FriendShip(UserId firstUser, UserId secondUser, Instant createdAt, List<DomainEvent> friendshipEvents) {
-        this(firstUser, secondUser, createdAt);
-        this.friendshipEvents = new ArrayList<>(friendshipEvents);
     }
 
     public static FriendShip create(UserId firstUser, UserId secondUser) {
