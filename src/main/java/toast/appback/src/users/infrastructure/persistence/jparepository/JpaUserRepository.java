@@ -19,4 +19,6 @@ public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
         WHERE u.userId = :userId
     """)
     Optional<UserProjection> findUserProjectionByUserId(@Param("userId") UUID userId);
+
+    UserEntity getReferenceByUserId(UUID userId);
 }

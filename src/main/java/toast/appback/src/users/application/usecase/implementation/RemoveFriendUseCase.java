@@ -36,13 +36,12 @@ public class RemoveFriendUseCase implements RemoveFriend {
 
         FriendShip friendShip = foundUser.get();
 
-        friendShipRepository.delete(friendShip.getFriendshipId());
+        friendShipRepository.delete(friendShip);
 
         eventBus.publish(
                 new FriendRemoved(
-                        friendShip.getFriendshipId(),
-                        friendShip.getRequest().getUserId(),
-                        friendShip.getReceiver().getUserId())
+                        friendShip.getFirstUser(),
+                        friendShip.getSecondUser())
         );
     }
 }

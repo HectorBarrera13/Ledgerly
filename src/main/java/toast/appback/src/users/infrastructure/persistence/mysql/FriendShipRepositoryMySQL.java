@@ -3,13 +3,12 @@ package toast.appback.src.users.infrastructure.persistence.mysql;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import toast.appback.src.users.domain.FriendShip;
-import toast.appback.src.users.domain.FriendShipId;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaFriendShipRepository;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 import toast.appback.src.users.infrastructure.persistence.mapping.FriendMapper;
-import toast.model.entities.users.FriendEntity;
+import toast.model.entities.users.FriendShipEntity;
 import toast.model.entities.users.UserEntity;
 
 import java.util.Optional;
@@ -23,39 +22,30 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
 
     @Override
     public void save(FriendShip friendship) {
-        Optional<FriendEntity> existingEntityOpt = jpaFriendShipRepository
-                .findByUserIdAndFriendId(
-                        friendship.getRequest().getUserId().getValue(),
-                        friendship.getReceiver().getUserId().getValue()
-                );
+        // 1. Find existing friendship or create a new one
+        FriendShipEntity friendShip = jpaFriendShipRepository
+                .findByFirstUser_UserIdAndSecondUser_UserId(
+                        friendship.getFirstUser().getValue(),
+                        friendship.getSecondUser().getValue()
+                )
+                .orElseGet(FriendShipEntity::new);
 
-        if (existingEntityOpt.isPresent()) {
-            updateExistingFriendship(friendship, existingEntityOpt.get());
-        } else {
-            saveNewFriendship(friendship);
-        }
-    }
+        // 2. Get valid references
+        UserEntity firstRef = jpaUserRepository.getReferenceByUserId(friendship.getFirstUser().getValue());
+        UserEntity secondRef = jpaUserRepository.getReferenceByUserId(friendship.getSecondUser().getValue());
 
-    private void saveNewFriendship(FriendShip friendship) {
-        FriendEntity friendEntity = new FriendEntity();
-        UserEntity userEntity = jpaUserRepository.findByUserId(friendship.getRequest().getUserId().getValue())
-                .orElseThrow(() -> new IllegalStateException("User not found"));
-        UserEntity friendUserEntity = jpaUserRepository.findByUserId(friendship.getReceiver().getUserId().getValue())
-                .orElseThrow(() -> new IllegalStateException("Friend user not found"));
-        friendEntity.setUser(userEntity);
-        friendEntity.setFriend(friendUserEntity);
-        friendEntity.setAddedAt(friendship.getAddTime());
-        jpaFriendShipRepository.save(friendEntity);
-    }
+        // 3. Set values
+        friendShip.setFirstUser(firstRef);
+        friendShip.setSecondUser(secondRef);
+        friendShip.setCreatedAt(friendship.getCreatedAt());
 
-    private void updateExistingFriendship(FriendShip friendship, FriendEntity existingEntity) {
-        FriendEntity updatedEntity = FriendMapper.toEntity(friendship, existingEntity);
-        jpaFriendShipRepository.save(updatedEntity);
+        // 4. Save the entity
+        jpaFriendShipRepository.save(friendShip);
     }
 
     @Override
     public Optional<FriendShip> findByUsersIds(UserId userId, UserId friendId) {
-        return jpaFriendShipRepository.findByUserIdAndFriendId(userId.getValue(), friendId.getValue())
+        return jpaFriendShipRepository.findByFirstUser_UserIdAndSecondUser_UserId(userId.getValue(), friendId.getValue())
                 .map(FriendMapper::toDomain);
     }
 
@@ -66,7 +56,10 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
     }
 
     @Override
-    public void delete(FriendShipId friendshipId) {
-        jpaFriendShipRepository.deleteById(friendshipId.getValue());
+    public void delete(FriendShip friendship) {
+        jpaFriendShipRepository.deleteByUserIdAndFriendId(
+                friendship.getFirstUser().getValue(),
+                friendship.getSecondUser().getValue()
+        );
     }
 }

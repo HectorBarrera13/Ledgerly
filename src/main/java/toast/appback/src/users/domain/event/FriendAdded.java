@@ -3,5 +3,5 @@ package toast.appback.src.users.domain.event;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.users.domain.UserId;
 
-public record FriendAdded(UserId userId, UserId friendId) implements DomainEvent {
+public record FriendAdded(UserId firstUser, UserId secondUser) implements DomainEvent {
 }

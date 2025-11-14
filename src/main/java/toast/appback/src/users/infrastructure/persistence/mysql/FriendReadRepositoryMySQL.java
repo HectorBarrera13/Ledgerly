@@ -6,7 +6,6 @@ import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.port.FriendReadRepository;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaFriendShipRepository;
-import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FriendReadRepositoryMySQL implements FriendReadRepository {
     private final JpaFriendShipRepository jpaFriendShipRepository;
-    private final JpaUserRepository jpaUserRepository;
 
     @Override
     public List<FriendView> findFriendsByUserId(UserId userId, int limit) {

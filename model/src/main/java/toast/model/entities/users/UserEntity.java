@@ -21,8 +21,8 @@ public class UserEntity {
     @Column(nullable = false, unique = true, updatable = false)
     private UUID userId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FriendEntity> friends = new ArrayList<>();
+    @OneToMany(mappedBy = "firstUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendShipEntity> friends = new ArrayList<>();
 
     @Column(nullable = false)
     private String firstName;

@@ -9,50 +9,49 @@ import java.util.List;
 import java.util.Objects;
 
 public class FriendShip {
-    private final FriendShipId friendshipId;
-    private final User request;
-    private final User receiver;
-    private final Instant addTime;
+    private final UserId firstUser;
+    private final UserId secondUser;
+    private final Instant createdAt;
     private List<DomainEvent> friendshipEvents = new ArrayList<>();
 
-    public FriendShip(FriendShipId friendshipId, User request, User receiver, Instant addTime) {
-        this.friendshipId = friendshipId;
-        this.request = request;
-        this.receiver = receiver;
-        this.addTime = addTime;
+    private FriendShip(UserId firstUser, UserId secondUser, Instant createdAt) {
+        this.firstUser = firstUser;
+        this.secondUser = secondUser;
+        this.createdAt = createdAt;
     }
 
-    public FriendShip(FriendShipId friendshipId, User request, User receiver, Instant addTime, List<DomainEvent> friendshipEvents) {
-        this(friendshipId, request, receiver, addTime);
+    private FriendShip(UserId firstUser, UserId secondUser, Instant createdAt, List<DomainEvent> friendshipEvents) {
+        this(firstUser, secondUser, createdAt);
         this.friendshipEvents = new ArrayList<>(friendshipEvents);
     }
 
-    public static FriendShip create(User request, User receiver) {
+    public static FriendShip create(UserId firstUser, UserId secondUser) {
         Instant now = Instant.now();
-        FriendShip friendship = new FriendShip(FriendShipId.load(null), request, receiver, now);
+        FriendShip friendship = new FriendShip(firstUser, secondUser, now);
         friendship.recordEvent(
                 new FriendAdded(
-                        request.getUserId(),
-                        receiver.getUserId()
+                        firstUser,
+                        secondUser
                 )
         );
         return friendship;
     }
 
-    public FriendShipId getFriendshipId() {
-        return friendshipId;
+    public static FriendShip load(UserId firstUser, UserId secondUser, Instant createdAt) {
+        return new FriendShip(firstUser, secondUser, createdAt);
     }
 
-    public User getRequest() {
-        return request;
+
+    public UserId getFirstUser() {
+        return firstUser;
     }
 
-    public User getReceiver() {
-        return receiver;
+    public UserId getSecondUser() {
+        return secondUser;
     }
 
-    public Instant getAddTime() {
-        return addTime;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public List<DomainEvent> pullEvents() {
@@ -68,10 +67,9 @@ public class FriendShip {
     @Override
     public String toString() {
         return "FriendShip{" +
-                "friendshipId=" + friendshipId +
-                ", request=" + request +
-                ", receiver=" + receiver +
-                ", addTime=" + addTime +
+                ", request=" + firstUser +
+                ", receiver=" + secondUser +
+                ", addTime=" + createdAt +
                 ", friendshipEvents=" + friendshipEvents +
                 '}';
     }
@@ -79,11 +77,11 @@ public class FriendShip {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof FriendShip that)) return false;
-        return Objects.equals(friendshipId, that.friendshipId) && Objects.equals(request, that.request) && Objects.equals(receiver, that.receiver);
+        return Objects.equals(firstUser, that.firstUser) && Objects.equals(secondUser, that.secondUser);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(friendshipId, request, receiver);
+        return Objects.hash(firstUser, secondUser);
     }
 }

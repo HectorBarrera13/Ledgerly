@@ -7,7 +7,6 @@ import toast.appback.src.users.application.port.UserReadRepository;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

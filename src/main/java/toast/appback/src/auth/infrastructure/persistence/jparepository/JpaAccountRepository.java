@@ -10,11 +10,5 @@ import java.util.UUID;
 public interface JpaAccountRepository extends JpaRepository<AccountEntity, Long> {
     Optional<AccountEntity> findByEmail(String email);
 
-    @Query("SELECT a FROM AccountEntity a JOIN a.sessions s WHERE s.sessionId = :sessionId")
-    Optional<AccountEntity> findBySessionId(UUID sessionId);
-
-    @Query("SELECT a FROM AccountEntity a JOIN a.sessions s WHERE a.accountId = :accountId AND s.sessionId = :sessionId")
-    Optional<AccountEntity> findByAccountIdAndSessionId(UUID accountId, UUID sessionId);
-
     Optional<AccountEntity> findByAccountId(UUID accountId);
 }

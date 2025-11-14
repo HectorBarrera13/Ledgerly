@@ -3,23 +3,12 @@ package toast.appback.src.auth.infrastructure.persistence.mapping;
 import toast.appback.src.auth.domain.*;
 import toast.appback.src.users.domain.UserId;
 import toast.model.entities.account.*;
-import toast.model.entities.users.UserEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AccountMapper {
-
-    public static AccountEntity toEntity(Account domain, UserEntity user, AccountEntity entity) {
-        entity.setAccountId(domain.getAccountId().getValue());
-        entity.setUser(user);
-        entity.setEmail(domain.getEmail().getValue());
-        entity.setPasswordHash(domain.getPassword().getHashed());
-        // Map sessions
-        syncSessions(domain.getSessions(), entity);
-        return entity;
-    }
 
     public static Account toDomain(AccountEntity entity) {
         List<Session> sessions = entity.getSessions().stream()
