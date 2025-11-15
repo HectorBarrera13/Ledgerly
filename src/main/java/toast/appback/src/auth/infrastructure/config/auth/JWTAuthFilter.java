@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.domain.AccountId;
@@ -39,22 +40,27 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         final String token = authHeader.substring(7);
 
-        AccountInfo accountInfo = tokenService.extractAccountInfo(token);
+        if (tokenService.isTokenExpired(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        String email = accountInfo.email();
-        AccountId accountId = accountInfo.accountId();
-        UserId userId = accountInfo.userId();
-        SessionId sessionId = accountInfo.sessionId();
+        TokenClaims tokenClaims;
 
+        try {
+            tokenClaims = tokenService.extractClaimsFromAccessToken(token);
+        } catch (Exception e) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if(SecurityContextHolder.getContext().getAuthentication() == null) {
             CustomUserDetails userDetails = new CustomUserDetails(
-                    accountId,
-                    userId,
-                    email,
+                    tokenClaims.accountId(),
+                    tokenClaims.userId(),
                     ""
             );
-            userDetails.setSessionId(sessionId);
+            userDetails.setSessionId(tokenClaims.sessionId());
             var authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,

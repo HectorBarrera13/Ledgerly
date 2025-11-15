@@ -55,24 +55,24 @@ public class Name {
     }
 
     public static Result<Name, DomainError> create(String firstName, String lastName) {
-        Result<Void, DomainError> firstNameValidation = generalValidation(firstName, FIELD_FIRST_NAME)
-                .captureFirstError(() -> validate(firstName, FIELD_FIRST_NAME));
-        Result<Void, DomainError> lastNameValidation = generalValidation(lastName, FIELD_LAST_NAME)
-                .captureFirstError(() -> validate(lastName, FIELD_LAST_NAME));
-        return firstNameValidation
-                .flatMap(() -> lastNameValidation)
-                .map(() -> new Name(firstName, lastName));
+        Result<Void, DomainError> result = Result.empty();
+        result.collect(validation(firstName, FIELD_FIRST_NAME));
+        result.collect(validation(lastName, FIELD_LAST_NAME));
+        if (result.isFailure()) {
+            return result.castFailure();
+        }
+        return Result.success(new Name(firstName, lastName));
     }
 
     public static Name load(String firstName, String lastName) {
         return new Name(firstName, lastName);
     }
 
-    private static Result<Void, DomainError> generalValidation(String value, String fieldName) {
+    private static Result<Void, DomainError> validation(String value, String fieldName) {
         if (value == null || value.isBlank()) {
             return Validators.EMPTY_VALUE(fieldName);
         }
-        return Result.success();
+        return validate(value, fieldName);
     }
 
     private static Result<Void, DomainError> validate(String value, String fieldName) {

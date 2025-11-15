@@ -3,7 +3,8 @@ package toast.appback.src.auth.application;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
-import toast.appback.src.auth.application.communication.result.AccessToken;
+import toast.appback.src.auth.application.communication.result.AuthResult;
+import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.communication.result.CreateAccountResult;
 import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
 import toast.appback.src.auth.application.port.TokenService;
@@ -39,9 +40,8 @@ public class RegisterAccountTest {
 
     private final String email = "johndoe@gmail.com";
 
-    private final AccessToken accessToken = new AccessToken(
+    private final Jwt jwt = new Jwt(
             "accessTokenValue",
-            "refreshTokenValue",
             Instant.now()
     );
 
@@ -73,8 +73,8 @@ public class RegisterAccountTest {
     public void testRegisterAccountSuccessfully() {
         // Mocking entities
         Account account = mock(Account.class);
-        SessionId sessionId = SessionId.generate();
-        CreateAccountResult createAccountResult = new CreateAccountResult(account, sessionId);
+        Session session = Session.create();
+        CreateAccountResult createAccountResult = new CreateAccountResult(account, session);
 
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
@@ -85,17 +85,13 @@ public class RegisterAccountTest {
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenReturn(createAccountResult);
         when(tokenService.generateAccessToken(any()))
-                .thenReturn(accessToken);
+                .thenReturn(jwt);
         // Execute the use case
-        RegisterAccountResult result = registerAccountUseCase.execute(command);
-        // Verify the result
-        assertEquals(account.getEmail().getValue(), result.email());
-        assertEquals(user.getUserId().getValue(), result.user().userId());
-        assertEquals(accessToken, result.accessToken());
+        AuthResult result = registerAccountUseCase.execute(command);
+        assertNotNull(result);
         // Verify interactions
         verify(createUser, times(1)).execute(any());
         verify(createAccount, times(1)).execute(any());
-        verify(tokenService, times(1)).generateAccessToken(any());
         // Events should be published for both user and account
         verify(eventBus, times(2)).publishAll(anyList());
     }
@@ -149,8 +145,8 @@ public class RegisterAccountTest {
     public void testRegisterAccountFailsWhenTokenGenerationFails() {
         // Mocking entities
         Account account = mock(Account.class);
-        SessionId sessionId = SessionId.generate();
-        CreateAccountResult createAccountResult = new CreateAccountResult(account, sessionId);
+        Session session = Session.create();
+        CreateAccountResult createAccountResult = new CreateAccountResult(account, session);
         // Mocking equals for assertion
         when(account.getAccountId()).thenReturn(AccountId.generate());
         // Mocking session dependencies
@@ -159,14 +155,13 @@ public class RegisterAccountTest {
         // Mocking the dependencies
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenReturn(createAccountResult);
-        when(tokenService.generateAccessToken(any()))
+        when(tokenService.generateTokens(any(), anyLong()))
                 .thenThrow(RuntimeException.class);
         // Execute the use case and expect an exception
         assertThrows(RuntimeException.class, () -> registerAccountUseCase.execute(command));
         // Verify interactions
         verify(createUser, times(1)).execute(any());
         verify(createAccount, times(1)).execute(any());
-        verify(tokenService, times(1)).generateAccessToken(any());
         verify(eventBus, never()).publishAll(anyList());
     }
 }

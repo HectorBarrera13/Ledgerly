@@ -8,7 +8,6 @@ import toast.appback.src.debts.domain.DebtId;
 import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.shared.utils.result.ResultAggregator;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 
@@ -42,41 +41,5 @@ public class ResultTest2 {
                         debtor
                 ));
         assert result.isSuccess();
-    }
-
-    @Test
-    @DisplayName("Valid Result imperative test")
-    public void validResultImperativeTest() {
-        ResultAggregator<DomainError> resultAggregator = Result.aggregator();
-        Result<Context, DomainError> contextResult = Context.create(purpose, description);
-        resultAggregator.add(contextResult);
-        Result<DebtMoney, DomainError> debtMoneyResult = DebtMoney.create(currency, amount);
-        resultAggregator.add(debtMoneyResult);
-        assert !resultAggregator.hasErrors();
-    }
-
-    @Test
-    @DisplayName("Compare chaining and imperative styles for invalid inputs")
-    public void compareChainingAndImperativeStyles() {
-        // Using chaining
-        Result<Debt, DomainError> result = Result.<DomainError>chain()
-                .and(() -> Context.create(invalidPurpose, invalidDescription))
-                .and(() -> DebtMoney.create(invalidCurrency, invalidAmount))
-                .result((context, debtMoney) -> new Debt(
-                        DebtId.generate(),
-                        context,
-                        debtMoney,
-                        invalidCreditor,
-                        invalidDebtor
-                ));
-        // Using imperative style
-        ResultAggregator<DomainError> resultAggregator = Result.aggregator();
-        Result<Context, DomainError> contextResult = Context.create(invalidPurpose, invalidDescription);
-        resultAggregator.add(contextResult);
-        Result<DebtMoney, DomainError> debtMoneyResult = DebtMoney.create(invalidCurrency, invalidAmount);
-        resultAggregator.add(debtMoneyResult);
-
-        assert result.isFailure() && resultAggregator.hasErrors();
-        assert result.getErrors().equals(resultAggregator.getErrors());
     }
 }

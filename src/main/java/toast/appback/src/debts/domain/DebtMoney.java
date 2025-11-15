@@ -38,10 +38,13 @@ public class DebtMoney {
     }
 
     public static Result<DebtMoney, DomainError> create(String currency, Long amount) {
-        return Result.combine(
-                currencyValidation(currency,REGEX_CURRENCY, FIELD_CURRENCY),
-                amountValidation(amount, FIELD_AMOUNT)
-        ).map(r->new DebtMoney(amountTransformation(amount, SCALE), currency));
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(currencyValidation(currency,REGEX_CURRENCY, FIELD_CURRENCY));
+        emptyResult.collect(amountValidation(amount, FIELD_AMOUNT));
+        if(emptyResult.isFailure()){
+            return emptyResult.castFailure();
+        }
+        return Result.success(new DebtMoney(amountTransformation(amount, SCALE), currency));
     }
 
     public static DebtMoney load(Long amount, String currency) {

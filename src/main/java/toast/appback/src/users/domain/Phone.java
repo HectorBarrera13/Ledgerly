@@ -30,9 +30,13 @@ public class Phone {
 
 
     public static Result<Phone, DomainError> create(String countryCode, String number) {
-        return isValidCode(countryCode)
-                .flatMap(() -> isValidPhoneNumber(number)
-                        .map(() -> new Phone(countryCode, number)));
+        Result<Void, DomainError> result = Result.empty();
+        result.collect(isValidCode(countryCode));
+        result.collect(isValidPhoneNumber(number));
+        if (result.isFailure()) {
+            return result.castFailure();
+        }
+        return Result.success(new Phone(countryCode, number));
     }
 
     public static Phone load(String countryCode, String number) {

@@ -31,18 +31,14 @@ public class EditDebtUseCase implements EditDebt{
         }
         Debt debt = foundDebt.get();
 
-        Result<Void, DomainError> edit = Context.create(command.purpose(), command.description())
-                .flatMap(_context -> DebtMoney.create(command.currency(), command.amount())
-                        .consume(_debtMoney -> {
-                            debt.editDebtMoney(_debtMoney);
-                            debt.editContext(_context);
-                        }));
-        edit.ifFailureThrows(EditDebtException::new);
-
+        Result<Context, DomainError> contextResult = Context.create(command.purpose(), command.description());
+        Result<DebtMoney, DomainError> debtMoneyResult = DebtMoney.create(command.currency(), command.amount());
+        Result<Void, DomainError> updateResult = Result.empty();
+        updateResult.collect(contextResult);
+        updateResult.collect(debtMoneyResult);
+        updateResult.ifFailureThrows(EditDebtException::new);
         debtRepository.save(debt);
-
         eventBus.publishAll(debt.pullEvents());
-
         return debt;
     }
 }

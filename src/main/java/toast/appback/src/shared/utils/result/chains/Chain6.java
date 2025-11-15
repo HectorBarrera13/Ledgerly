@@ -4,8 +4,6 @@ import toast.appback.src.shared.errors.IError;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.utils.result.functions.HexFunction;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 public final class Chain6<A, B, C, D, F, G, E extends IError> {
@@ -19,14 +17,14 @@ public final class Chain6<A, B, C, D, F, G, E extends IError> {
             var t = current.getValue();
             return new Chain7<>(Result.success(new ResultTuples.Tuple7<>(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), r7.getValue())));
         } else {
-            List<E> errors = new ArrayList<>();
+            Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
-                errors.addAll(current.getErrors());
+                emptyResult.collect(current);
             }
             if (r7.isFailure()) {
-                errors.addAll(r7.getErrors());
+                emptyResult.collect(r7);
             }
-            return new Chain7<>(Result.failure(errors));
+            return new Chain7<>(Result.failure(emptyResult.getErrors()));
         }
     }
 

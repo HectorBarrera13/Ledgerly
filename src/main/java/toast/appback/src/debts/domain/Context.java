@@ -19,10 +19,13 @@ public class Context {
     }
     //Method use as a constructor for general cases
     public static Result<Context, DomainError> create(String purpose, String description) {
-        return Result.combine(
-                purposeValidation(purpose,FIELD_PURPOSE),
-                descriptionValidation(description,FIELD_DESCRIPTION)
-        ).map(r -> new Context(purpose,description));
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(purposeValidation(purpose,FIELD_PURPOSE));
+        emptyResult.collect(descriptionValidation(description,FIELD_DESCRIPTION));
+        if(emptyResult.isFailure()){
+            return emptyResult.castFailure();
+        }
+        return Result.success(new Context(purpose,description));
     }
 
     //Method use for quick creation, it does not validates

@@ -33,14 +33,19 @@ public class Debt {
     }
 
     public static Result<Debt,DomainError> create(String purpose,String description, String currency, Long amount, User creditor, User debtor){
-        DebtId debtId = DebtId.generate();
         Result<Context, DomainError> context = Context.create(purpose,description);
         Result<DebtMoney, DomainError> debtMoney = DebtMoney.create(currency, amount);
-        Result<Debt, DomainError> debt = Result.combine(
-                context,
-                debtMoney
-        ).map(r->new Debt(debtId,context.getValue(),debtMoney.getValue(),creditor,debtor));
-        return debt;
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(context);
+        emptyResult.collect(debtMoney);
+        if(emptyResult.isFailure()){
+            return emptyResult.castFailure();
+        }
+        DebtMoney validDebtMoney = debtMoney.getValue();
+        Context validContext = context.getValue();
+        DebtId debtId = DebtId.generate();
+        Debt debt = new Debt(debtId, validContext, validDebtMoney, debtor, creditor);
+        return Result.success(debt);
     }
 
     public DebtId getId() {return id;}
@@ -107,6 +112,10 @@ public class Debt {
         }
         this.context = context;
         return Result.success();
+    }
+
+    public void recordEvent(DomainEvent event) {
+        this.debtEvents.add(event);
     }
 
     public List<DomainEvent> pullEvents() {

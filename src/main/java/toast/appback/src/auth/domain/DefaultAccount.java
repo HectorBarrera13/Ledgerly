@@ -15,28 +15,30 @@ public class DefaultAccount extends AccountFactory {
     }
 
     private Result<Account, DomainError> create(UserId userId, String email, String password) {
-        if (userId == null) {
-            return Result.failure(DomainError.validation("user id", "user id cannot be null"));
+        Result<Email, DomainError> emailResult = Email.create(email);
+        Result<Password, DomainError> passwordResult = Password.fromPlain(password, passwordHasher);
+        Result<Void, DomainError> creationResult = Result.empty();
+        creationResult.collect(emailResult);
+        creationResult.collect(passwordResult);
+        if (creationResult.isFailure()) {
+            return creationResult.castFailure();
         }
-        Result<Account, DomainError> result = Email.create(email)
-                .flatMap(email_ -> Password.fromPlain(password, passwordHasher)
-                        .map(password_ ->
-                                new Account(
-                                        AccountId.generate(),
-                                        userId,
-                                        email_,
-                                        password_
-                                )));
-        result.ifSuccess(
-                account -> account.recordEvent(
-                        new AccountCreated(
-                                account.getAccountId(),
-                                account.getUserId(),
-                                account.getEmail()
-                        )
+        Email validEmail = emailResult.getValue();
+        Password validPassword = passwordResult.getValue();
+        Account account = new Account(
+                AccountId.generate(),
+                userId,
+                validEmail,
+                validPassword
+        );
+        account.recordEvent(
+                new AccountCreated(
+                        account.getAccountId(),
+                        account.getUserId(),
+                        account.getEmail()
                 )
         );
-        return result;
+        return Result.success(account);
     }
 
     @Override

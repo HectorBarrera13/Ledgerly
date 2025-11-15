@@ -25,6 +25,7 @@ public class RemoveFriendUseCase implements RemoveFriend {
         if (command.requesterId().equals(command.friendId())) {
             throw new RemoveMySelfFromFriendsException();
         }
+
         boolean existsFriendShip = friendShipRepository.existsFriendShip(
                 command.requesterId(),
                 command.friendId()

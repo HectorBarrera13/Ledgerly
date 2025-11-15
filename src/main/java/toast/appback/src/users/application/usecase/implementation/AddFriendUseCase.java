@@ -10,11 +10,8 @@ import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
-
-import java.util.Optional;
 
 public class AddFriendUseCase implements AddFriend {
     private final FriendShipRepository friendShipRepository;
@@ -33,15 +30,11 @@ public class AddFriendUseCase implements AddFriend {
             throw new FriendToMySelfException();
         }
 
-        Optional<User> firstUser = userRepository.findById(command.firstUserId());
-        if (firstUser.isEmpty()) {
-            throw new RequesterNotFound(command.firstUserId());
-        }
+        User first = userRepository.findById(command.firstUserId())
+                .orElseThrow(() -> new RequesterNotFound(command.firstUserId()));
 
-        Optional<User> secondUser = userRepository.findById(command.secondUserId());
-        if (secondUser.isEmpty()) {
-            throw new ReceiverNotFound(command.secondUserId());
-        }
+        User second = userRepository.findById(command.secondUserId())
+                .orElseThrow(() -> new ReceiverNotFound(command.secondUserId()));
 
         boolean existsFriendShip = friendShipRepository.existsFriendShip(
                 command.firstUserId(),
@@ -52,22 +45,17 @@ public class AddFriendUseCase implements AddFriend {
             throw new ExistingFriendShipException(command.firstUserId(), command.secondUserId());
         }
 
-        UserId first = firstUser.get().getUserId();
-        UserId second = secondUser.get().getUserId();
-
-        FriendShip newfriendShip = FriendShip.create(first, second);
+        FriendShip newfriendShip = FriendShip.create(first.getUserId(), second.getUserId());
 
         friendShipRepository.save(newfriendShip);
-
-        User targetUser = secondUser.get();
 
         eventBus.publishAll(newfriendShip.pullEvents());
 
         return new FriendView(
-                targetUser.getUserId().getValue(),
-                targetUser.getName().getFirstName(),
-                targetUser.getName().getLastName(),
-                targetUser.getPhone().getValue(),
+                second.getUserId().getValue(),
+                second.getName().getFirstName(),
+                second.getName().getLastName(),
+                second.getPhone().getValue(),
                 newfriendShip.getCreatedAt()
         );
     }

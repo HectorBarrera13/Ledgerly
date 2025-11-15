@@ -10,8 +10,6 @@ import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Optional;
 
@@ -31,16 +29,13 @@ public class CreateAccountUseCase implements CreateAccount {
             throw new AccountExistsException(command.email());
         }
 
-        Result<Account, DomainError> newAccount = accountFactory.create(command);
-        newAccount.ifFailureThrows(CreationAccountException::new);
+        Account account = accountFactory.create(command)
+                        .orElseThrow(CreationAccountException::new);
 
-        Account account = newAccount.getValue();
-        Result<Session, DomainError> newSession = account.startSession();
-        newSession.ifFailureThrows(SessionStartException::new);
-
-        Session session = newSession.getValue();
+        Session newSession = account.startSession()
+                        .orElseThrow(SessionStartException::new);
 
         accountRepository.save(account);
-        return new CreateAccountResult(account, session.getSessionId());
+        return new CreateAccountResult(account, newSession);
     }
 }

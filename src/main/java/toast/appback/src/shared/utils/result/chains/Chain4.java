@@ -2,9 +2,6 @@ package toast.appback.src.shared.utils.result.chains;
 import toast.appback.src.shared.errors.IError;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.utils.result.functions.QuadFunction;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 public record Chain4<A, B, C, D, E extends IError>(Result<ResultTuples.Tuple4<A, B, C, D>, E> current) {
@@ -15,14 +12,14 @@ public record Chain4<A, B, C, D, E extends IError>(Result<ResultTuples.Tuple4<A,
             var t = current.getValue();
             return new Chain5<>(Result.success(new ResultTuples.Tuple5<>(t._1(), t._2(), t._3(), t._4(), r5.getValue())));
         } else {
-            List<E> errors = new ArrayList<>();
+            Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
-                errors.addAll(current.getErrors());
+                emptyResult.collect(current);
             }
             if (r5.isFailure()) {
-                errors.addAll(r5.getErrors());
+                emptyResult.collect(r5);
             }
-            return new Chain5<>(Result.failure(errors));
+            return new Chain5<>(Result.failure(emptyResult.getErrors()));
         }
     }
 

@@ -47,7 +47,6 @@ public class AuthConfig {
             return new CustomUserDetails(
                     account.getAccountId(),
                     account.getUserId(),
-                    account.getEmail().getValue(),
                     account.getPassword().getHashed()
             );
         };

@@ -1,9 +1,10 @@
 package toast.appback.src.auth.application.communication.result;
+
 import toast.appback.src.users.application.communication.result.UserView;
 
-public record RegisterAccountResult(
+public record AuthResult(
+        AccountView account,
         UserView user,
-        String email,
-        Jwt jwt
+        Tokens tokens
 ) {
 }

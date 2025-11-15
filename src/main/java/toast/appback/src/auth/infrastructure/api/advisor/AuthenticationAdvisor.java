@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import toast.appback.src.auth.application.exceptions.*;
+import toast.appback.src.auth.application.exceptions.InvalidSessionException;
 import toast.appback.src.auth.infrastructure.exceptions.AuthenticationServiceException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
@@ -34,6 +35,13 @@ public class AuthenticationAdvisor {
         String friendlyMessage = ex.getMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorData);
+    }
+
+    @ExceptionHandler(InvalidSessionException.class)
+    public ResponseEntity<ErrorData> handleInvalidateSessionException(InvalidSessionException ex) {
+        String friendlyMessage = ex.getFriendlyMessage();
+        ErrorData errorData = ErrorData.create(friendlyMessage);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorData);
     }
 
     @ExceptionHandler(InvalidClaimsException.class)

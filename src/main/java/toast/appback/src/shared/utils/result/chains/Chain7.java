@@ -4,8 +4,6 @@ import toast.appback.src.shared.errors.IError;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.utils.result.functions.HetaFunction;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 public final class Chain7<A, B, C, D, F, G, H, E extends IError> {
@@ -19,14 +17,14 @@ public final class Chain7<A, B, C, D, F, G, H, E extends IError> {
             var t = current.getValue();
             return new Chain8<>(Result.success(new ResultTuples.Tuple8<>(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), r8.getValue())));
         } else {
-            List<E> errors = new ArrayList<>();
+            Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
-                errors.addAll(current.getErrors());
+                emptyResult.collect(current);
             }
             if (r8.isFailure()) {
-                errors.addAll(r8.getErrors());
+                emptyResult.collect(r8);
             }
-            return new Chain8<>(Result.failure(errors));
+            return new Chain8<>(Result.failure(emptyResult.getErrors()));
         }
     }
 

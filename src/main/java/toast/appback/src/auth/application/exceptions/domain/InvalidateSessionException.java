@@ -5,6 +5,7 @@ import toast.appback.src.shared.domain.DomainError;
 
 import java.util.List;
 
+@Deprecated
 public class InvalidateSessionException extends DomainException {
     public InvalidateSessionException(List<DomainError> errors) {
         super(errors);

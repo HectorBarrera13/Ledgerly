@@ -9,12 +9,8 @@ import toast.appback.src.debts.application.usecase.contract.CreateDebt;
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
-
-import java.util.Optional;
 
 public class CreateDebtUseCase implements CreateDebt {
 
@@ -31,24 +27,24 @@ public class CreateDebtUseCase implements CreateDebt {
 
     @Override
     public Debt execute(CreateDebtCommand command) {
-        Optional<User> foundDebtor = userRepository.findById(command.debtorId());
-        if (foundDebtor.isEmpty()) {
-            throw new DebtorNotFound(command.debtorId().getValue());
-        }
-        Optional<User> foundCreditor = userRepository.findById(command.creditorId());
-        if (foundCreditor.isEmpty()) {
-            throw new CreditorNotFound(command.creditorId().getValue());
-        }
+        User debtor = userRepository.findById(command.debtorId())
+                .orElseThrow(() -> new DebtorNotFound(command.debtorId().getValue()));
 
-        Result<Debt, DomainError> debt = Debt.create(command.purpose(),command.description(), command.currency(), command.amount(), foundCreditor.get(), foundDebtor.get());
-        debt.ifFailureThrows(CreationDebtException::new);
+        User creditor = userRepository.findById(command.creditorId())
+                .orElseThrow(() -> new CreditorNotFound(command.creditorId().getValue()));
 
-        Debt newDebt = debt.getValue();
+        Debt debt = Debt.create(
+                command.purpose(),command.description(),
+                command.currency(),
+                command.amount(),
+                creditor,
+                debtor
+        ).orElseThrow(CreationDebtException::new);
 
-        debtRepository.save(newDebt);
+        debtRepository.save(debt);
 
-        eventBus.publishAll(newDebt.pullEvents());
+        eventBus.publishAll(debt.pullEvents());
 
-        return newDebt;
+        return debt;
     }
 }

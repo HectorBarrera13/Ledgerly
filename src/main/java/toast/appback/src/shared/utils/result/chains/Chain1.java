@@ -2,7 +2,6 @@ package toast.appback.src.shared.utils.result.chains;
 
 import toast.appback.src.shared.errors.IError;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.shared.utils.result.ResultAggregator;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,14 +22,14 @@ public final class Chain1<A, E extends IError> {
         if (current.isSuccess() && r2.isSuccess()) {
             return new Chain2<>(Result.success(new ResultTuples.Tuple2<>(current.getValue(), r2.getValue())));
         } else {
-            ResultAggregator<E> aggregator = Result.aggregator();
+            Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
-                aggregator.add(current);
+                emptyResult.collect(current);
             }
             if (r2.isFailure()) {
-                aggregator.add(r2);
+                emptyResult.collect(r2);
             }
-            return new Chain2<>(Result.failure(aggregator.getErrors()));
+            return new Chain2<>(Result.failure(emptyResult.getErrors()));
         }
     }
 

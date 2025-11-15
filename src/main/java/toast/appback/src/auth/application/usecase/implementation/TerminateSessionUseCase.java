@@ -1,17 +1,14 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
-import toast.appback.src.auth.application.communication.result.AccountInfo;
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
-import toast.appback.src.auth.application.exceptions.domain.InvalidateSessionException;
+import toast.appback.src.auth.application.exceptions.SessionNotFound;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.domain.Account;
+import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.result.Result;
-
-import java.util.Optional;
 
 public class TerminateSessionUseCase implements TerminateSession {
     private final TokenService tokenService;
@@ -28,16 +25,17 @@ public class TerminateSessionUseCase implements TerminateSession {
 
     @Override
     public void execute(String accessToken) {
-        AccountInfo accountInfo = tokenService.extractAccountInfo(accessToken);
-        Optional<Account> foundAccount = accountRepository.findById(accountInfo.accountId());
-        if (foundAccount.isEmpty()) {
-            throw new InvalidClaimsException(String.format("Account with id %s not found", accountInfo.accountId()));
-        }
-        Account account = foundAccount.get();
-        Result<Void, DomainError> result = account.revokeSession(accountInfo.sessionId());
-        result.ifFailureThrows(InvalidateSessionException::new);
+        TokenClaims tokenClaims = tokenService.extractClaimsFromAccessTokenUnsafe(accessToken);
+        Account account = accountRepository.findById(tokenClaims.accountId())
+                .orElseThrow(() -> new InvalidClaimsException(String.format("Account with id %s not found", tokenClaims.accountId())));
+
+        Session session = account.findSession(tokenClaims.sessionId())
+                .orElseThrow(() -> new SessionNotFound(tokenClaims.sessionId(), account.getAccountId()));
+
+        session.revoke();
 
         accountRepository.updateSessions(account);
+
         eventBus.publishAll(account.pullEvents());
     }
 }

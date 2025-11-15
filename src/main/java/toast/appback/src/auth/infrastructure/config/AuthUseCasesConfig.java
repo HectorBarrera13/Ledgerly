@@ -12,6 +12,7 @@ import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.auth.domain.DefaultAccount;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.users.application.port.UserReadRepository;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 
 @Configuration
@@ -59,12 +60,14 @@ public class AuthUseCasesConfig {
             TokenService tokenService,
             AuthService authService,
             AccountRepository accountRepository,
+            UserReadRepository userReadRepository,
             EventBus eventBus
     ) {
         return new AuthenticateAccountUseCase(
                 tokenService,
                 authService,
                 accountRepository,
+                userReadRepository,
                 eventBus
         );
     }

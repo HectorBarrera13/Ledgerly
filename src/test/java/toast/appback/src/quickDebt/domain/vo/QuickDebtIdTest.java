@@ -96,10 +96,10 @@ public class QuickDebtIdTest {
             QuickDebtId id = QuickDebtId.load(SAME_UUID);
 
             // Comparación con nulo
-            assertFalse(id.equals(null), "Comparar con null debe ser false.");
+            assertNotEquals(null, id, "Comparar con null debe ser false.");
 
             // Comparación con otra clase
-            assertFalse(id.equals(new Object()), "Comparar con una clase diferente debe ser false.");
+            assertNotEquals(new Object(), id, "Comparar con una clase diferente debe ser false.");
         }
     }
 }

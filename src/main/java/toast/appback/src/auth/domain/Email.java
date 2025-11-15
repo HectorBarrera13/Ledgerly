@@ -46,10 +46,19 @@ public class Email {
             return Result.failure(generalValidation.getErrors());
         }
         EmailParts parts = generalValidation.getValue();
-        return verifyLocalPart(parts.local)
-                .captureFirstError(() -> verifyDomainPart(parts.domainTag))
-                .captureFirstError(() -> verifyTldPart(parts.tld))
-                .map(() -> new Email(parts.local, parts.domainTag, parts.tld));
+        Result<Void, DomainError> localPartResult = verifyLocalPart(parts.local);
+        if (localPartResult.isFailure()) {
+            return Result.failure(localPartResult.getErrors());
+        }
+        Result<Void, DomainError> domainPartResult = verifyDomainPart(parts.domainTag);
+        if (domainPartResult.isFailure()) {
+            return Result.failure(domainPartResult.getErrors());
+        }
+        Result<Void, DomainError> tldPartResult = verifyTldPart(parts.tld);
+        if (tldPartResult.isFailure()) {
+            return Result.failure(tldPartResult.getErrors());
+        }
+        return Result.success(new Email(parts.local, parts.domainTag, parts.tld));
     }
 
     public static Email load(String email) {
