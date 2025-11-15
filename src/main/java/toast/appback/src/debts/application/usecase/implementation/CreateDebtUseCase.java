@@ -1,6 +1,5 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
-import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.debts.application.communication.command.CreateDebtCommand;
 import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.CreditorNotFound;
@@ -19,7 +18,7 @@ public class CreateDebtUseCase implements CreateDebt {
     private final DebtRepository debtRepository;
 
 
-    public CreateDebtUseCase(EventBus eventBus, UserRepository userRepository, DebtRepository debtRepository, AuthService authService) {
+    public CreateDebtUseCase(EventBus eventBus, UserRepository userRepository, DebtRepository debtRepository) {
         this.eventBus = eventBus;
         this.userRepository = userRepository;
         this.debtRepository = debtRepository;

@@ -1,7 +1,6 @@
 package toast.appback.src.auth.infrastructure.api.dto;
 
 import toast.appback.src.auth.application.communication.result.AuthResult;
-import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.infrastructure.api.dto.response.*;
 import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
 
@@ -26,20 +25,6 @@ public class AuthMapper {
                 accountResponse,
                 userResponse,
                 tokenResponse
-        );
-    }
-
-    public static AccountLoginResponse loginToResponse(Jwt result) {
-        return new AccountLoginResponse(
-                result.value(),
-                result.expiresAt()
-        );
-    }
-
-    public static RefreshTokenResponse refreshToResponse(Jwt result) {
-        return new RefreshTokenResponse(
-                result.value(),
-                result.expiresAt()
         );
     }
 }

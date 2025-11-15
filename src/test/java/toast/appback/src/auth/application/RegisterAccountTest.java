@@ -6,7 +6,6 @@ import toast.appback.src.auth.application.communication.command.RegisterAccountC
 import toast.appback.src.auth.application.communication.result.AuthResult;
 import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.communication.result.CreateAccountResult;
-import toast.appback.src.auth.application.communication.result.RegisterAccountResult;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.implementation.RegisterAccountUseCase;

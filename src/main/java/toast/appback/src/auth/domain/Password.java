@@ -38,11 +38,6 @@ public class Password {
         }
         return validateStrength(rawPassword);
     }
-    private static Result<Void, DomainError> validateNotEmpty(String password) {
-        if (password == null || password.isBlank())
-            return Validators.EMPTY_VALUE("password");
-        return Result.success();
-    }
 
     private static Result<Void, DomainError> validateStrength(String password) {
         if (password.length() < 8)

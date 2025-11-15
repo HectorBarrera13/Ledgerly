@@ -5,11 +5,8 @@ import toast.appback.src.users.application.communication.command.RemoveFriendCom
 import toast.appback.src.users.application.exceptions.FriendNotFound;
 import toast.appback.src.users.application.exceptions.RemoveMySelfFromFriendsException;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
-import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.event.FriendRemoved;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
-
-import java.util.Optional;
 
 public class RemoveFriendUseCase implements RemoveFriend {
     private final FriendShipRepository friendShipRepository;

@@ -5,14 +5,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.Jwt;
-import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
-import toast.appback.src.auth.application.exceptions.InvalidSessionException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.RefreshSessionUseCase;
 import toast.appback.src.auth.domain.*;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 

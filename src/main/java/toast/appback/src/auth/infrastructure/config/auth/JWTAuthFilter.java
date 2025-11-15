@@ -12,11 +12,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
-import toast.appback.src.auth.application.communication.result.AccountInfo;
 import toast.appback.src.auth.application.port.TokenService;
-import toast.appback.src.auth.domain.AccountId;
-import toast.appback.src.auth.domain.SessionId;
-import toast.appback.src.users.domain.UserId;
 
 import java.io.IOException;
 
