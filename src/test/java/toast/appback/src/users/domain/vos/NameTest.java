@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.Name;
 
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class NameTest {
             String lastName = parts.length > 1 ? parts[1] : null; // Default last name if not provided
 
             Result<Name, DomainError> result = Name.create(firstName, lastName);
-            assertTrue(result.isSuccess(), "Expected success for valid name: " + fullName);
-            Name name = result.getValue();
+            assertTrue(result.isOk(), "Expected success for valid name: " + fullName);
+            Name name = result.get();
             assertEquals(firstName, name.getFirstName());
             assertEquals(lastName, name.getLastName());
         }
@@ -170,8 +170,8 @@ public class NameTest {
             String firstName = "John";
             String lastName = "Doe";
             Result<Name, DomainError> result = Name.create(firstName, lastName);
-            assertTrue(result.isSuccess());
-            Name name = result.getValue();
+            assertTrue(result.isOk());
+            Name name = result.get();
             assertEquals("John Doe", name.getFullName());
         }
 
@@ -180,10 +180,10 @@ public class NameTest {
         void shouldBeEqualForSameFirstAndLastNames() {
             Result<Name, DomainError> result1 = Name.create("Jane", "Smith");
             Result<Name, DomainError> result2 = Name.create("Jane", "Smith");
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
-            Name name1 = result1.getValue();
-            Name name2 = result2.getValue();
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
+            Name name1 = result1.get();
+            Name name2 = result2.get();
             assertEquals(name1, name2);
         }
 
@@ -193,12 +193,12 @@ public class NameTest {
             Result<Name, DomainError> result1 = Name.create("Alice", "Johnson");
             Result<Name, DomainError> result2 = Name.create("Alice", "Smith");
             Result<Name, DomainError> result3 = Name.create("Bob", "Johnson");
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
-            assertTrue(result3.isSuccess());
-            Name name1 = result1.getValue();
-            Name name2 = result2.getValue();
-            Name name3 = result3.getValue();
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
+            assertTrue(result3.isOk());
+            Name name1 = result1.get();
+            Name name2 = result2.get();
+            Name name3 = result3.get();
             assertNotEquals(name1, name2);
             assertNotEquals(name1, name3);
         }

@@ -3,9 +3,11 @@ package toast.appback.src.users.application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.application.exceptions.domain.CreationUserException;
+import toast.appback.src.users.application.mother.UserMother;
 import toast.appback.src.users.application.usecase.implementation.CreateUserUseCase;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserFactory;
@@ -28,58 +30,60 @@ public class CreateUserTest {
         );
     }
 
-    /**
-     * <p>Test case: Create user successfully
-     * <p>Precondition: Valid CreateUserCommand is provided
-     * <p>Expected outcome: User is created and saved in the repository
-     */
     @Test
     @DisplayName("Should create user successfully")
-    public void testCreateUserSuccessfully() {
-        // Mock user creation
-        User user = mock(User.class);
-        when(userFactory.create(any()))
-                .thenReturn(Result.success(user));
-
-        // Execute use case
+    void shouldCreateUserSuccessfully() {
+        User user = UserMother.validUser();
         CreateUserCommand command = new CreateUserCommand(
-                "John",
-                "Doe",
-                "+1",
-                "1234567890"
+                user.getName().getFirstName(),
+                user.getName().getLastName(),
+                user.getPhone().getCountryCode(),
+                user.getPhone().getNumber()
         );
-        User createdUser = createUserUseCase.execute(command);
-        // Verify created user
-        assertEquals(user, createdUser);
-        verify(userFactory, times(1)).create(any());
-        verify(userRepository, times(1)).save(any());
-        verifyNoMoreInteractions(userRepository);
+
+        when(userFactory.create(command))
+                .thenReturn(Result.ok(user));
+
+        var result = createUserUseCase.execute(command);
+
+        assertNotNull(result);
+        assertEquals(user, result);
+
+        verify(userFactory, times(1)).create(command);
+        verify(userRepository, times(1)).save(user);
+
+        verifyNoMoreInteractions(
+                userRepository,
+                userFactory
+        );
     }
 
-    /**
-     * <p>Test case: User creation fails due to invalid data
-     * <p>Precondition: UserFactory returns a failure result
-     * <p>Expected outcome: CreationUserException is thrown
-     */
     @Test
     @DisplayName("Should throw CreationUserException when user creation fails")
-    public void testCreateUserFailsDueToInvalidData() {
-        // Mock user creation failure
-        when(userFactory.create(any()))
-                .thenReturn(Result.failure(mock(toast.appback.src.shared.domain.DomainError.class)));
-
-        // Execute use case
+    void shouldThrowCreationUserExceptionWhenUserCreationFails() {
         CreateUserCommand command = new CreateUserCommand(
-                "John",
+                "Jane",
                 "Doe",
-                "+1",
-                "1234567890"
+                "+12",
+                "0987654321"
         );
+
+        when(userFactory.create(command))
+                .thenReturn(Result.failure(DomainError.empty()));
+
         assertThrows(
                 CreationUserException.class,
                 () -> createUserUseCase.execute(command)
         );
-        verify(userFactory, times(1)).create(any());
-        verifyNoInteractions(userRepository);
+
+        verify(userFactory, times(1)).create(command);
+
+        verifyNoInteractions(
+                userRepository
+        );
+
+        verifyNoMoreInteractions(
+                userFactory
+        );
     }
 }

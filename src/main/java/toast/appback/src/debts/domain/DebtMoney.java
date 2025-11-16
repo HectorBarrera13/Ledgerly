@@ -2,7 +2,7 @@ package toast.appback.src.debts.domain;
 
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -38,10 +38,13 @@ public class DebtMoney {
     }
 
     public static Result<DebtMoney, DomainError> create(String currency, Long amount) {
-        return Result.combine(
-                currencyValidation(currency,REGEX_CURRENCY, FIELD_CURRENCY),
-                amountValidation(amount, FIELD_AMOUNT)
-        ).map(r->new DebtMoney(amountTransformation(amount, SCALE), currency));
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(currencyValidation(currency,REGEX_CURRENCY, FIELD_CURRENCY));
+        emptyResult.collect(amountValidation(amount, FIELD_AMOUNT));
+        if(emptyResult.isFailure()){
+            return emptyResult.castFailure();
+        }
+        return Result.ok(new DebtMoney(amountTransformation(amount, SCALE), currency));
     }
 
     public static DebtMoney load(Long amount, String currency) {
@@ -56,7 +59,7 @@ public class DebtMoney {
         if(!currency.matches(format)) {
             return Validators.INVALID_FORMAT(field,currency, "deben ser 3 letras");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     public static Result<String, DomainError> amountValidation(Long amount, String field) {
@@ -66,7 +69,7 @@ public class DebtMoney {
         if(amount<0){
             return Validators.MUST_BE_POSITIVE(field,amount.doubleValue(), "MUST_BE_POSITIVE");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static BigDecimal amountTransformation(Long amount, int scale) {

@@ -4,18 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import toast.appback.src.shared.domain.DomainEvent;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class SpringDomainEventPublisher implements EventBus {
+public class SpringDomainEventPublisher implements DomainEventBus {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Override
-    public void publish(DomainEvent event) {
+    private void publish(DomainEvent event) {
         applicationEventPublisher.publishEvent(event);
     }
 

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import toast.appback.src.debts.domain.Context;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 import static toast.appback.src.shared.ValueObjectsUtils.*;
 
@@ -34,9 +34,9 @@ public class ContextTest {
         void shouldCreateContextSuccessfully() {
             Result<Context, DomainError> result = Context.create(VALID_PURPOSE, VALID_DESCRIPTION);
 
-            assertTrue(result.isSuccess(), "Expected success for valid inputs.");
+            assertTrue(result.isOk(), "Expected success for valid inputs.");
 
-            Context context = result.getValue();
+            Context context = result.get();
             assertEquals(VALID_PURPOSE, context.getPurpose());
             assertEquals(VALID_DESCRIPTION, context.getDescription());
         }
@@ -47,9 +47,9 @@ public class ContextTest {
             String emptyDescription = "";
             Result<Context, DomainError> result = Context.create(VALID_PURPOSE, emptyDescription);
 
-            assertTrue(result.isSuccess(), "Description can be empty.");
+            assertTrue(result.isOk(), "Description can be empty.");
 
-            Context context = result.getValue();
+            Context context = result.get();
             assertEquals(VALID_PURPOSE, context.getPurpose());
             assertEquals(emptyDescription, context.getDescription());
         }
@@ -60,8 +60,8 @@ public class ContextTest {
             String whitespaceDescription = "  ";
             Result<Context, DomainError> result = Context.create(VALID_PURPOSE, whitespaceDescription);
 
-            assertTrue(result.isSuccess(), "Description can contain only whitespace.");
-            assertEquals(whitespaceDescription, result.getValue().getDescription());
+            assertTrue(result.isOk(), "Description can contain only whitespace.");
+            assertEquals(whitespaceDescription, result.get().getDescription());
         }
     }
 
@@ -144,9 +144,9 @@ public class ContextTest {
             Result<Context, DomainError> result1 = Context.create("Viaje", "Para el boleto.");
             Result<Context, DomainError> result2 = Context.create("Viaje", "Para el boleto.");
 
-            assertTrue(result1.isSuccess());
-            assertNotEquals(result1.getValue(), result2.getValue(), "Dos objetos Context con los mismos valores deben ser iguales.");
-            assertNotEquals(result1.getValue().hashCode(), result2.getValue().hashCode(), "Hash codes deben coincidir.");
+            assertTrue(result1.isOk());
+            assertNotEquals(result1.get(), result2.get(), "Dos objetos Context con los mismos valores deben ser iguales.");
+            assertNotEquals(result1.get().hashCode(), result2.get().hashCode(), "Hash codes deben coincidir.");
         }
 
         @Test
@@ -155,10 +155,10 @@ public class ContextTest {
             Result<Context, DomainError> result1 = Context.create("Cena", "Hoy.");
             Result<Context, DomainError> result2 = Context.create("Cena", "Ayer.");
 
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
 
-            assertNotEquals(result1.getValue(), result2.getValue(), "Diferente descripción.");
+            assertNotEquals(result1.get(), result2.get(), "Diferente descripción.");
         }
 
         @Test

@@ -12,15 +12,13 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private final AccountId accountId;
     private final UserId userId;
-    private final String email;
     private final String hashedPassword;
     private final Collection<? extends GrantedAuthority> authorities;
     private SessionId sessionId;
 
-    public CustomUserDetails(AccountId accountId, UserId userId, String email, String hashedPassword) {
+    public CustomUserDetails(AccountId accountId, UserId userId, String hashedPassword) {
         this.accountId = accountId;
         this.userId = userId;
-        this.email = email;
         this.hashedPassword = hashedPassword;
         this.authorities = List.of();
     }
@@ -53,6 +51,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return accountId.getValue().toString();
     }
 }

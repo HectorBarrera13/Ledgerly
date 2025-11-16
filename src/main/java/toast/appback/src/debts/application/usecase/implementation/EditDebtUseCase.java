@@ -8,18 +8,18 @@ import toast.appback.src.debts.domain.Context;
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.debts.domain.repository.DebtRepository;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Optional;
 
 public class EditDebtUseCase implements EditDebt{
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
     private final DebtRepository debtRepository;
 
-    public EditDebtUseCase(DebtRepository debtRepository, EventBus eventBus) {
-        this.eventBus = eventBus;
+    public EditDebtUseCase(DebtRepository debtRepository, DomainEventBus domainEventBus) {
+        this.domainEventBus = domainEventBus;
         this.debtRepository = debtRepository;
     }
 
@@ -31,18 +31,14 @@ public class EditDebtUseCase implements EditDebt{
         }
         Debt debt = foundDebt.get();
 
-        Result<Void, DomainError> edit = Context.create(command.purpose(), command.description())
-                .flatMap(_context -> DebtMoney.create(command.currency(), command.amount())
-                        .consume(_debtMoney -> {
-                            debt.editDebtMoney(_debtMoney);
-                            debt.editContext(_context);
-                        }));
-        edit.ifFailureThrows(EditDebtException::new);
-
+        Result<Context, DomainError> contextResult = Context.create(command.purpose(), command.description());
+        Result<DebtMoney, DomainError> debtMoneyResult = DebtMoney.create(command.currency(), command.amount());
+        Result<Void, DomainError> updateResult = Result.empty();
+        updateResult.collect(contextResult);
+        updateResult.collect(debtMoneyResult);
+        updateResult.ifFailureThrows(EditDebtException::new);
         debtRepository.save(debt);
-
-        eventBus.publishAll(debt.pullEvents());
-
+        domainEventBus.publishAll(debt.pullEvents());
         return debt;
     }
 }

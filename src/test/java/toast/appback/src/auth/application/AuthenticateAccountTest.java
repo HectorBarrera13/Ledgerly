@@ -4,22 +4,26 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.AuthenticateAccountCommand;
-import toast.appback.src.auth.application.communication.result.AccessToken;
+import toast.appback.src.auth.application.communication.result.AuthResult;
+import toast.appback.src.auth.application.communication.result.Tokens;
 import toast.appback.src.auth.application.exceptions.AccountNotFoundException;
 import toast.appback.src.auth.application.exceptions.domain.SessionStartException;
+import toast.appback.src.auth.application.mother.AccountMother;
+import toast.appback.src.auth.application.mother.AccountViewMother;
+import toast.appback.src.auth.application.mother.TokenMother;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.AuthenticateAccountUseCase;
-import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.AccountId;
-import toast.appback.src.auth.domain.Email;
-import toast.appback.src.auth.domain.Session;
+import toast.appback.src.auth.domain.*;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.application.DomainEventBus;
+import toast.appback.src.users.application.communication.result.UserView;
+import toast.appback.src.users.application.exceptions.UserNotFound;
+import toast.appback.src.users.application.mother.UserMother;
+import toast.appback.src.users.application.mother.UserViewMother;
+import toast.appback.src.users.application.port.UserReadRepository;
+import toast.appback.src.users.domain.User;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -31,7 +35,8 @@ public class AuthenticateAccountTest {
     private final TokenService tokenService = mock(TokenService.class);
     private final AuthService authService = mock(AuthService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
-    private final EventBus eventBus = mock(EventBus.class);
+    private final UserReadRepository userReadRepository = mock(UserReadRepository.class);
+    private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
 
     private final String email = "johndoe@gmail.com";
 
@@ -41,78 +46,151 @@ public class AuthenticateAccountTest {
                 tokenService,
                 authService,
                 accountRepository,
-                eventBus
+                userReadRepository,
+                domainEventBus
         );
     }
 
     @Test
     @DisplayName("Should authenticate account successfully")
     public void testAuthenticateAccountSuccessfully() {
-        Account account = mock(Account.class);
-        when(account.getEmail()).thenReturn(Email.load(email));
-        when(account.getAccountId()).thenReturn(AccountId.generate());
-        when(accountRepository.findByEmail(any())).thenReturn(Optional.of(account));
-        when(account.startSession()).thenReturn(Result.success(Session.create()));
-        AccessToken accessToken = new AccessToken(
-                "tokenString",
-                "Bearer",
-                Instant.now()
-        );
-        when(tokenService.generateAccessToken(any())).thenReturn(accessToken);
-        AuthenticateAccountCommand command = new AuthenticateAccountCommand(
-                email,
-                "securePassword123"
-        );
-        AccessToken result = authenticateAccountUseCase.execute(command);
-        assertNotNull(result);
-        assertEquals(accessToken, result);
-        assertEquals("tokenString", result.value());
-        assertEquals("Bearer", result.type());
+        Account account = AccountMother.withEmail(email);
+        User user = UserMother.validUser();
+        UserView userView = UserViewMother.create(user);
+        Tokens tokens = TokenMother.create();
 
-        verify(authService, times(1)).authenticate(command);
-        verify(accountRepository, times(1)).findByEmail(any());
-        verify(account, times(1)).startSession();
-        verify(tokenService, times(1)).generateAccessToken(any());
-        verify(accountRepository, times(1)).updateSessions(account);
-        verify(eventBus, times(1)).publishAll(account.pullEvents());
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
+
+        when(tokenService.generateTokens(any(), anyLong())).thenReturn(tokens);
+        when(userReadRepository.findById(any())).thenReturn(Optional.of(userView));
+
+        AuthenticateAccountCommand authenticateAccountCommand = new AuthenticateAccountCommand(
+                email,
+                "password123"
+        );
+
+        AuthResult authResult = authenticateAccountUseCase.execute(authenticateAccountCommand);
+
+        assertNotNull(authResult);
+        assertEquals(AccountViewMother.create(account), authResult.account());
+        assertEquals(userView, authResult.user());
+        assertEquals(tokens, authResult.tokens());
+
+        verify(accountRepository, times(1)).findByEmail(email);
+        verify(tokenService, times(1)).generateTokens(any(), anyLong());
+        verify(userReadRepository, times(1)).findById(any());
+        verify(authService, times(1)).authenticate(authenticateAccountCommand);
+        verify(accountRepository, times(1)).save(account);
+        verify(domainEventBus, times(1)).publishAll(anyList());
+
+        verifyNoMoreInteractions(
+                tokenService,
+                authService,
+                accountRepository,
+                userReadRepository,
+                domainEventBus
+        );
     }
 
     @Test
     @DisplayName("Should throw AccountNotFoundException when account does not exist")
     public void testAuthenticateAccountAccountNotFound() {
-        when(accountRepository.findByEmail(any())).thenReturn(Optional.empty());
-        AuthenticateAccountCommand command = new AuthenticateAccountCommand(
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        AuthenticateAccountCommand authenticateAccountCommand = new AuthenticateAccountCommand(
                 email,
-                "securePassword123"
+                "password123"
         );
-        assertThrows(
+
+        AccountNotFoundException exception = assertThrows(
                 AccountNotFoundException.class,
-                () -> authenticateAccountUseCase.execute(command)
+                () -> authenticateAccountUseCase.execute(authenticateAccountCommand)
         );
-        verify(accountRepository, times(1)).findByEmail(any());
-        verifyNoMoreInteractions(authService, tokenService, eventBus);
+        assertEquals(exception.getEmail(), email);
+
+        verify(accountRepository, times(1)).findByEmail(email);
+
+        verifyNoInteractions(
+                tokenService,
+                authService,
+                userReadRepository,
+                domainEventBus
+        );
+
+        verifyNoMoreInteractions(
+                accountRepository
+        );
     }
 
     @Test
-    @DisplayName("Should throw SessionStartException when session cannot be started")
-    public void testAuthenticateAccountSessionStartFailure() {
-        Account account = mock(Account.class);
-        when(account.getEmail()).thenReturn(Email.load(email));
-        when(accountRepository.findByEmail(any())).thenReturn(Optional.of(account));
-        when(account.startSession()).thenReturn(Result.failure(
-                DomainError.businessRule("Cannot start session")
-        ));
-        AuthenticateAccountCommand command = new AuthenticateAccountCommand(
+    @DisplayName("Should throw SessionStartException when session limit is reached")
+    public void testAuthenticateAccountSessionStartException() {
+        Account account = AccountMother.withMaxSessions(email);
+
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
+
+        AuthenticateAccountCommand authenticateAccountCommand = new AuthenticateAccountCommand(
                 email,
-                "securePassword123"
+                "password123"
         );
+
         assertThrows(
                 SessionStartException.class,
-                () -> authenticateAccountUseCase.execute(command)
+                () -> authenticateAccountUseCase.execute(authenticateAccountCommand)
         );
-        verify(authService, times(1)).authenticate(command);
-        verify(accountRepository, times(1)).findByEmail(any());
-        verify(account, times(1)).startSession();
-        verifyNoMoreInteractions(tokenService, eventBus);
+
+        verify(accountRepository, times(1)).findByEmail(email);
+        verify(authService, times(1)).authenticate(authenticateAccountCommand);
+
+        verifyNoInteractions(
+                tokenService,
+                userReadRepository,
+                domainEventBus
+        );
+
+        verifyNoMoreInteractions(
+                authService,
+                accountRepository
+        );
+    }
+
+    @Test
+    @DisplayName("Should throws UserNotFound when user view does not exist")
+    public void testAuthenticateAccountUserNotFound() {
+        Account account = AccountMother.withEmail(email);
+        Tokens tokens = TokenMother.create();
+
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
+
+        when(tokenService.generateTokens(any(), anyLong())).thenReturn(tokens);
+
+        when(userReadRepository.findById(any())).thenReturn(Optional.empty());
+
+        AuthenticateAccountCommand authenticateAccountCommand = new AuthenticateAccountCommand(
+                email,
+                "password123"
+        );
+
+        assertThrows(
+                UserNotFound.class,
+                () -> authenticateAccountUseCase.execute(authenticateAccountCommand)
+        );
+
+        verify(accountRepository, times(1)).findByEmail(email);
+
+        verify(authService, times(1)).authenticate(authenticateAccountCommand);
+        verify(tokenService, times(1)).generateTokens(any(), anyLong());
+        verify(userReadRepository, times(1)).findById(any());
+
+        verifyNoInteractions(
+                domainEventBus
+        );
+
+        verifyNoMoreInteractions(
+                tokenService,
+                authService,
+                accountRepository,
+                userReadRepository
+        );
     }
 }

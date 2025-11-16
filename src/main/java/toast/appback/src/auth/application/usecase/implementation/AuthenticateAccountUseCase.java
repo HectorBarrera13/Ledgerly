@@ -2,7 +2,9 @@ package toast.appback.src.auth.application.usecase.implementation;
 
 import toast.appback.src.auth.application.communication.command.AuthenticateAccountCommand;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
-import toast.appback.src.auth.application.communication.result.AccessToken;
+import toast.appback.src.auth.application.communication.result.AccountView;
+import toast.appback.src.auth.application.communication.result.AuthResult;
+import toast.appback.src.auth.application.communication.result.Tokens;
 import toast.appback.src.auth.application.exceptions.AccountNotFoundException;
 import toast.appback.src.auth.application.exceptions.domain.SessionStartException;
 import toast.appback.src.auth.application.port.AuthService;
@@ -11,57 +13,66 @@ import toast.appback.src.auth.application.usecase.contract.AuthenticateAccount;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.utils.Result;
-import toast.appback.src.shared.domain.DomainError;
-
-import java.util.Optional;
+import toast.appback.src.shared.application.DomainEventBus;
+import toast.appback.src.users.application.communication.result.UserView;
+import toast.appback.src.users.application.exceptions.UserNotFound;
+import toast.appback.src.users.application.port.UserReadRepository;
 
 public class AuthenticateAccountUseCase implements AuthenticateAccount {
     private final TokenService tokenService;
     private final AuthService authService;
     private final AccountRepository accountRepository;
-    private final EventBus eventBus;
+    private final UserReadRepository userReadRepository;
+    private final DomainEventBus domainEventBus;
 
     public AuthenticateAccountUseCase(TokenService tokenService,
                                       AuthService authService,
                                       AccountRepository accountRepository,
-                                      EventBus eventBus) {
+                                      UserReadRepository userReadRepository,
+                                      DomainEventBus domainEventBus) {
         this.tokenService = tokenService;
         this.authService = authService;
         this.accountRepository = accountRepository;
-        this.eventBus = eventBus;
+        this.userReadRepository = userReadRepository;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
-    public AccessToken execute(AuthenticateAccountCommand command) {
-        Optional<Account> foundAccount = accountRepository.findByEmail(command.email());
-        if (foundAccount.isEmpty()) {
-            throw new AccountNotFoundException(command.email());
-        }
-
-        Account account = foundAccount.get();
+    public AuthResult execute(AuthenticateAccountCommand command) {
+        Account account = accountRepository.findByEmail(command.email())
+                .orElseThrow(() -> new AccountNotFoundException(command.email()));
 
         authService.authenticate(command);
 
-        Result<Session, DomainError> newSessionResult = account.startSession();
-        newSessionResult.ifFailureThrows(SessionStartException::new);
+        Session newSession = account.startSession()
+                        .orElseThrow(SessionStartException::new);
 
-        Session newSession = newSessionResult.getValue();
-
-        AccessToken accessToken = tokenService.generateAccessToken(
+        Tokens tokens = tokenService.generateTokens(
                 new TokenClaims(
                         account.getAccountId(),
                         account.getUserId(),
-                        newSession.getSessionId(),
-                        account.getEmail().getValue()
-                )
+                        newSession.getSessionId()
+                ),
+                newSession.getMaxDurationSeconds()
         );
 
-        accountRepository.updateSessions(account);
 
-        eventBus.publishAll(account.pullEvents());
+        UserView userView = userReadRepository.findById(account.getUserId())
+                .orElseThrow(() -> new UserNotFound(account.getUserId()));
 
-        return accessToken;
+        AccountView accountView = new AccountView(
+                account.getAccountId().getValue(),
+                account.getEmail().getValue()
+        );
+
+        accountRepository.save(account);
+
+        domainEventBus.publishAll(account.pullEvents());
+
+        return new AuthResult(
+                accountView,
+                userView,
+                tokens
+        );
     }
 }

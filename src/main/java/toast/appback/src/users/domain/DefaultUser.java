@@ -1,26 +1,36 @@
 package toast.appback.src.users.domain;
 
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.domain.event.UserCreated;
-import java.util.List;
 
 public class DefaultUser extends UserFactory {
     private Result<User, DomainError> create(String firstName, String lastName, String phoneCode, String phoneNumber) {
-        Result<User, DomainError> user = Name.create(firstName, lastName)
-                        .flatMap(_name -> Phone.create(phoneCode, phoneNumber)
-                                .map(_phone-> new User(
-                                            UserId.generate(),
-                                            _name,
-                                            _phone,
-                                            List.of()
-                                    )));
-        user.ifSuccess(u -> u.recordEvent(new UserCreated(
-                u.getUserId(),
-                u.getName()
-        )));
-        return user;
+        Result<Name, DomainError> nameResult = Name.create(firstName, lastName);
+        Result<Phone, DomainError> phoneResult = Phone.create(phoneCode, phoneNumber);
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(nameResult);
+        emptyResult.collect(phoneResult);
+
+        if (emptyResult.isFailure()) {
+            return emptyResult.castFailure();
+        }
+
+        Name name = nameResult.get();
+        Phone phone = phoneResult.get();
+        User user = new User(
+                UserId.generate(),
+                name,
+                phone
+        );
+        user.recordEvent(
+                new UserCreated(
+                        user.getUserId(),
+                        user.getName()
+                )
+        );
+        return Result.ok(user);
     }
 
     @Override

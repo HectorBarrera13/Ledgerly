@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
-import toast.appback.src.auth.application.communication.result.AccountInfo;
-import toast.appback.src.auth.application.communication.result.AccessToken;
+import toast.appback.src.auth.application.communication.result.Jwt;
+import toast.appback.src.auth.application.communication.result.Tokens;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
@@ -35,8 +35,8 @@ public class JWTService implements TokenService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration.access}")
-    private long accessExpiration;
+    @Value("${jwt.expiration.access.seconds}")
+    private long accessExpirationInSeconds;
 
     private SecretKey secretKey;
 
@@ -49,56 +49,90 @@ public class JWTService implements TokenService {
     }
 
     @Override
-    public AccessToken generateAccessToken(TokenClaims tokenClaims) {
+    public Jwt generateAccessToken(TokenClaims tokenClaims) {
+        return getJwt(tokenClaims, accessExpirationInSeconds, "access");
+    }
+
+    private Jwt generateRefreshToken(TokenClaims tokenClaims, long sessionExpirationInSeconds) {
+        return getJwt(tokenClaims, sessionExpirationInSeconds, "refresh");
+    }
+
+    @Override
+    public Tokens generateTokens(TokenClaims tokenClaims, long sessionDurationInSeconds) {
+        Jwt accessToken = generateAccessToken(tokenClaims);
+        Jwt refreshToken = generateRefreshToken(tokenClaims, sessionDurationInSeconds);
+        return new Tokens(accessToken, refreshToken);
+    }
+
+    private Jwt getJwt(TokenClaims tokenClaims, long sessionExpirationInSeconds, String type) {
         String accountId = tokenClaims.accountId().getValue().toString();
         String userId = tokenClaims.userId().getValue().toString();
         String sessionId = tokenClaims.sessionId().getValue().toString();
-        String email = tokenClaims.email();
-        String accessToken = buildToken(accountId, email, userId, sessionId, accessExpiration);
-        return new AccessToken(
-                accessToken,
-                "Bearer",
-                Instant.now().plusSeconds(accessExpiration)
+        String refreshToken = buildToken(accountId, userId, sessionId, sessionExpirationInSeconds, type);
+        return new Jwt(
+                refreshToken,
+                Instant.now().plusSeconds(sessionExpirationInSeconds)
         );
     }
 
     @Override
-    public AccountInfo extractAccountInfo(String token) {
-        if (isTokenExpired(token)) {
-            throw new TokenExpiredException();
+    public TokenClaims extractClaimsFromRefreshToken(String refreshToken) {
+        String type = extractClaim(refreshToken,
+                claims -> claims.get("tokenType", String.class), true);
+        if (!"refresh".equals(type)) {
+            throw new TokenClaimsException("invalid token type");
         }
+        return getTokenClaims(refreshToken, true);
+    }
 
-        String subject = extractClaim(token, Claims::getSubject);
+    @Override
+    public TokenClaims extractClaimsFromAccessToken(String accessToken) {
+        String type = extractClaim(accessToken,
+                claims -> claims.get("tokenType", String.class), true);
+        if (!"access".equals(type)) {
+            throw new TokenClaimsException("invalid token type");
+        }
+        return getTokenClaims(accessToken, true);
+    }
 
-        String accountId = extractClaim(token, Claims::getId);
+    @Override
+    public TokenClaims extractClaimsFromAccessTokenUnsafe(String refreshToken) {
+        String type = extractClaim(refreshToken,
+                claims -> claims.get("tokenType", String.class), false);
+        if (!"access".equals(type)) {
+            throw new TokenClaimsException("invalid token type");
+        }
+        return getTokenClaims(refreshToken, false);
+    }
 
-        String userId = extractClaim(token,
-                claims -> claims.get("userId", String.class));
+    private TokenClaims getTokenClaims(String token, boolean safe) {
+        String userId = extractClaim(token, Claims::getSubject, safe);
+
+        String accountId = extractClaim(token, Claims::getId, safe);
 
         String sessionId = extractClaim(token,
-                claims -> claims.get("sessionId", String.class));
+                claims -> claims.get("session", String.class), safe);
 
-        return new AccountInfo(
+        return new TokenClaims(
                 AccountId.load(UUID.fromString(accountId)),
                 UserId.load(UUID.fromString(userId)),
-                SessionId.load(UUID.fromString(sessionId)),
-                subject
+                SessionId.load(UUID.fromString(sessionId))
         );
     }
 
-    private String buildToken(final String id, final String subject, final String userId, final String sessionId, final long expirationTime) {
+    private String buildToken(final String accountId, final String userId, final String sessionId, final long expirationTimeInSeconds, String type) {
         return Jwts.builder()
-                .id(id)
-                .subject(subject)
-                .claim("sessionId", sessionId)
-                .claim("userId", userId)
+                .id(accountId)
+                .subject(userId)
+                .claim("session", sessionId)
+                .claim("tokenType", type)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .expiration(new Date(System.currentTimeMillis() + expirationTimeInSeconds * 1000))
                 .signWith(secretKey)
                 .compact();
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean safe) {
         try {
             Claims claims = jwtParser.parseSignedClaims(token).getPayload();
             return claimsResolver.apply(claims);
@@ -109,8 +143,13 @@ public class JWTService implements TokenService {
             logger.warn("JWT value malformado: {}", e.getMessage());
             throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
-            logger.warn("JWT value expirado: {}", e.getMessage());
-            throw new TokenExpiredException();
+            if (!safe) {
+                Claims claims = e.getClaims();
+                return claimsResolver.apply(claims);
+            } else {
+                logger.warn("JWT token expirado: {}", e.getMessage());
+                throw new TokenExpiredException();
+            }
         } catch (UnsupportedJwtException e) {
             logger.warn("JWT value no soportado: {}", e.getMessage());
             throw new TokenClaimsException("Unsupported JWT token", e);
@@ -123,8 +162,9 @@ public class JWTService implements TokenService {
         }
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration)
+
+    public boolean isTokenExpired(String token) {
+        return extractClaim(token, Claims::getExpiration, false)
                 .before(new Date());
     }
 
@@ -132,7 +172,7 @@ public class JWTService implements TokenService {
         this.jwtSecret = jwtSecret;
     }
 
-    public void setAccessExpiration(long accessExpiration) {
-        this.accessExpiration = accessExpiration;
+    public void setAccessExpirationInSeconds(long accessExpirationInSeconds) {
+        this.accessExpirationInSeconds = accessExpirationInSeconds;
     }
 }

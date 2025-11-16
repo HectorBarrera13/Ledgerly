@@ -1,43 +1,38 @@
 package toast.appback.src.auth.application.usecase.implementation;
 
-import toast.appback.src.auth.application.communication.result.AccountInfo;
+import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
-import toast.appback.src.auth.application.exceptions.domain.InvalidateSessionException;
+import toast.appback.src.auth.application.exceptions.domain.RevokeSessionException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
-
-import java.util.Optional;
+import toast.appback.src.shared.application.DomainEventBus;
 
 public class TerminateSessionUseCase implements TerminateSession {
     private final TokenService tokenService;
     private final AccountRepository accountRepository;
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
 
     public TerminateSessionUseCase(TokenService tokenService,
                                    AccountRepository accountRepository,
-                                   EventBus eventBus) {
+                                   DomainEventBus domainEventBus) {
         this.tokenService = tokenService;
         this.accountRepository = accountRepository;
-        this.eventBus = eventBus;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
     public void execute(String accessToken) {
-        AccountInfo accountInfo = tokenService.extractAccountInfo(accessToken);
-        Optional<Account> foundAccount = accountRepository.findById(accountInfo.accountId());
-        if (foundAccount.isEmpty()) {
-            throw new InvalidClaimsException(String.format("Account with id %s not found", accountInfo.accountId()));
-        }
-        Account account = foundAccount.get();
-        Result<Void, DomainError> result = account.revokeSession(accountInfo.sessionId());
-        result.ifFailureThrows(InvalidateSessionException::new);
+        TokenClaims tokenClaims = tokenService.extractClaimsFromAccessTokenUnsafe(accessToken);
+        Account account = accountRepository.findById(tokenClaims.accountId())
+                .orElseThrow(() -> new InvalidClaimsException(String.format("Account with id %s not found", tokenClaims.accountId())));
 
-        accountRepository.updateSessions(account);
-        eventBus.publishAll(account.pullEvents());
+        account.revokeSession(tokenClaims.sessionId())
+                .orElseThrow((RevokeSessionException::new));
+
+        accountRepository.save(account);
+
+        domainEventBus.publishAll(account.pullEvents());
     }
 }

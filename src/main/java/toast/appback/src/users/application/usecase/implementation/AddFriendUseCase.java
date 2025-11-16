@@ -1,6 +1,6 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.application.communication.command.AddFriendCommand;
 import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.exceptions.ExistingFriendShipException;
@@ -10,64 +10,52 @@ import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.domain.FriendShip;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
-
-import java.util.Optional;
 
 public class AddFriendUseCase implements AddFriend {
     private final FriendShipRepository friendShipRepository;
     private final UserRepository userRepository;
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
 
-    public AddFriendUseCase(FriendShipRepository friendShipRepository, UserRepository userRepository, EventBus eventBus) {
+    public AddFriendUseCase(FriendShipRepository friendShipRepository, UserRepository userRepository, DomainEventBus domainEventBus) {
         this.friendShipRepository = friendShipRepository;
         this.userRepository = userRepository;
-        this.eventBus = eventBus;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
     public FriendView execute(AddFriendCommand command) {
-        if (command.firstUserId().equals(command.secondUserId())) {
+        if (command.userAId().equals(command.userBId())) {
             throw new FriendToMySelfException();
         }
 
-        Optional<User> firstUser = userRepository.findById(command.firstUserId());
-        if (firstUser.isEmpty()) {
-            throw new RequesterNotFound(command.firstUserId());
-        }
+        User first = userRepository.findById(command.userAId())
+                .orElseThrow(() -> new RequesterNotFound(command.userAId()));
 
-        Optional<User> secondUser = userRepository.findById(command.secondUserId());
-        if (secondUser.isEmpty()) {
-            throw new ReceiverNotFound(command.secondUserId());
-        }
+        User second = userRepository.findById(command.userBId())
+                .orElseThrow(() -> new ReceiverNotFound(command.userBId()));
 
         boolean existsFriendShip = friendShipRepository.existsFriendShip(
-                command.firstUserId(),
-                command.secondUserId()
+                command.userAId(),
+                command.userBId()
         );
 
         if (existsFriendShip) {
-            throw new ExistingFriendShipException(command.firstUserId(), command.secondUserId());
+            throw new ExistingFriendShipException(command.userAId(), command.userBId());
         }
 
-        UserId first = firstUser.get().getUserId();
-        UserId second = secondUser.get().getUserId();
-
-        FriendShip newfriendShip = FriendShip.create(first, second);
+        FriendShip newfriendShip = FriendShip.create(first.getUserId(), second.getUserId());
 
         friendShipRepository.save(newfriendShip);
 
-        User targetUser = secondUser.get();
-
-        eventBus.publishAll(newfriendShip.pullEvents());
+        domainEventBus.publishAll(newfriendShip.pullEvents());
 
         return new FriendView(
-                targetUser.getUserId().getValue(),
-                targetUser.getName().getFirstName(),
-                targetUser.getName().getLastName(),
-                targetUser.getPhone().getValue(),
+                second.getUserId().getValue(),
+                second.getName().getFirstName(),
+                second.getName().getLastName(),
+                second.getPhone().getValue(),
                 newfriendShip.getCreatedAt()
         );
     }

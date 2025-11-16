@@ -4,7 +4,7 @@ import toast.appback.src.auth.domain.event.AllSessionsRevoked;
 import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.auth.domain.event.SessionRevoked;
 import toast.appback.src.shared.domain.DomainEvent;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.UserId;
 
@@ -60,48 +60,54 @@ public class Account {
             return Result.failure(DomainError
                     .businessRule("session limit exceeded")
                     .withBusinessCode(AccountBusinessCode.SESSION_LIMIT_EXCEEDED)
-                    .withDetails("account " + accountId + " has reached the maximum number of sessions: " + MAX_SESSIONS));
+                    .withDetails("account " + accountId +
+                            " has reached the maximum number of sessions: " + MAX_SESSIONS));
         }
         Session newSession = Session.create();
         this.sessions.add(newSession);
         this.recordEvent(new SessionAdded(this.accountId, newSession.getSessionId()));
-        return Result.success(newSession);
+        return Result.ok(newSession);
     }
 
     public Result<Void, DomainError> revokeSession(SessionId sessionId) {
         Optional<Session> foundSession = this.findSession(sessionId);
         if (foundSession.isEmpty()) {
-            return Result.failure(DomainError.integrity("session not found",
-                    "session with ID: " + sessionId + " could not be revoked from account " + accountId));
+            return Result.failure(DomainError.businessRule("session not found")
+                    .withDetails(String.format("session with id %s not found", sessionId))
+                    .withBusinessCode(AccountBusinessCode.SESSION_NOT_FOUND));
         }
         Session session = foundSession.get();
         if (session.isRevoked()) {
-            return Result.failure(DomainError.integrity("session already revoked",
-                    "session with ID: " + sessionId + " is already revoked for account " + accountId));
+            return Result.failure(DomainError.businessRule("session already revoked")
+                    .withBusinessCode(AccountBusinessCode.SESSION_ALREADY_REVOKED)
+                    .withDetails("session with id: " + sessionId + " is already revoked for account " + accountId));
         }
         session.revoke();
         this.recordEvent(new SessionRevoked(this.accountId, sessionId));
-        return Result.success();
+        return Result.ok();
     }
 
-    public Optional<Session> findSession(SessionId sessionId) {
+    private Optional<Session> findSession(SessionId sessionId) {
         return this.sessions.stream()
                 .filter(s -> s.getSessionId().equals(sessionId))
                 .findFirst();
     }
 
-    public Result<Void, DomainError> verifyValidSessionStatus(SessionId sessionId) {
+    public Result<Void, DomainError> verifySession(SessionId sessionId) {
         Optional<Session> foundSession = this.findSession(sessionId);
         if (foundSession.isEmpty()) {
-            return Result.failure(DomainError.integrity("session not found",
-                    "session with ID: " + sessionId + " not found for account " + accountId));
+            return Result.failure(DomainError.businessRule("session not found")
+                    .withDetails("session with id: " + sessionId + " not found for account " + accountId)
+                    .withBusinessCode(AccountBusinessCode.SESSION_NOT_FOUND)
+            );
         }
-        Session session = foundSession.get();
-        if (!session.isValid()) {
-            return Result.failure(DomainError.integrity("inactive session",
-                    "session with ID: " + sessionId + " is not active for account " + accountId));
+        if (foundSession.get().isRevoked()) {
+            return Result.failure(DomainError.businessRule("session revoked")
+                    .withDetails("session with id: " + sessionId + " is revoked for account " + accountId)
+                    .withBusinessCode(AccountBusinessCode.SESSION_REVOKED)
+            );
         }
-        return Result.success();
+        return Result.ok();
     }
 
     public void revokeAllSessions() {

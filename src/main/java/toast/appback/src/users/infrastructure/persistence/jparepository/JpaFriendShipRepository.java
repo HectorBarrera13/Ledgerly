@@ -21,6 +21,8 @@ public interface JpaFriendShipRepository extends JpaRepository<FriendShipEntity,
             JOIN UserEntity u
                 ON (u.id = CASE WHEN f.id.userOneId = :me THEN f.id.userTwoId ELSE f.id.userOneId END)
             WHERE f.id.userOneId = :me OR f.id.userTwoId = :me
+            ORDER BY u.id DESC
+            LIMIT :limit
     """)
     List<FriendProjection> findAllUserFriendsByUserId(@Param("me") Long userId, @Param("limit") int limit);
 
@@ -35,8 +37,9 @@ public interface JpaFriendShipRepository extends JpaRepository<FriendShipEntity,
             JOIN UserEntity u
                 ON (u.id = CASE WHEN f.id.userOneId = :userId THEN f.id.userTwoId ELSE f.id.userOneId END)
             WHERE (f.id.userOneId = :userId OR f.id.userTwoId = :userId)
-              AND u.userId > :cursor
-            ORDER BY u.userId ASC
+              AND u.id < :cursor
+            ORDER BY u.id DESC
+            LIMIT :limit
     """)
     List<FriendProjection> findAllUserFriendsByUserIdAfterCursor(
             @Param("userId") Long userId,

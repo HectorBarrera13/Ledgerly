@@ -1,11 +1,9 @@
 package toast.appback.src.debts.domain;
 
-import toast.appback.src.middleware.ErrorsHandler;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 
 import java.util.List;
 
@@ -35,14 +33,19 @@ public class Debt {
     }
 
     public static Result<Debt,DomainError> create(String purpose,String description, String currency, Long amount, User creditor, User debtor){
-        DebtId debtId = DebtId.generate();
         Result<Context, DomainError> context = Context.create(purpose,description);
         Result<DebtMoney, DomainError> debtMoney = DebtMoney.create(currency, amount);
-        Result<Debt, DomainError> debt = Result.combine(
-                context,
-                debtMoney
-        ).map(r->new Debt(debtId,context.getValue(),debtMoney.getValue(),creditor,debtor));
-        return debt;
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(context);
+        emptyResult.collect(debtMoney);
+        if(emptyResult.isFailure()){
+            return emptyResult.castFailure();
+        }
+        DebtMoney validDebtMoney = debtMoney.get();
+        Context validContext = context.get();
+        DebtId debtId = DebtId.generate();
+        Debt debt = new Debt(debtId, validContext, validDebtMoney, debtor, creditor);
+        return Result.ok(debt);
     }
 
     public DebtId getId() {return id;}
@@ -66,7 +69,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.ACCEPTED;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> reject(){
@@ -76,7 +79,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.REJECTED;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> pay(){
@@ -86,7 +89,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAID;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
@@ -97,7 +100,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.debtMoney = debtMoney;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> editContext(Context context) {
@@ -108,7 +111,11 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.context = context;
-        return Result.success();
+        return Result.ok();
+    }
+
+    public void recordEvent(DomainEvent event) {
+        this.debtEvents.add(event);
     }
 
     public List<DomainEvent> pullEvents() {

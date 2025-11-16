@@ -3,7 +3,7 @@ package toast.appback.src.auth.domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.List;
@@ -64,7 +64,7 @@ public class AccountTest {
     void testStartSessionUnderLimit() {
         for (int i = 0; i < 5; i++) {
             var result = account.startSession();
-            assertTrue(result.isSuccess());
+            assertTrue(result.isOk());
         }
     }
 
@@ -83,9 +83,9 @@ public class AccountTest {
     @DisplayName("Should revoke session correctly")
     void testRevokeSession() {
         Result<Session, DomainError> startedSession = account.startSession();
-        Session session = startedSession.getValue();
+        Session session = startedSession.get();
         var revokeResult = account.revokeSession(session.getSessionId());
-        assertTrue(revokeResult.isSuccess());
+        assertTrue(revokeResult.isOk());
         assertTrue(session.isRevoked());
     }
 
@@ -94,7 +94,18 @@ public class AccountTest {
     void testRevokeNonExistentSession() {
         var revokeResult = account.revokeSession(SessionId.generate());
         assertTrue(revokeResult.isFailure());
-        assertEquals("session not found", revokeResult.getErrors().getFirst().message());
+        assertBusinessRuleErrorExists(revokeResult.getErrors(), AccountBusinessCode.SESSION_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("Should not revoke already revoked session")
+    void testRevokeAlreadyRevokedSession() {
+        Result<Session, DomainError> startedSession = account.startSession();
+        Session session = startedSession.get();
+        account.revokeSession(session.getSessionId());
+        var revokeAgainResult = account.revokeSession(session.getSessionId());
+        assertTrue(revokeAgainResult.isFailure());
+        assertBusinessRuleErrorExists(revokeAgainResult.getErrors(), AccountBusinessCode.SESSION_ALREADY_REVOKED);
     }
 
     @Test
@@ -111,25 +122,25 @@ public class AccountTest {
 
     @Test
     @DisplayName("Should return correct errors when verifying session status")
-    public void testVerifyValidSessionStatus() {
+    public void testVerifyValidSession() {
         Result<Session, DomainError> startedSession = account.startSession();
-        Session session = startedSession.getValue();
+        Session session = startedSession.get();
 
         // Valid session
-        var validResult = account.verifyValidSessionStatus(session.getSessionId());
-        assertTrue(validResult.isSuccess());
+        var validResult = account.verifySession(session.getSessionId());
+        assertTrue(validResult.isOk());
 
         // Revoke session and verify
         account.revokeSession(session.getSessionId());
-        var revokedResult = account.verifyValidSessionStatus(session.getSessionId());
+        var revokedResult = account.verifySession(session.getSessionId());
         assertTrue(revokedResult.isFailure());
         List<DomainError> errors = revokedResult.getErrors();
-        assertEquals("inactive session", errors.getFirst().message());
+        assertBusinessRuleErrorExists(errors, AccountBusinessCode.SESSION_REVOKED);
 
         // Verify non-existent session
-        var nonExistentResult = account.verifyValidSessionStatus(SessionId.generate());
+        var nonExistentResult = account.verifySession(SessionId.generate());
         assertTrue(nonExistentResult.isFailure());
-        assertEquals("session not found", nonExistentResult.getErrors().getFirst().message());
+        assertBusinessRuleErrorExists(nonExistentResult.getErrors(), AccountBusinessCode.SESSION_NOT_FOUND);
     }
 
     @Test
@@ -150,7 +161,7 @@ public class AccountTest {
     @DisplayName("Should generate domain events on session actions")
     void testDomainEventsOnSessionActions() {
         Result<Session, DomainError> startedSession = account.startSession();
-        Session session = startedSession.getValue();
+        Session session = startedSession.get();
         assertEquals(1, account.pullEvents().size());
 
         account.revokeSession(session.getSessionId());

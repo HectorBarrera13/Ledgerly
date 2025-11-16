@@ -28,6 +28,10 @@ public class Session {
         return expiration;
     }
 
+    public long getMaxDurationSeconds() {
+        return MAX_DURATION_SECONDS;
+    }
+
     public static Session create() {
         return new Session(SessionId.generate(), SessionStatus.NORMAL, Instant.now().plusSeconds(MAX_DURATION_SECONDS));
     }
@@ -51,7 +55,7 @@ public class Session {
     @Override
     public String toString() {
         return "Session{" +
-                "sessionId=" + sessionId +
+                "session=" + sessionId +
                 ", status=" + status +
                 ", expiration=" + expiration +
                 '}';

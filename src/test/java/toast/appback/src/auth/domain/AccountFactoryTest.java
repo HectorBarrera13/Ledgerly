@@ -7,7 +7,7 @@ import toast.appback.src.auth.domain.event.AccountCreated;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class AccountFactoryTest {
                 "1234123"
         );
         Result<Account, DomainError> result = accountFactory.create(command);
-        assertFalse(result.isSuccess(), "Expected successful account creation");
+        assertFalse(result.isOk(), "Expected successful account creation");
         assertEquals(2, result.getErrors().size(), "Expected 2 validation errors");
     }
 
@@ -54,7 +54,7 @@ public class AccountFactoryTest {
                 "123"
         );
         Result<Account, DomainError> result = accountFactory.create(command);
-        assertFalse(result.isSuccess(), "Expected successful account creation");
+        assertFalse(result.isOk(), "Expected successful account creation");
         assertEquals(1, result.getErrors().size(), "Expected 1 validation errors");
     }
 
@@ -67,8 +67,8 @@ public class AccountFactoryTest {
                 "123AWDAAWDW"
         );
         Result<Account, DomainError> result = accountFactory.create(command);
-        assertTrue(result.isSuccess(), "Expected successful account creation");
-        Account account = result.getValue();
+        assertTrue(result.isOk(), "Expected successful account creation");
+        Account account = result.get();
         assertEquals("johndoe@gmail.com", account.getEmail().getValue());
         assertTrue(passwordHasher.verify("123AWDAAWDW", account.getPassword().getHashed()), "Password should be hashed correctly");
         assertNotNull(account.getAccountId());
@@ -83,8 +83,8 @@ public class AccountFactoryTest {
                 "123F2ASCASD!"
         );
         Result<Account, DomainError> result = accountFactory.create(command);
-        assertTrue(result.isSuccess(), "Expected successful account creation");
-        Account account = result.getValue();
+        assertTrue(result.isOk(), "Expected successful account creation");
+        Account account = result.get();
         List<DomainEvent> events = account.pullEvents();
         assertEquals(1, events.size(), "Expected one domain event");
         assertInstanceOf(AccountCreated.class, events.getFirst(), "Expected event to be of type AccountCreated");

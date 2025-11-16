@@ -11,12 +11,12 @@ import toast.appback.src.users.application.communication.command.AddFriendComman
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
 import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.port.FriendReadRepository;
-import toast.appback.src.users.application.usecase.contract.AddFriend;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.infrastructure.api.dto.UserMapper;
 import toast.appback.src.users.infrastructure.api.dto.response.FriendResponse;
 import toast.appback.src.users.infrastructure.service.FriendRequestQRService;
+import toast.appback.src.users.infrastructure.service.transactional.AddFriendService;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FriendController {
     private final FriendRequestQRService friendRequestQRService;
-    private final AddFriend addFriend;
+    private final AddFriendService addFriend;
     private final RemoveFriend removeFriend;
     private final FriendReadRepository friendReadRepository;
 
@@ -39,19 +39,23 @@ public class FriendController {
         UserId userId = customUserDetails.getUserId();
         List<FriendResponse> friendsContent;
         if (cursor == null) {
-            friendsContent = friendReadRepository.findFriendsByUserId(userId, limit)
+            friendsContent = friendReadRepository.findFriendsByUserId(userId, limit + 1)
                     .stream().map(UserMapper::toFriendResponse).toList();
         } else {
-            friendsContent = friendReadRepository.findFriendsByUserIdAfterCursor(userId, cursor, limit)
+            friendsContent = friendReadRepository.findFriendsByUserIdAfterCursor(userId, cursor, limit + 1)
                     .stream().map(UserMapper::toFriendResponse).toList();
         }
         if (friendsContent.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        UUID nextCursor = friendsContent.getLast().id();
+
+        int length = friendsContent.size();
+        List<FriendResponse> pagedFriends = length > limit
+                ? friendsContent.subList(0, limit)
+                : friendsContent;
         var response = new Pageable<>(
-                friendsContent,
-                nextCursor
+                pagedFriends,
+                length > limit ? pagedFriends.getLast().id() : null
         );
         return ResponseEntity.ok(response);
     }

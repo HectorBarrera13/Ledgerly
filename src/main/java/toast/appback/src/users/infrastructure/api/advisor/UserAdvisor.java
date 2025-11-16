@@ -20,8 +20,8 @@ public class UserAdvisor {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorData);
     }
 
-    @ExceptionHandler(FriendNotFound.class)
-    public ResponseEntity<ErrorData> handleFriendNotFoundException(FriendNotFound ex) {
+    @ExceptionHandler(FriendShipNotFound.class)
+    public ResponseEntity<ErrorData> handleFriendNotFoundException(FriendShipNotFound ex) {
         String friendlyMessage = ex.getFriendlyMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorData);

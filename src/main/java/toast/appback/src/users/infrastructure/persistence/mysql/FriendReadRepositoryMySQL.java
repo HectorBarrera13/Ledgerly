@@ -40,7 +40,7 @@ public class FriendReadRepositoryMySQL implements FriendReadRepository {
         Long cursorDbId = jpaUserRepository.findByUserId(cursor)
                 .orElseThrow(() -> new IllegalArgumentException("Cursor user not found"))
                 .getId();
-        return jpaFriendShipRepository.findAllUserFriendsByUserIdAfterCursor(userDbId, cursorDbId,limit).stream()
+        return jpaFriendShipRepository.findAllUserFriendsByUserIdAfterCursor(userDbId, cursorDbId, limit).stream()
                 .map(projection -> new FriendView(
                         projection.getUserId(),
                         projection.getFirstName(),

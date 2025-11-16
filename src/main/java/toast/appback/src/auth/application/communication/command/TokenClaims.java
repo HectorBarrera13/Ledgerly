@@ -7,7 +7,6 @@ import toast.appback.src.users.domain.UserId;
 public record TokenClaims(
         AccountId accountId,
         UserId userId,
-        SessionId sessionId,
-        String email
+        SessionId sessionId
 ) {
 }

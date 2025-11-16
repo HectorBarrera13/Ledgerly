@@ -29,6 +29,10 @@ public record DomainError(
         return new DomainError(message, details, DomainErrType.UNEXPECTED_ERROR, null, ValidatorType.UNEXPECTED_ERROR, null);
     }
 
+    public static DomainError empty() {
+        return new DomainError("", null, DomainErrType.UNEXPECTED_ERROR, null, ValidatorType.UNEXPECTED_ERROR, null);
+    }
+
 
     public DomainError withDetails(String details) {
         return new DomainError(

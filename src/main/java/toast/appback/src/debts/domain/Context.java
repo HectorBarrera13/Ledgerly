@@ -2,7 +2,7 @@ package toast.appback.src.debts.domain;
 
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 
 public class Context {
     private final String purpose;
@@ -19,10 +19,13 @@ public class Context {
     }
     //Method use as a constructor for general cases
     public static Result<Context, DomainError> create(String purpose, String description) {
-        return Result.combine(
-                purposeValidation(purpose,FIELD_PURPOSE),
-                descriptionValidation(description,FIELD_DESCRIPTION)
-        ).map(r -> new Context(purpose,description));
+        Result<Void, DomainError> emptyResult = Result.empty();
+        emptyResult.collect(purposeValidation(purpose,FIELD_PURPOSE));
+        emptyResult.collect(descriptionValidation(description,FIELD_DESCRIPTION));
+        if(emptyResult.isFailure()){
+            return emptyResult.castFailure();
+        }
+        return Result.ok(new Context(purpose,description));
     }
 
     //Method use for quick creation, it does not validates
@@ -37,14 +40,14 @@ public class Context {
         if(purpose.length()>maxPurposeLength){
             return Validators.TOO_LONG(fildName, purpose, maxPurposeLength);
         }
-        return Result.success(purpose);
+        return Result.ok(purpose);
     }
 
     public static Result<String, DomainError> descriptionValidation(String description, String fildName) {
         if(description != null && !description.isBlank() && description.length()>maxDescriptionLength){
             return Validators.TOO_LONG(fildName, description, maxDescriptionLength);
         }
-        return Result.success(description);
+        return Result.ok(description);
     }
 
     public String getPurpose() {

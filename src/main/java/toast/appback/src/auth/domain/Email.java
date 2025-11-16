@@ -1,6 +1,6 @@
 package toast.appback.src.auth.domain;
 
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.domain.DomainError;
 
@@ -45,11 +45,20 @@ public class Email {
         if (generalValidation.isFailure()) {
             return Result.failure(generalValidation.getErrors());
         }
-        EmailParts parts = generalValidation.getValue();
-        return verifyLocalPart(parts.local)
-                .captureFirstError(() -> verifyDomainPart(parts.domainTag))
-                .captureFirstError(() -> verifyTldPart(parts.tld))
-                .map(() -> new Email(parts.local, parts.domainTag, parts.tld));
+        EmailParts parts = generalValidation.get();
+        Result<Void, DomainError> localPartResult = verifyLocalPart(parts.local);
+        if (localPartResult.isFailure()) {
+            return Result.failure(localPartResult.getErrors());
+        }
+        Result<Void, DomainError> domainPartResult = verifyDomainPart(parts.domainTag);
+        if (domainPartResult.isFailure()) {
+            return Result.failure(domainPartResult.getErrors());
+        }
+        Result<Void, DomainError> tldPartResult = verifyTldPart(parts.tld);
+        if (tldPartResult.isFailure()) {
+            return Result.failure(tldPartResult.getErrors());
+        }
+        return Result.ok(new Email(parts.local, parts.domainTag, parts.tld));
     }
 
     public static Email load(String email) {
@@ -93,7 +102,7 @@ public class Email {
         String local = split[0];
         String domain = domainParts[0].toLowerCase();
         String tldPart = domainParts[1].toLowerCase();
-        return Result.success(new EmailParts(local, domain, tldPart));
+        return Result.ok(new EmailParts(local, domain, tldPart));
     }
 
     private record EmailParts(String local, String domainTag, String tld) {}
@@ -125,7 +134,7 @@ public class Email {
         if (!PERMITTED_LOCAL_CHARACTERS_PATTERN.matcher(local).matches()) {
             return Validators.INVALID_FORMAT("email", local, "local part contains invalid characters");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static Result<Void, DomainError> verifyDomainPart(String domain) {
@@ -157,7 +166,7 @@ public class Email {
             return Validators
                     .INVALID_FORMAT("email", domain, "domain part contains invalid characters");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static Result<Void, DomainError> verifyTldPart(String tld) {
@@ -172,7 +181,7 @@ public class Email {
             return Validators
                     .INVALID_FORMAT("email", tld, "TLD part must be between 2 and 24 characters long");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     @Override

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.DomainEvent;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User;
@@ -144,16 +144,16 @@ public class DebtTest {
             Long amount = 5000L; // 50.00 MXN sin escalar
 
             // NOTA: El método en tu clase se llama 'Create', no 'create'.
-            Result<Debt, DomainError> result = debtAggregate.create(purpose, description, currency, amount, creditor, debtor);
+            Result<Debt, DomainError> result = Debt.create(purpose, description, currency, amount, creditor, debtor);
 
-            assertTrue(result.isSuccess(), "La creación debe ser exitosa.");
+            assertTrue(result.isOk(), "La creación debe ser exitosa.");
 
-            Debt createdDebt = result.getValue();
+            Debt createdDebt = result.get();
             assertNotNull(createdDebt.getId(), "El ID debe ser generado.");
             // NOTA: En tu clase original, el constructor invierte creditor y debtor al pasar a new Debt
             // Asegúrate de que esta inversión sea la esperada. Ajusto la aserción a tu lógica de Create:
-            assertEquals(creditor, createdDebt.getDebtor(), "El deudor debe ser el CREDITOR (según la lógica de Create).");
-            assertEquals(debtor, createdDebt.getCreditor(), "El acreedor debe ser el DEBTOR (según la lógica de Create).");
+            assertEquals(creditor, createdDebt.getCreditor(), "El deudor debe ser el CREDITOR (según la lógica de Create).");
+            assertEquals(debtor, createdDebt.getDebtor(), "El acreedor debe ser el DEBTOR (según la lógica de Create).");
 
             // Verificar Contexto
             assertEquals(purpose, createdDebt.getContext().getPurpose(), "El propósito debe coincidir.");
@@ -188,7 +188,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.editDebtMoney(newAmount);
 
-            assertTrue(result.isSuccess());
+            assertTrue(result.isOk());
             assertEquals(newAmount, debt.getDebtMoney(), "El monto debe ser actualizado.");
             assertEquals(Status.PENDING, debt.getStatus(), "El estado debe permanecer PENDING.");
         }
@@ -217,7 +217,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.editContext(newContext);
 
-            assertTrue(result.isSuccess(), "La edición del contexto debe ser exitosa.");
+            assertTrue(result.isOk(), "La edición del contexto debe ser exitosa.");
             assertEquals(newContext, debt.getContext(), "El contexto debe ser actualizado.");
             assertEquals(Status.PENDING, debt.getStatus(), "El estado debe permanecer PENDING.");
         }

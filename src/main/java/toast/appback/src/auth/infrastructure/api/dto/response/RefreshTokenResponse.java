@@ -7,7 +7,7 @@ import java.time.Instant;
 public record RefreshTokenResponse(
         @JsonProperty("access_token")
         String accessToken,
-        @JsonProperty("session_expires_at")
-        Instant sessionExpiresAt
+        @JsonProperty("expires_at")
+        Instant expiresAt
 ) {
 }

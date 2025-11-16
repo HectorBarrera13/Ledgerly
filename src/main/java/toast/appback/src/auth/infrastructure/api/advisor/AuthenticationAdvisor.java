@@ -33,7 +33,7 @@ public class AuthenticationAdvisor {
     public ResponseEntity<ErrorData> handleAuthenticationServiceException(AuthenticationServiceException ex) {
         String friendlyMessage = ex.getMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorData);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorData);
     }
 
     @ExceptionHandler(InvalidClaimsException.class)
@@ -52,13 +52,6 @@ public class AuthenticationAdvisor {
 
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<ErrorData> handleAccountNotFoundException(AccountNotFoundException ex) {
-        String friendlyMessage = ex.getFriendlyMessage();
-        ErrorData errorData = ErrorData.create(friendlyMessage);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorData);
-    }
-
-    @ExceptionHandler(SessionNotFound.class)
-    public ResponseEntity<ErrorData> handleSessionNotFoundException(SessionNotFound ex) {
         String friendlyMessage = ex.getFriendlyMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorData);

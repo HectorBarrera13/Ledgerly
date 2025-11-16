@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
-import toast.appback.src.shared.utils.Result;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.domain.event.UserCreated;
 
@@ -63,8 +63,8 @@ public class UserFactoryTest {
                 "1234567890"
         );
         Result<User, DomainError> result = userFactory.create(command);
-        assertTrue(result.isSuccess(), "Expected successful user creation");
-        User user = result.getValue();
+        assertTrue(result.isOk(), "Expected successful user creation");
+        User user = result.get();
         assertEquals("John", user.getName().getFirstName());
         assertEquals("Doe", user.getName().getLastName());
         assertEquals("+1", user.getPhone().getCountryCode());
@@ -81,8 +81,8 @@ public class UserFactoryTest {
                 "9876543210"
         );
         Result<User, DomainError> result = userFactory.create(command);
-        assertTrue(result.isSuccess(), "Expected successful user creation");
-        User user = result.getValue();
+        assertTrue(result.isOk(), "Expected successful user creation");
+        User user = result.get();
         List<DomainEvent> events = user.pullEvents();
         assertFalse(events.isEmpty(), "Expected domain events to be recorded upon user creation");
         DomainEvent event = events.getFirst();
