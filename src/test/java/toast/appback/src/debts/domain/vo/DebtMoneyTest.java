@@ -38,9 +38,9 @@ public class DebtMoneyTest {
         void shouldCreateDebtMoneySuccessfullyWithValidInputs() {
             Result<DebtMoney, DomainError> result = DebtMoney.create(VALID_CURRENCY, VALID_AMOUNT_LONG);
 
-            assertTrue(result.isSuccess(), "Expected success for valid currency and amount.");
+            assertTrue(result.isOk(), "Expected success for valid currency and amount.");
 
-            DebtMoney money = result.getValue();
+            DebtMoney money = result.get();
             assertEquals(VALID_CURRENCY, money.getCurrency());
 
             // Verifica la transformación a BigDecimal
@@ -135,11 +135,11 @@ public class DebtMoneyTest {
             Result<DebtMoney, DomainError> result1 = DebtMoney.create("EUR", 500L );
             Result<DebtMoney, DomainError> result2 = DebtMoney.create("EUR", 500L );
 
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
 
-            assertEquals(result1.getValue(), result2.getValue(), "Dos objetos DebtMoney con los mismos valores deben ser iguales.");
-            assertEquals(result1.getValue().hashCode(), result2.getValue().hashCode(), "Hash codes deben coincidir.");
+            assertEquals(result1.get(), result2.get(), "Dos objetos DebtMoney con los mismos valores deben ser iguales.");
+            assertEquals(result1.get().hashCode(), result2.get().hashCode(), "Hash codes deben coincidir.");
         }
 
         @Test
@@ -149,20 +149,20 @@ public class DebtMoneyTest {
             Result<DebtMoney, DomainError> result2 = DebtMoney.create("USD", 500L ); // 5.00 USD
             Result<DebtMoney, DomainError> result3 = DebtMoney.create("EUR", 600L ); // 6.00 EUR
 
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
-            assertTrue(result3.isSuccess());
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
+            assertTrue(result3.isOk());
 
-            assertNotEquals(result1.getValue(), result2.getValue(), "Diferente divisa.");
-            assertNotEquals(result1.getValue(), result3.getValue(), "Diferente monto.");
+            assertNotEquals(result1.get(), result2.get(), "Diferente divisa.");
+            assertNotEquals(result1.get(), result3.get(), "Diferente monto.");
         }
 
         @Test
         @DisplayName("Should have correct getters")
         void shouldHaveCorrectGetters() {
             Result<DebtMoney, DomainError> result = DebtMoney.create("CAD", 123L); // 1.23 CAD
-            assertTrue(result.isSuccess());
-            DebtMoney money = result.getValue();
+            assertTrue(result.isOk());
+            DebtMoney money = result.get();
 
             assertEquals("CAD", money.getCurrency());
             assertEquals(new BigDecimal("1.23").setScale(SCALE, RoundingMode.UNNECESSARY), money.getAmount());

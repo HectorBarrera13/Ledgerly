@@ -15,9 +15,9 @@ public final class Chain3<A, B, C, E extends IError> {
 
     public <D> Chain4<A, B, C, D, E> and(Supplier<Result<D, E>> fn) {
         Result<D, E> r4 = fn.get();
-        if (current.isSuccess() && r4.isSuccess()) {
-            var t = current.getValue();
-            return new Chain4<>(Result.success(new ResultTuples.Tuple4<>(t._1(), t._2(), t._3(), r4.getValue())));
+        if (current.isOk() && r4.isOk()) {
+            var t = current.get();
+            return new Chain4<>(Result.ok(new ResultTuples.Tuple4<>(t._1(), t._2(), t._3(), r4.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -31,9 +31,9 @@ public final class Chain3<A, B, C, E extends IError> {
     }
 
     public <R> Result<R, E> result(TriFunction<A, B, C, R> fn) {
-        if (current.isSuccess()) {
-            var t = current.getValue();
-            return Result.success(fn.apply(t._1(), t._2(), t._3()));
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2(), t._3()));
         }
         return Result.failure(current.getErrors());
     }

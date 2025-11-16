@@ -1,20 +1,21 @@
 package toast.appback.src.users.application.usecase.implementation;
 
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.ApplicationEventBus;
 import toast.appback.src.users.application.communication.command.RemoveFriendCommand;
-import toast.appback.src.users.application.exceptions.FriendNotFound;
+import toast.appback.src.users.application.exceptions.FriendShipNotFound;
 import toast.appback.src.users.application.exceptions.RemoveMySelfFromFriendsException;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
-import toast.appback.src.users.domain.event.FriendRemoved;
+import toast.appback.src.users.application.event.FriendShipBroke;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 
 public class RemoveFriendUseCase implements RemoveFriend {
     private final FriendShipRepository friendShipRepository;
-    private final EventBus eventBus;
+    private final ApplicationEventBus applicationEventBus;
 
-    public RemoveFriendUseCase(FriendShipRepository friendShipRepository, EventBus eventBus) {
+    public RemoveFriendUseCase(FriendShipRepository friendShipRepository,
+                               ApplicationEventBus applicationEventBus) {
         this.friendShipRepository = friendShipRepository;
-        this.eventBus = eventBus;
+        this.applicationEventBus = applicationEventBus;
     }
 
     @Override
@@ -29,16 +30,11 @@ public class RemoveFriendUseCase implements RemoveFriend {
         );
 
         if (!existsFriendShip) {
-            throw new FriendNotFound(command.friendId());
+            throw new FriendShipNotFound(command.requesterId(), command.friendId());
         }
 
-        friendShipRepository.delete(command.requesterId(), command.friendId());
-
-        eventBus.publish(
-                new FriendRemoved(
-                        command.requesterId(),
-                        command.friendId()
-                )
+        applicationEventBus.publish(
+                new FriendShipBroke(command.requesterId(), command.friendId())
         );
     }
 }

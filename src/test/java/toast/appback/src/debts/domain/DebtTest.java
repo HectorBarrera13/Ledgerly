@@ -146,9 +146,9 @@ public class DebtTest {
             // NOTA: El método en tu clase se llama 'Create', no 'create'.
             Result<Debt, DomainError> result = Debt.create(purpose, description, currency, amount, creditor, debtor);
 
-            assertTrue(result.isSuccess(), "La creación debe ser exitosa.");
+            assertTrue(result.isOk(), "La creación debe ser exitosa.");
 
-            Debt createdDebt = result.getValue();
+            Debt createdDebt = result.get();
             assertNotNull(createdDebt.getId(), "El ID debe ser generado.");
             // NOTA: En tu clase original, el constructor invierte creditor y debtor al pasar a new Debt
             // Asegúrate de que esta inversión sea la esperada. Ajusto la aserción a tu lógica de Create:
@@ -188,7 +188,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.editDebtMoney(newAmount);
 
-            assertTrue(result.isSuccess());
+            assertTrue(result.isOk());
             assertEquals(newAmount, debt.getDebtMoney(), "El monto debe ser actualizado.");
             assertEquals(Status.PENDING, debt.getStatus(), "El estado debe permanecer PENDING.");
         }
@@ -217,7 +217,7 @@ public class DebtTest {
 
             Result<Void, DomainError> result = debt.editContext(newContext);
 
-            assertTrue(result.isSuccess(), "La edición del contexto debe ser exitosa.");
+            assertTrue(result.isOk(), "La edición del contexto debe ser exitosa.");
             assertEquals(newContext, debt.getContext(), "El contexto debe ser actualizado.");
             assertEquals(Status.PENDING, debt.getStatus(), "El estado debe permanecer PENDING.");
         }

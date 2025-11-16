@@ -3,7 +3,7 @@ package toast.appback.src.users.application.communication.command;
 import toast.appback.src.users.domain.UserId;
 
 public record AddFriendCommand(
-        UserId firstUserId,
-        UserId secondUserId
+        UserId userAId,
+        UserId userBId
 ) {
 }

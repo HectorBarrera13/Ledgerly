@@ -8,9 +8,9 @@ public record Chain4<A, B, C, D, E extends IError>(Result<ResultTuples.Tuple4<A,
 
     public <F> Chain5<A, B, C, D, F, E> and(Supplier<Result<F, E>> fn) {
         Result<F, E> r5 = fn.get();
-        if (current.isSuccess() && r5.isSuccess()) {
-            var t = current.getValue();
-            return new Chain5<>(Result.success(new ResultTuples.Tuple5<>(t._1(), t._2(), t._3(), t._4(), r5.getValue())));
+        if (current.isOk() && r5.isOk()) {
+            var t = current.get();
+            return new Chain5<>(Result.ok(new ResultTuples.Tuple5<>(t._1(), t._2(), t._3(), t._4(), r5.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -24,9 +24,9 @@ public record Chain4<A, B, C, D, E extends IError>(Result<ResultTuples.Tuple4<A,
     }
 
     public <R> Result<R, E> result(QuadFunction<A, B, C, D, R> fn) {
-        if (current.isSuccess()) {
-            var t = current.getValue();
-            return Result.success(fn.apply(t._1(), t._2(), t._3(), t._4()));
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2(), t._3(), t._4()));
         }
         return Result.failure(current.getErrors());
     }

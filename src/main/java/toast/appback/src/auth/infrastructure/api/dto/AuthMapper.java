@@ -1,5 +1,6 @@
 package toast.appback.src.auth.infrastructure.api.dto;
 
+import toast.appback.src.auth.application.communication.result.AccountView;
 import toast.appback.src.auth.application.communication.result.AuthResult;
 import toast.appback.src.auth.infrastructure.api.dto.response.*;
 import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
@@ -25,6 +26,13 @@ public class AuthMapper {
                 accountResponse,
                 userResponse,
                 tokenResponse
+        );
+    }
+
+    public static AccountResponse toAccountResponse(AccountView accountView) {
+        return new AccountResponse(
+                accountView.accountId(),
+                accountView.email()
         );
     }
 }

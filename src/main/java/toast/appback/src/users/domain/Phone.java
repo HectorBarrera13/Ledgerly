@@ -36,7 +36,7 @@ public class Phone {
         if (result.isFailure()) {
             return result.castFailure();
         }
-        return Result.success(new Phone(countryCode, number));
+        return Result.ok(new Phone(countryCode, number));
     }
 
     public static Phone load(String countryCode, String number) {
@@ -50,7 +50,7 @@ public class Phone {
         if (!phoneNumber.matches("\\d{4,15}")) {
             return Validators.INVALID_FORMAT("number", phoneNumber, "must contain only digits and be between 4 and 15 characters long");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static Result<Void, DomainError> isValidCode(String code) {
@@ -60,7 +60,7 @@ public class Phone {
         if (!code.matches("\\+\\d{1,4}")) {
             return Validators.INVALID_FORMAT("phoneCountryCode", code, "must start with '+' followed by 1 to 4 digits");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     @Override

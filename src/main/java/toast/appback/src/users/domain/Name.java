@@ -61,7 +61,7 @@ public class Name {
         if (result.isFailure()) {
             return result.castFailure();
         }
-        return Result.success(new Name(firstName, lastName));
+        return Result.ok(new Name(firstName, lastName));
     }
 
     public static Name load(String firstName, String lastName) {
@@ -95,6 +95,6 @@ public class Name {
                         .INVALID_FORMAT("fieldName", value, "each part of the name must be at least 2 characters long");
             }
         }
-        return Result.success();
+        return Result.ok();
     }
 }

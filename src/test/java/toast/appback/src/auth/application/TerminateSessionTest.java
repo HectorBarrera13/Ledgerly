@@ -5,16 +5,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
+import toast.appback.src.auth.application.exceptions.domain.RevokeSessionException;
+import toast.appback.src.auth.application.mother.AccountMother;
+import toast.appback.src.auth.application.mother.TokenMother;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.TerminateSessionUseCase;
 import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.application.EventBus;
-import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.domain.UserId;
+import toast.appback.src.shared.application.DomainEventBus;
 
 import java.util.Optional;
 
@@ -26,62 +26,140 @@ public class TerminateSessionTest {
     private TerminateSessionUseCase terminateSessionUseCase;
     private final TokenService tokenService = mock(TokenService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
-    private final EventBus eventBus = mock(EventBus.class);
-
-    private final AccountId accountId = AccountId.generate();
-    private final UserId userId = UserId.generate();
-    private final SessionId sessionId = SessionId.generate();
-    private final String email = "johndoe@gmail.com";
+    private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
 
     @BeforeEach
     public void setUp() {
         this.terminateSessionUseCase = new TerminateSessionUseCase(
                 tokenService,
                 accountRepository,
-                eventBus
+                domainEventBus
         );
     }
 
     @Test
     @DisplayName("Should terminate session successfully")
-    public void testTerminateSessionSuccessfully() {
-        TokenClaims tokenClaims = new TokenClaims(
-                accountId,
-                userId,
-                sessionId
-        );
-        Account account = mock(Account.class);
-        when(account.findSession(any())).thenReturn(Optional.of(Session.create()));
-        when(accountRepository.findById(any())).thenReturn(Optional.of(account));
-        when(tokenService.extractClaimsFromAccessTokenUnsafe(anyString()))
-                .thenReturn(tokenClaims);
-        when(account.revokeSession(any()))
-                .thenReturn(Result.success());
-        assertDoesNotThrow(() -> terminateSessionUseCase.execute("validAccessTokenString"));
+    public void shouldTerminateSessionSuccessfully() {
+        String accessToken = "validAccess";
+        Account account = AccountMother.validAccount();
+        Session session = account.startSession().get();
 
-        verify(tokenService, times(1)).extractClaimsFromAccessTokenUnsafe(anyString());
-        verify(accountRepository, times(1)).findById(any());
-        verify(accountRepository, times(1)).updateSessions(account);
-        verify(eventBus, times(1)).publishAll(account.pullEvents());
+        TokenClaims tokenClaims = new TokenClaims(
+                account.getAccountId(),
+                account.getUserId(),
+                session.getSessionId()
+        );
+
+        when(tokenService.extractClaimsFromAccessTokenUnsafe(accessToken)).thenReturn(tokenClaims);
+        when(accountRepository.findById(account.getAccountId())).thenReturn(Optional.of(account));
+
+        terminateSessionUseCase.execute(accessToken);
+
+        verify(tokenService, times(1)).extractClaimsFromAccessTokenUnsafe(accessToken);
+        verify(accountRepository, times(1)).findById(account.getAccountId());
+        verify(accountRepository, times(1)).save(account);
+        verify(domainEventBus, times(1)).publishAll(anyList());
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository,
+                domainEventBus
+        );
     }
 
     @Test
     @DisplayName("Should throw exception when account not found")
-    public void testTerminateSessionAccountNotFound() {
+    public void shouldThrowExceptionWhenAccountNotFound() {
+        String accessToken = "validAccess";
+        TokenClaims tokenClaims = TokenMother.createClaims();
+
+        when(tokenService.extractClaimsFromAccessTokenUnsafe(accessToken)).thenReturn(tokenClaims);
+        when(accountRepository.findById(tokenClaims.accountId())).thenReturn(Optional.empty());
+
+        assertThrows(
+                InvalidClaimsException.class,
+                () -> terminateSessionUseCase.execute(accessToken)
+        );
+
+        verify(tokenService, times(1)).extractClaimsFromAccessTokenUnsafe(accessToken);
+        verify(accountRepository, times(1)).findById(tokenClaims.accountId());
+
+        verifyNoInteractions(
+                domainEventBus
+        );
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository,
+                domainEventBus
+        );
+    }
+
+    @Test
+    @DisplayName("Should throw exception RevokeSessionException when session not found")
+    public void shouldThrowExceptionWhenSessionRevocationFails() {
+        String accessToken = "validAccess";
+        Account account = AccountMother.validAccount();
         TokenClaims tokenClaims = new TokenClaims(
-                accountId,
-                userId,
-                sessionId
+                account.getAccountId(),
+                account.getUserId(),
+                SessionId.generate()
         );
-        when(tokenService.extractClaimsFromAccessTokenUnsafe(anyString()))
-                .thenReturn(tokenClaims);
-        when(accountRepository.findById(any())).thenReturn(Optional.empty());
-        assertThrows(InvalidClaimsException.class, () ->
-            terminateSessionUseCase.execute("invalidAccessTokenString")
+
+        when(tokenService.extractClaimsFromAccessTokenUnsafe(accessToken)).thenReturn(tokenClaims);
+        when(accountRepository.findById(account.getAccountId())).thenReturn(Optional.of(account));
+
+        assertThrows(
+                RevokeSessionException.class,
+                () -> terminateSessionUseCase.execute(accessToken)
         );
-        verify(tokenService, times(1)).extractClaimsFromAccessTokenUnsafe(anyString());
-        verify(accountRepository, times(1)).findById(any());
-        verifyNoInteractions(eventBus);
-        verifyNoMoreInteractions(tokenService, accountRepository);
+
+        verify(tokenService, times(1)).extractClaimsFromAccessTokenUnsafe(accessToken);
+        verify(accountRepository, times(1)).findById(account.getAccountId());
+
+        verifyNoInteractions(
+                domainEventBus
+        );
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository,
+                domainEventBus
+        );
+    }
+
+    @Test
+    @DisplayName("Should throw exception RevokeSessionException when session already revoked")
+    public void shouldThrowExceptionWhenSessionAlreadyRevoked() {
+        String accessToken = "validAccess";
+        Account account = AccountMother.validAccount();
+        Session session = account.startSession().get();
+        account.revokeSession(session.getSessionId());
+        TokenClaims tokenClaims = new TokenClaims(
+                account.getAccountId(),
+                account.getUserId(),
+                session.getSessionId()
+        );
+
+        when(tokenService.extractClaimsFromAccessTokenUnsafe(accessToken)).thenReturn(tokenClaims);
+        when(accountRepository.findById(account.getAccountId())).thenReturn(Optional.of(account));
+
+        assertThrows(
+                RevokeSessionException.class,
+                () -> terminateSessionUseCase.execute(accessToken)
+        );
+
+        verify(tokenService, times(1)).extractClaimsFromAccessTokenUnsafe(accessToken);
+        verify(accountRepository, times(1)).findById(account.getAccountId());
+
+        verifyNoInteractions(
+                domainEventBus
+        );
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository,
+                domainEventBus
+        );
     }
 }

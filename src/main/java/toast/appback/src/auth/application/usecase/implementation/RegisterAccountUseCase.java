@@ -9,7 +9,7 @@ import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.application.communication.command.CreateUserCommand;
 import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
@@ -19,16 +19,16 @@ public class RegisterAccountUseCase implements RegisterAccount {
     private final CreateUser createUser;
     private final CreateAccount createAccount;
     private final TokenService tokenService;
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
 
     public RegisterAccountUseCase(CreateUser createUser,
                                   CreateAccount createAccount,
                                   TokenService tokenService,
-                                  EventBus eventBus) {
+                                  DomainEventBus domainEventBus) {
         this.createUser = createUser;
         this.createAccount = createAccount;
         this.tokenService = tokenService;
-        this.eventBus = eventBus;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
@@ -72,8 +72,8 @@ public class RegisterAccountUseCase implements RegisterAccount {
                 newAccount.getEmail().getValue()
         );
 
-        eventBus.publishAll(newUser.pullEvents());
-        eventBus.publishAll(newAccount.pullEvents());
+        domainEventBus.publishAll(newUser.pullEvents());
+        domainEventBus.publishAll(newAccount.pullEvents());
         return new AuthResult(
                 accountView,
                 userView,

@@ -23,8 +23,8 @@ public class DefaultAccount extends AccountFactory {
         if (creationResult.isFailure()) {
             return creationResult.castFailure();
         }
-        Email validEmail = emailResult.getValue();
-        Password validPassword = passwordResult.getValue();
+        Email validEmail = emailResult.get();
+        Password validPassword = passwordResult.get();
         Account account = new Account(
                 AccountId.generate(),
                 userId,
@@ -38,7 +38,7 @@ public class DefaultAccount extends AccountFactory {
                         account.getEmail()
                 )
         );
-        return Result.success(account);
+        return Result.ok(account);
     }
 
     @Override

@@ -2,25 +2,24 @@ package toast.appback.src.auth.application.usecase.implementation;
 
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
-import toast.appback.src.auth.application.exceptions.SessionNotFound;
+import toast.appback.src.auth.application.exceptions.domain.RevokeSessionException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 
 public class TerminateSessionUseCase implements TerminateSession {
     private final TokenService tokenService;
     private final AccountRepository accountRepository;
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
 
     public TerminateSessionUseCase(TokenService tokenService,
                                    AccountRepository accountRepository,
-                                   EventBus eventBus) {
+                                   DomainEventBus domainEventBus) {
         this.tokenService = tokenService;
         this.accountRepository = accountRepository;
-        this.eventBus = eventBus;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
@@ -29,13 +28,11 @@ public class TerminateSessionUseCase implements TerminateSession {
         Account account = accountRepository.findById(tokenClaims.accountId())
                 .orElseThrow(() -> new InvalidClaimsException(String.format("Account with id %s not found", tokenClaims.accountId())));
 
-        Session session = account.findSession(tokenClaims.sessionId())
-                .orElseThrow(() -> new SessionNotFound(tokenClaims.sessionId(), account.getAccountId()));
+        account.revokeSession(tokenClaims.sessionId())
+                .orElseThrow((RevokeSessionException::new));
 
-        session.revoke();
+        accountRepository.save(account);
 
-        accountRepository.updateSessions(account);
-
-        eventBus.publishAll(account.pullEvents());
+        domainEventBus.publishAll(account.pullEvents());
     }
 }

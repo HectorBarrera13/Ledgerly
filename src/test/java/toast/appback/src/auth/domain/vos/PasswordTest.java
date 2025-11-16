@@ -35,8 +35,8 @@ public class PasswordTest {
         @DisplayName("Create a valid password")
         void createValidPassword() {
             Result<Password, DomainError> result = Password.fromPlain("Str0ngP@ssw0rd!", passwordHasher);
-            assertTrue(result.isSuccess());
-            Password password = result.getValue();
+            assertTrue(result.isOk());
+            Password password = result.get();
             assertTrue(passwordHasher.verify("Str0ngP@ssw0rd!", password.getHashed()));
         }
     }

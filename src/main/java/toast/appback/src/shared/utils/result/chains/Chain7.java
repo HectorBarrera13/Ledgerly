@@ -13,9 +13,9 @@ public final class Chain7<A, B, C, D, F, G, H, E extends IError> {
 
     public <I> Chain8<A, B, C, D, F, G, H, I, E> and(Supplier<Result<I, E>> fn) {
         Result<I, E> r8 = fn.get();
-        if (current.isSuccess() && r8.isSuccess()) {
-            var t = current.getValue();
-            return new Chain8<>(Result.success(new ResultTuples.Tuple8<>(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), r8.getValue())));
+        if (current.isOk() && r8.isOk()) {
+            var t = current.get();
+            return new Chain8<>(Result.ok(new ResultTuples.Tuple8<>(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7(), r8.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -29,9 +29,9 @@ public final class Chain7<A, B, C, D, F, G, H, E extends IError> {
     }
 
     public <R> Result<R, E> result(HetaFunction<A, B, C, D, F, G, H, R> fn) {
-        if (current.isSuccess()) {
-            var t = current.getValue();
-            return Result.success(fn.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()));
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), t._7()));
         }
         return Result.failure(current.getErrors());
     }

@@ -13,9 +13,9 @@ public final class Chain5<A, B, C, D, F, E extends IError> {
 
     public <G> Chain6<A, B, C, D, F, G, E> and(Supplier<Result<G, E>> fn) {
         Result<G, E> r6 = fn.get();
-        if (current.isSuccess() && r6.isSuccess()) {
-            var t = current.getValue();
-            return new Chain6<>(Result.success(new ResultTuples.Tuple6<>(t._1(), t._2(), t._3(), t._4(), t._5(), r6.getValue())));
+        if (current.isOk() && r6.isOk()) {
+            var t = current.get();
+            return new Chain6<>(Result.ok(new ResultTuples.Tuple6<>(t._1(), t._2(), t._3(), t._4(), t._5(), r6.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -29,9 +29,9 @@ public final class Chain5<A, B, C, D, F, E extends IError> {
     }
 
     public <R> Result<R, E> result(PentaFunction<A, B, C, D, F, R> fn) {
-        if (current.isSuccess()) {
-            var t = current.getValue();
-            return Result.success(fn.apply(t._1(), t._2(), t._3(), t._4(), t._5()));
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2(), t._3(), t._4(), t._5()));
         }
         return Result.failure(current.getErrors());
     }

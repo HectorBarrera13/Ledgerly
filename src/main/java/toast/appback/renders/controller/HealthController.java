@@ -15,13 +15,13 @@ public class HealthController {
     }
 
     @GetMapping("/health")
-    public String healthCheck(Model model) {
-        serverDataService.populateModelWithServerData(model);
-        return "health/welcome";
+    public String healthCheck() {
+        return "health";
     }
 
-    @GetMapping("/health/panel")
-    public String healthPanel() {
-        return "health/panel";
+    @GetMapping("/panel")
+    public String healthPanel(Model model) {
+        serverDataService.populateModelWithServerData(model);
+        return "panel/home";
     }
 }

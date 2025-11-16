@@ -19,8 +19,8 @@ public final class Chain1<A, E extends IError> {
 
     public <B> Chain2<A, B, E> and(Supplier<Result<B, E>> fn) {
         Result<B, E> r2 = fn.get();
-        if (current.isSuccess() && r2.isSuccess()) {
-            return new Chain2<>(Result.success(new ResultTuples.Tuple2<>(current.getValue(), r2.getValue())));
+        if (current.isOk() && r2.isOk()) {
+            return new Chain2<>(Result.ok(new ResultTuples.Tuple2<>(current.get(), r2.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -34,6 +34,6 @@ public final class Chain1<A, E extends IError> {
     }
 
     public <R> Result<R, E> result(Function<A, R> fn) {
-        return current.isSuccess() ? Result.success(fn.apply(current.getValue())) : Result.failure(current.getErrors());
+        return current.isOk() ? Result.ok(fn.apply(current.get())) : Result.failure(current.getErrors());
     }
 }

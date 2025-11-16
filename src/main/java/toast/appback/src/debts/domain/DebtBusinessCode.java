@@ -4,6 +4,7 @@ import toast.appback.src.shared.domain.BusinessCode;
 
 public enum DebtBusinessCode implements BusinessCode {
     STATUS_NOT_PENDING,
+    DEBT_NOT_PENDING,
     DEBT_NO_ACCEPTED;
 
     @Override

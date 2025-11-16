@@ -44,7 +44,7 @@ public class DebtMoney {
         if(emptyResult.isFailure()){
             return emptyResult.castFailure();
         }
-        return Result.success(new DebtMoney(amountTransformation(amount, SCALE), currency));
+        return Result.ok(new DebtMoney(amountTransformation(amount, SCALE), currency));
     }
 
     public static DebtMoney load(Long amount, String currency) {
@@ -59,7 +59,7 @@ public class DebtMoney {
         if(!currency.matches(format)) {
             return Validators.INVALID_FORMAT(field,currency, "deben ser 3 letras");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     public static Result<String, DomainError> amountValidation(Long amount, String field) {
@@ -69,7 +69,7 @@ public class DebtMoney {
         if(amount<0){
             return Validators.MUST_BE_POSITIVE(field,amount.doubleValue(), "MUST_BE_POSITIVE");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static BigDecimal amountTransformation(Long amount, int scale) {

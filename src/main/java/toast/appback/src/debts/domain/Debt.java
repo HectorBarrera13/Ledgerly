@@ -41,11 +41,11 @@ public class Debt {
         if(emptyResult.isFailure()){
             return emptyResult.castFailure();
         }
-        DebtMoney validDebtMoney = debtMoney.getValue();
-        Context validContext = context.getValue();
+        DebtMoney validDebtMoney = debtMoney.get();
+        Context validContext = context.get();
         DebtId debtId = DebtId.generate();
         Debt debt = new Debt(debtId, validContext, validDebtMoney, debtor, creditor);
-        return Result.success(debt);
+        return Result.ok(debt);
     }
 
     public DebtId getId() {return id;}
@@ -69,7 +69,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.ACCEPTED;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> reject(){
@@ -79,7 +79,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.REJECTED;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> pay(){
@@ -89,7 +89,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAID;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
@@ -100,7 +100,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.debtMoney = debtMoney;
-        return Result.success();
+        return Result.ok();
     }
 
     public Result< Void, DomainError> editContext(Context context) {
@@ -111,7 +111,7 @@ public class Debt {
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.context = context;
-        return Result.success();
+        return Result.ok();
     }
 
     public void recordEvent(DomainEvent event) {

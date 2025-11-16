@@ -36,6 +36,7 @@ public class CreateAccountUseCase implements CreateAccount {
                         .orElseThrow(SessionStartException::new);
 
         accountRepository.save(account);
+
         return new CreateAccountResult(account, newSession);
     }
 }

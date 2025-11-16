@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import toast.appback.src.auth.application.communication.result.AccountView;
+import toast.appback.src.auth.application.port.AccountReadRepository;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.port.UserReadRepository;
 import toast.appback.src.users.infrastructure.api.dto.UserMapper;
-import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
+import toast.appback.src.users.infrastructure.api.dto.response.ProfileResponse;
 
 import java.util.Optional;
 
@@ -17,17 +19,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileController {
     private final UserReadRepository userReadRepository;
+    private final AccountReadRepository accountReadRepository;
 
     @GetMapping()
-    public ResponseEntity<UserResponse> getProfile(
+    public ResponseEntity<ProfileResponse> getProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Optional<UserView> user = userReadRepository.findById(userDetails.getUserId());
-        if (user.isEmpty()) {
+        Optional<AccountView> accountView = accountReadRepository.findById(userDetails.getAccountId());
+        if (accountView.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        UserView userView = user.get();
-        UserResponse userResponse = UserMapper.toUserResponse(userView);
-        return ResponseEntity.ok(userResponse);
+        Optional<UserView> userView = userReadRepository.findById(userDetails.getUserId());
+        if (userView.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        ProfileResponse profileResponse = UserMapper.toProfileResponse(accountView.get(), userView.get());
+        return ResponseEntity.ok(profileResponse);
     }
 }

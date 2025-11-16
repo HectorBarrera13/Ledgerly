@@ -1,7 +1,6 @@
 package toast.appback.renders.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.client.RestTemplate;
@@ -29,7 +28,7 @@ public class ServerDataService {
         String upTime = ManagementFactory.getRuntimeMXBean().getUptime() / 1000 + " seconds";
         RestTemplate restTemplate = new RestTemplate();
         long startTime = System.currentTimeMillis();
-        ResponseEntity<String> response = restTemplate.getForEntity("https://www.google.com", String.class);
+        restTemplate.getForEntity("https://www.google.com", String.class);
         long latency = System.currentTimeMillis() - startTime;
         model.addAttribute("apiUrl", apiUrl);
         model.addAttribute("serverName", serverName);

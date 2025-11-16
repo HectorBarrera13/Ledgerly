@@ -17,8 +17,8 @@ public class DefaultUser extends UserFactory {
             return emptyResult.castFailure();
         }
 
-        Name name = nameResult.getValue();
-        Phone phone = phoneResult.getValue();
+        Name name = nameResult.get();
+        Phone phone = phoneResult.get();
         User user = new User(
                 UserId.generate(),
                 name,
@@ -30,7 +30,7 @@ public class DefaultUser extends UserFactory {
                         user.getName()
                 )
         );
-        return Result.success(user);
+        return Result.ok(user);
     }
 
     @Override

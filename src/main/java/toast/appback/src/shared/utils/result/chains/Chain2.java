@@ -16,9 +16,9 @@ public final class Chain2<A, B, E extends IError> {
 
     public <C> Chain3<A, B, C, E> and(Supplier<Result<C, E>> fn) {
         Result<C, E> r3 = fn.get();
-        if (current.isSuccess() && r3.isSuccess()) {
-            var t = current.getValue();
-            return new Chain3<>(Result.success(new ResultTuples.Tuple3<>(t._1(), t._2(), r3.getValue())));
+        if (current.isOk() && r3.isOk()) {
+            var t = current.get();
+            return new Chain3<>(Result.ok(new ResultTuples.Tuple3<>(t._1(), t._2(), r3.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -32,9 +32,9 @@ public final class Chain2<A, B, E extends IError> {
     }
 
     public <R> Result<R, E> result(BiFunction<A, B, R> fn) {
-        if (current.isSuccess()) {
-            var t = current.getValue();
-            return Result.success(fn.apply(t._1(), t._2()));
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2()));
         }
         return Result.failure(current.getErrors());
     }

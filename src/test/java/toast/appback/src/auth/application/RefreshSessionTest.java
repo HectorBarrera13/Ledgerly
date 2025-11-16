@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
+import toast.appback.src.auth.application.exceptions.domain.InvalidSessionException;
+import toast.appback.src.auth.application.mother.AccountMother;
+import toast.appback.src.auth.application.mother.TokenMother;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.RefreshSessionUseCase;
 import toast.appback.src.auth.domain.*;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.domain.UserId;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -24,10 +24,6 @@ public class RefreshSessionTest {
     private RefreshSessionUseCase refreshSessionUseCase;
     private final TokenService tokenService = mock(TokenService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
-    private final AccountId accountId = AccountId.generate();
-    private final UserId userId = UserId.generate();
-    private final SessionId sessionId = SessionId.generate();
-    private final String email = "johndoe@gmail.com";
 
     @BeforeEach
     public void setUp() {
@@ -40,50 +36,85 @@ public class RefreshSessionTest {
     @Test
     @DisplayName("Should refresh session successfully")
     public void testRefreshSessionSuccessfully() {
-        TokenClaims tokenClaims = new TokenClaims(
-                accountId,
-                userId,
-                sessionId
+        String refreshToken = "validRefreshToken";
+        Account account = AccountMother.validAccount();
+        Session session = account.startSession().get();
+        TokenClaims claims = new TokenClaims(
+                account.getAccountId(),
+                account.getUserId(),
+                session.getSessionId()
         );
-        when(tokenService.extractClaimsFromRefreshToken(anyString()))
-                .thenReturn(tokenClaims);
-        Account account = mock(Account.class);
-        when(account.findSession(any())).thenReturn(Optional.of(Session.create()));
-        when(account.getEmail()).thenReturn(Email.load(email));
-        when(accountRepository.findById(any())).thenReturn(Optional.of(account));
-        when(account.verifyValidSessionStatus(any()))
-                .thenReturn(Result.success());
-        Jwt jwt = new Jwt(
-                "newAccessTokenString",
-                Instant.now()
-        );
-        when(tokenService.generateAccessToken(any()))
-                .thenReturn(jwt);
-        Jwt result = refreshSessionUseCase.execute("oldAccessTokenString");
-        assertNotNull(result);
-        assertEquals(jwt, result);
-        assertEquals("newAccessTokenString", result.value());
+        Jwt accessToken = TokenMother.createJwt("accessToken");
 
-        verify(tokenService, times(1)).extractClaimsFromRefreshToken("oldAccessTokenString");
-        verify(accountRepository, times(1)).findById(accountId);
-        verify(tokenService, times(1)).generateAccessToken(any());
+        when(tokenService.extractClaimsFromRefreshToken(refreshToken)).thenReturn(claims);
+
+        when(accountRepository.findById(claims.accountId())).thenReturn(Optional.of(account));
+
+        when(tokenService.generateAccessToken(claims)).thenReturn(accessToken);
+
+        Jwt result = refreshSessionUseCase.execute(refreshToken);
+        assertEquals(accessToken, result);
+
+        verify(tokenService, times(1)).extractClaimsFromRefreshToken(refreshToken);
+        verify(accountRepository, times(1)).findById(claims.accountId());
+        verify(tokenService, times(1)).generateAccessToken(claims);
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository
+        );
     }
 
     @Test
     @DisplayName("Should throw exception when account not found")
     public void testRefreshSessionAccountNotFound() {
-        TokenClaims tokenClaims = new TokenClaims(
-                accountId,
-                userId,
-                sessionId
-        );
-        when(tokenService.extractClaimsFromRefreshToken(anyString()))
-                .thenReturn(tokenClaims);
-        when(accountRepository.findById(any())).thenReturn(Optional.empty());
-        Exception exception = assertThrows(InvalidClaimsException.class, () -> refreshSessionUseCase.execute("oldAccessTokenString"));
-        assertTrue(exception.getMessage().contains("Account with id"));
+        String refreshToken = "validRefreshToken";
+        TokenClaims claims = TokenMother.createClaims();
 
-        verify(tokenService, times(1)).extractClaimsFromRefreshToken("oldAccessTokenString");
-        verify(accountRepository, times(1)).findById(accountId);
+        when(tokenService.extractClaimsFromRefreshToken(refreshToken)).thenReturn(claims);
+
+        when(accountRepository.findById(claims.accountId())).thenReturn(Optional.empty());
+
+        assertThrows(InvalidClaimsException.class, () -> {
+            refreshSessionUseCase.execute(refreshToken);
+        });
+
+        verify(tokenService, times(1)).extractClaimsFromRefreshToken(refreshToken);
+        verify(accountRepository, times(1)).findById(claims.accountId());
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository
+        );
+    }
+
+    @Test
+    @DisplayName("Should throw exception when session is invalid")
+    public void testRefreshSessionInvalidSession() {
+        String refreshToken = "validRefreshToken";
+        Account account = AccountMother.validAccount();
+        Session session = account.startSession().get();
+        session.revoke();
+        TokenClaims claims = new TokenClaims(
+                account.getAccountId(),
+                account.getUserId(),
+                session.getSessionId()
+        );
+
+        when(tokenService.extractClaimsFromRefreshToken(refreshToken)).thenReturn(claims);
+
+        when(accountRepository.findById(claims.accountId())).thenReturn(Optional.of(account));
+
+        assertThrows(InvalidSessionException.class, () -> {
+            refreshSessionUseCase.execute(refreshToken);
+        });
+
+        verify(tokenService, times(1)).extractClaimsFromRefreshToken(refreshToken);
+        verify(accountRepository, times(1)).findById(claims.accountId());
+
+        verifyNoMoreInteractions(
+                tokenService,
+                accountRepository
+        );
     }
 }

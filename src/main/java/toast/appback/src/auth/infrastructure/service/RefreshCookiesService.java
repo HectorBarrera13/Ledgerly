@@ -5,8 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-
 @Service
 public class RefreshCookiesService {
 
@@ -33,7 +31,6 @@ public class RefreshCookiesService {
     }
 
     public String getRefreshTokenFromCookie(HttpServletRequest request) {
-        System.out.println(Arrays.toString(request.getCookies()));
         if (request.getCookies() == null) return null;
         for (var cookie : request.getCookies()) {
             if ("refreshToken".equals(cookie.getName())) {

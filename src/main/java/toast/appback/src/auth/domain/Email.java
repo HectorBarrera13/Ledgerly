@@ -45,7 +45,7 @@ public class Email {
         if (generalValidation.isFailure()) {
             return Result.failure(generalValidation.getErrors());
         }
-        EmailParts parts = generalValidation.getValue();
+        EmailParts parts = generalValidation.get();
         Result<Void, DomainError> localPartResult = verifyLocalPart(parts.local);
         if (localPartResult.isFailure()) {
             return Result.failure(localPartResult.getErrors());
@@ -58,7 +58,7 @@ public class Email {
         if (tldPartResult.isFailure()) {
             return Result.failure(tldPartResult.getErrors());
         }
-        return Result.success(new Email(parts.local, parts.domainTag, parts.tld));
+        return Result.ok(new Email(parts.local, parts.domainTag, parts.tld));
     }
 
     public static Email load(String email) {
@@ -102,7 +102,7 @@ public class Email {
         String local = split[0];
         String domain = domainParts[0].toLowerCase();
         String tldPart = domainParts[1].toLowerCase();
-        return Result.success(new EmailParts(local, domain, tldPart));
+        return Result.ok(new EmailParts(local, domain, tldPart));
     }
 
     private record EmailParts(String local, String domainTag, String tld) {}
@@ -134,7 +134,7 @@ public class Email {
         if (!PERMITTED_LOCAL_CHARACTERS_PATTERN.matcher(local).matches()) {
             return Validators.INVALID_FORMAT("email", local, "local part contains invalid characters");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static Result<Void, DomainError> verifyDomainPart(String domain) {
@@ -166,7 +166,7 @@ public class Email {
             return Validators
                     .INVALID_FORMAT("email", domain, "domain part contains invalid characters");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     private static Result<Void, DomainError> verifyTldPart(String tld) {
@@ -181,7 +181,7 @@ public class Email {
             return Validators
                     .INVALID_FORMAT("email", tld, "TLD part must be between 2 and 24 characters long");
         }
-        return Result.success();
+        return Result.ok();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package toast.appback.src.spring.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,9 +26,6 @@ public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
 
-    @Value("${app.frontend.host}")
-    private String frontendHost;
-
     private final JWTAuthFilter jwtAuthFilter;
 
     @Bean
@@ -37,7 +33,8 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable).cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/public/**", "users/count", "/health", "/docs/**", "/css/**",
-                                "/js/**", "/images/**", "/webjars/**")
+                                "/js/**", "/img/**", "/webjars/**", "/swagger-ui/**", "/v3/api-docs/**", "/docs/**",
+                                "/panel/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -52,10 +49,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(frontendHost)); // Allow only your frontend
-        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*")); // Allow only your frontend
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        configuration.setAllowCredentials(false); // Allow credentials such as cookies
+        configuration.setAllowCredentials(true); // Allow credentials such as cookies
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

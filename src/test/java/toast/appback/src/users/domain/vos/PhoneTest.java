@@ -40,8 +40,8 @@ public class PhoneTest {
 
             Result<Phone, DomainError> result = Phone.create(countryCode, number);
 
-            assertTrue(result.isSuccess(), "Expected success for valid phone: " + fullPhone);
-            Phone phone = result.getValue();
+            assertTrue(result.isOk(), "Expected success for valid phone: " + fullPhone);
+            Phone phone = result.get();
             assertEquals(countryCode, phone.getCountryCode());
             assertEquals(number, phone.getNumber());
             assertEquals(countryCode + "-" + number, phone.getValue());
@@ -158,7 +158,7 @@ public class PhoneTest {
         @Test
         @DisplayName("Should get complete phone number")
         void shouldGetCompletePhoneNumber() {
-            Phone phone = Phone.create("+52", "5544332211").getValue();
+            Phone phone = Phone.create("+52", "5544332211").get();
             String expectedCompleteNumber = "+52-5544332211";
             assertEquals(expectedCompleteNumber, phone.getValue());
         }
@@ -166,17 +166,17 @@ public class PhoneTest {
         @Test
         @DisplayName("Should be equal when having the same country code and number")
         void shouldBeEqualWhenHavingSameCountryCodeAndNumber() {
-            Phone phone1 = Phone.create("+52", "5544332211").getValue();
-            Phone phone2 = Phone.create("+52", "5544332211").getValue();
+            Phone phone1 = Phone.create("+52", "5544332211").get();
+            Phone phone2 = Phone.create("+52", "5544332211").get();
             assertEquals(phone1, phone2);
         }
 
         @Test
         @DisplayName("Should not be equal when having different country code or number")
         void shouldNotBeEqualWhenHavingDifferentCountryCodeOrNumber() {
-            Phone phone1 = Phone.create("+52", "5544332211").getValue();
-            Phone phone2 = Phone.create("+1", "5544332211").getValue();
-            Phone phone3 = Phone.create("+52", "1234567890").getValue();
+            Phone phone1 = Phone.create("+52", "5544332211").get();
+            Phone phone2 = Phone.create("+1", "5544332211").get();
+            Phone phone3 = Phone.create("+52", "1234567890").get();
             assertNotEquals(phone1, phone2);
             assertNotEquals(phone1, phone3);
         }

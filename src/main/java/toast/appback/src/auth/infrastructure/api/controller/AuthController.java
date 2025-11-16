@@ -7,16 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import toast.appback.src.auth.application.communication.result.AuthResult;
-import toast.appback.src.auth.application.usecase.contract.AuthenticateAccount;
-import toast.appback.src.auth.application.usecase.contract.TerminateSession;
 import toast.appback.src.auth.application.usecase.contract.RefreshSession;
-import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
 import toast.appback.src.auth.infrastructure.api.dto.AuthMapper;
 import toast.appback.src.auth.infrastructure.api.dto.request.AccountLoginRequest;
 import toast.appback.src.auth.infrastructure.api.dto.request.RegisterAccountRequest;
 import toast.appback.src.auth.infrastructure.api.dto.response.AuthResponse;
 import toast.appback.src.auth.infrastructure.api.dto.response.RefreshTokenResponse;
 import toast.appback.src.auth.infrastructure.service.RefreshCookiesService;
+import toast.appback.src.auth.infrastructure.service.transactional.AuthenticateAccountService;
+import toast.appback.src.auth.infrastructure.service.transactional.RegisterAccountService;
+import toast.appback.src.auth.infrastructure.service.transactional.TerminateSessionService;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,9 +25,9 @@ public class AuthController {
     private static final String PATH = "/auth";
     private static final String CLIENT_TYPE_HEADER = "X-Client-Type";
 
-    private final RegisterAccount registerAccount;
-    private final AuthenticateAccount authenticateAccount;
-    private final TerminateSession terminateSession;
+    private final RegisterAccountService registerAccount;
+    private final AuthenticateAccountService authenticateAccount;
+    private final TerminateSessionService terminateSession;
     private final RefreshSession refreshSession;
     private final RefreshCookiesService refreshCookiesService;
 
@@ -80,10 +80,8 @@ public class AuthController {
     ) {
         System.out.println("Received refresh request");
         String refreshToken = refreshCookiesService.getRefreshTokenFromCookie(request);
-        System.out.println("Refresh token from cookie: " + refreshToken);
         if (refreshToken == null) {
             refreshToken = refreshCookiesService.extractTokenFromAuthorizationHeader(authHeader);
-            System.out.println("Refresh token from Authorization header: " + refreshToken);
         }
 
         if (refreshToken == null || refreshToken.isBlank()) {

@@ -40,6 +40,6 @@ public class ResultTest2 {
                         creditor,
                         debtor
                 ));
-        assert result.isSuccess();
+        assert result.isOk();
     }
 }

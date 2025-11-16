@@ -3,12 +3,10 @@ package toast.appback.src.auth.application.usecase.implementation;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
-import toast.appback.src.auth.application.exceptions.InvalidSessionException;
-import toast.appback.src.auth.application.exceptions.SessionNotFound;
+import toast.appback.src.auth.application.exceptions.domain.InvalidSessionException;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.RefreshSession;
 import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 
@@ -31,12 +29,8 @@ public class RefreshSessionUseCase implements RefreshSession {
 
         SessionId sessionId = tokenClaims.sessionId();
 
-        Session session = account.findSession(sessionId)
-                .orElseThrow(() -> new SessionNotFound(sessionId, account.getAccountId()));
-
-        if (!session.isValid()) {
-            throw new InvalidSessionException(sessionId);
-        }
+        account.verifySession(sessionId)
+                .orElseThrow(InvalidSessionException::new);
 
         return tokenService.generateAccessToken(
                 new TokenClaims(

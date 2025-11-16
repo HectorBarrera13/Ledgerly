@@ -8,18 +8,18 @@ import toast.appback.src.debts.domain.Context;
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.debts.domain.repository.DebtRepository;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Optional;
 
 public class EditDebtUseCase implements EditDebt{
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
     private final DebtRepository debtRepository;
 
-    public EditDebtUseCase(DebtRepository debtRepository, EventBus eventBus) {
-        this.eventBus = eventBus;
+    public EditDebtUseCase(DebtRepository debtRepository, DomainEventBus domainEventBus) {
+        this.domainEventBus = domainEventBus;
         this.debtRepository = debtRepository;
     }
 
@@ -38,7 +38,7 @@ public class EditDebtUseCase implements EditDebt{
         updateResult.collect(debtMoneyResult);
         updateResult.ifFailureThrows(EditDebtException::new);
         debtRepository.save(debt);
-        eventBus.publishAll(debt.pullEvents());
+        domainEventBus.publishAll(debt.pullEvents());
         return debt;
     }
 }

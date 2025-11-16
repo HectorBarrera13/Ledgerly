@@ -40,11 +40,11 @@ public class Result<T, E extends IError> {
         return new Result<>(null, List.of());
     }
 
-    public static <T, E extends IError> Result<T, E> success(T value) {
+    public static <T, E extends IError> Result<T, E> ok(T value) {
         return new Result<>(value);
     }
 
-    public static <T, E extends IError> Result<T, E> success() {
+    public static <T, E extends IError> Result<T, E> ok() {
         return new Result<>(null, List.of());
     }
 
@@ -61,15 +61,15 @@ public class Result<T, E extends IError> {
         return new Result<>(List.of(error));
     }
 
-    public boolean isSuccess() {
+    public boolean isOk() {
         return this.errors.isEmpty();
     }
 
     public boolean isFailure() {
-        return !this.isSuccess();
+        return !this.isOk();
     }
 
-    public T getValue() {
+    public T get() {
         if (isFailure()) {
             throw new IllegalStateException("Result is a failure, no value present.");
         }
@@ -77,7 +77,7 @@ public class Result<T, E extends IError> {
     }
 
     public List<E> getErrors() {
-        if (isSuccess()) {
+        if (isOk()) {
             return Collections.emptyList();
         }
         return errors;
@@ -109,7 +109,7 @@ public class Result<T, E extends IError> {
     }
 
     public <U> Result<U, E> castFailure() {
-        if (isSuccess()) {
+        if (isOk()) {
             throw new IllegalStateException("Cannot cast a successful Result to a failure.");
         }
         return Result.failure(this.errors);
@@ -125,8 +125,8 @@ public class Result<T, E extends IError> {
      * @throws IllegalStateException if this Result is a failure and the mapper is applied
      */
     public <U> Result<U, E> map(Function<? super T, ? extends U> mapper) {
-        if (isSuccess()) {
-            return Result.success(mapper.apply(this.value));
+        if (isOk()) {
+            return Result.ok(mapper.apply(this.value));
         } else {
             return Result.failure(this.errors);
         }
@@ -141,8 +141,8 @@ public class Result<T, E extends IError> {
      * @throws IllegalStateException if this Result is a failure and the mapper is applied
      */
     public <U> Result<U, E> map(Supplier<U> mapper) {
-        if (isSuccess()) {
-            return Result.success(mapper.get());
+        if (isOk()) {
+            return Result.ok(mapper.get());
         } else {
             return Result.failure(this.errors);
         }

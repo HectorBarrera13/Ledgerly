@@ -13,7 +13,7 @@ import toast.appback.src.auth.application.usecase.contract.AuthenticateAccount;
 import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.application.port.UserReadRepository;
@@ -23,18 +23,18 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
     private final AuthService authService;
     private final AccountRepository accountRepository;
     private final UserReadRepository userReadRepository;
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
 
     public AuthenticateAccountUseCase(TokenService tokenService,
                                       AuthService authService,
                                       AccountRepository accountRepository,
                                       UserReadRepository userReadRepository,
-                                      EventBus eventBus) {
+                                      DomainEventBus domainEventBus) {
         this.tokenService = tokenService;
         this.authService = authService;
         this.accountRepository = accountRepository;
         this.userReadRepository = userReadRepository;
-        this.eventBus = eventBus;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
@@ -56,7 +56,6 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
                 newSession.getMaxDurationSeconds()
         );
 
-        accountRepository.updateSessions(account);
 
         UserView userView = userReadRepository.findById(account.getUserId())
                 .orElseThrow(() -> new UserNotFound(account.getUserId()));
@@ -66,8 +65,10 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
                 account.getEmail().getValue()
         );
 
+        accountRepository.save(account);
 
-        eventBus.publishAll(account.pullEvents());
+        domainEventBus.publishAll(account.pullEvents());
+
         return new AuthResult(
                 accountView,
                 userView,

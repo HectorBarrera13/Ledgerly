@@ -25,7 +25,7 @@ public class Password {
             return Result.failure(validation.getErrors());
         }
         String hashed = hasher.hash(rawPassword);
-        return Result.success(new Password(hashed));
+        return Result.ok(new Password(hashed));
     }
 
     public static Password fromHashed(String hashedPassword) {
@@ -46,7 +46,7 @@ public class Password {
             return Validators.INVALID_FORMAT("password", password, "must contain at least one uppercase letter");
         if (!password.matches(".*[0-9].*"))
             return Validators.INVALID_FORMAT("password", password, "must contain at least one digit");
-        return Result.success();
+        return Result.ok();
     }
 
     @Override

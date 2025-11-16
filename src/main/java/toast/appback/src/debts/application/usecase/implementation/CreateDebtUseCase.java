@@ -7,19 +7,19 @@ import toast.appback.src.debts.application.exceptions.DebtorNotFound;
 import toast.appback.src.debts.application.usecase.contract.CreateDebt;
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
-import toast.appback.src.shared.application.EventBus;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
 public class CreateDebtUseCase implements CreateDebt {
 
-    private final EventBus eventBus;
+    private final DomainEventBus domainEventBus;
     private final UserRepository userRepository;
     private final DebtRepository debtRepository;
 
 
-    public CreateDebtUseCase(EventBus eventBus, UserRepository userRepository, DebtRepository debtRepository) {
-        this.eventBus = eventBus;
+    public CreateDebtUseCase(DomainEventBus domainEventBus, UserRepository userRepository, DebtRepository debtRepository) {
+        this.domainEventBus = domainEventBus;
         this.userRepository = userRepository;
         this.debtRepository = debtRepository;
     }
@@ -42,7 +42,7 @@ public class CreateDebtUseCase implements CreateDebt {
 
         debtRepository.save(debt);
 
-        eventBus.publishAll(debt.pullEvents());
+        domainEventBus.publishAll(debt.pullEvents());
 
         return debt;
     }

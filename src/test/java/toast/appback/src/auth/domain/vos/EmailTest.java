@@ -34,8 +34,8 @@ public class EmailTest {
         @DisplayName("Should create Email successfully with valid inputs")
         void shouldCreateEmailSuccessfullyWithValidInputs(String email) {
             Result<Email, DomainError> result = Email.create(email);
-            assertTrue(result.isSuccess(), "Expected success for valid email: " + email);
-            Email createdEmail = result.getValue();
+            assertTrue(result.isOk(), "Expected success for valid email: " + email);
+            Email createdEmail = result.get();
             assertEquals(email, createdEmail.getValue());
         }
     }
@@ -112,8 +112,8 @@ public class EmailTest {
         void shouldGetCompleteEmailValue() {
             String email = "example@gmail.com";
             Result<Email, DomainError> result = Email.create(email);
-            assertTrue(result.isSuccess());
-            Email createdEmail = result.getValue();
+            assertTrue(result.isOk());
+            Email createdEmail = result.get();
             assertEquals(email, createdEmail.getValue());
         }
 
@@ -123,10 +123,10 @@ public class EmailTest {
             String email = "joshua@gmail.com";
             Result<Email, DomainError> result1 = Email.create(email);
             Result<Email, DomainError> result2 = Email.create(email);
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
-            Email email1 = result1.getValue();
-            Email email2 = result2.getValue();
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
+            Email email1 = result1.get();
+            Email email2 = result2.get();
             assertEquals(email1, email2);
         }
 
@@ -135,10 +135,10 @@ public class EmailTest {
         void shouldNotBeEqualForDifferentEmailValues() {
             Result<Email, DomainError> result1 = Email.create("joshua@gmail.com");
             Result<Email, DomainError> result2 = Email.create("perla@gmail.com");
-            assertTrue(result1.isSuccess());
-            assertTrue(result2.isSuccess());
-            Email email1 = result1.getValue();
-            Email email2 = result2.getValue();
+            assertTrue(result1.isOk());
+            assertTrue(result2.isOk());
+            Email email1 = result1.get();
+            Email email2 = result2.get();
             assertNotEquals(email1, email2);
         }
     }

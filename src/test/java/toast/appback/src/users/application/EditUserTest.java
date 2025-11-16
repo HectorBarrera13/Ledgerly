@@ -4,14 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import toast.appback.src.users.application.communication.command.EditUserCommand;
-import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.application.exceptions.domain.UserEditionException;
+import toast.appback.src.users.application.mother.UserMother;
 import toast.appback.src.users.application.usecase.implementation.EditUserUseCase;
-import toast.appback.src.users.domain.Name;
-import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
 import java.util.Optional;
@@ -31,77 +28,78 @@ public class EditUserTest {
         );
     }
 
-    /**
-     * <p>Test case: Edit user successfully
-     * <p>Precondition: Valid EditUserCommand is provided
-     * <p>Expected outcome: User is edited and saved in the repository
-     */
     @Test
     @DisplayName("Should edit user successfully")
-    public void testEditUserSuccessfully() {
-        User user = mock(User.class);
-        // Mock user retrieval
-        when(user.getUserId()).thenReturn(UserId.generate());
-        when(user.getName()).thenReturn(Name.load("John", "Smith"));
-        when(user.getPhone()).thenReturn(Phone.load("+1", "5551234567"));
-        when(userRepository.findById(any()))
-                .thenReturn(Optional.of(user));
+    void shouldEditUserSuccessfully() {
+        User user = UserMother.validUser();
         EditUserCommand command = new EditUserCommand(
                 user.getUserId(),
                 "Jane",
-                "Doe"
+                "Smith"
         );
-        UserView editedUser = editUserUseCase.execute(command);
-        // Verify edited user
-        assertEquals(editedUser.userId(), user.getUserId().getValue());
-        verify(userRepository, times(1)).findById(any());
-        verify(userRepository, times(1)).save(any());
-        verifyNoMoreInteractions(userRepository);
+
+        when(userRepository.findById(user.getUserId()))
+                .thenReturn(Optional.of(user));
+
+        var result = editUserUseCase.execute(command);
+        assertNotNull(result);
+        assertEquals(command.userId().getValue(), result.userId());
+        assertEquals(command.firstName(), result.firstName());
+        assertEquals(command.lastName(), result.lastName());
+        assertEquals(user.getPhone().getValue(), result.phone());
+
+        verify(userRepository, times(1)).findById(user.getUserId());
+        verify(userRepository, times(1)).save(user);
+
+        verifyNoMoreInteractions(
+                userRepository
+        );
     }
 
-    /**
-     * <p>Test case: User edit fails due to invalid data
-     * <p>Precondition: Invalid EditUserCommand is provided
-     * <p>Expected outcome: Exception is thrown indicating the failure
-     */
     @Test
-    @DisplayName("Should throw exception when user edit fails")
-    public void testEditUserFailsDueToInvalidData() {
-        User user = mock(User.class);
-        // Mock user retrieval
-        when(user.getUserId()).thenReturn(UserId.generate());
-        when(userRepository.findById(any()))
-                .thenReturn(Optional.of(user));
+    @DisplayName("Should throw UserNotFound when user does not exist")
+    void shouldThrowUserNotFoundWhenUserDoesNotExist() {
+        User user = UserMother.validUser();
         EditUserCommand command = new EditUserCommand(
                 user.getUserId(),
-                "", // Invalid first name
-                "Doe"
+                "Jane",
+                "Smith"
         );
-        // Execute use case and expect exception
-        assertThrows(UserEditionException.class, () -> editUserUseCase.execute(command));
-        verify(userRepository, times(1)).findById(any());
-        verifyNoMoreInteractions(userRepository);
-    }
-
-    /**
-     * <p>Test case: User to edit does not exist
-     * <p>Precondition: EditUserCommand with non-existing userId is provided
-     * <p>Expected outcome: Exception is thrown indicating user not found
-     */
-    @Test
-    @DisplayName("Should throw exception when user to edit does not exist")
-    public void testEditUserFailsWhenUserDoesNotExist() {
-        // Mock user retrieval to return empty
-        when(userRepository.findById(any()))
+        when(userRepository.findById(user.getUserId()))
                 .thenReturn(Optional.empty());
-        EditUserCommand command = new EditUserCommand(
-                UserId.generate(),
-                "Jane",
-                "Doe"
+
+        assertThrows(UserNotFound.class, () -> {
+            editUserUseCase.execute(command);
+        });
+
+        verify(userRepository, times(1)).findById(user.getUserId());
+
+        verifyNoMoreInteractions(
+                userRepository
         );
-        // Execute use case and expect exception
-        assertThrows(UserNotFound.class, () -> editUserUseCase.execute(command));
-        verify(userRepository, times(1)).findById(any());
-        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw UserEditionException when command data is invalid")
+    void shouldThrowUserEditionExceptionWhenNameIsInvalid() {
+        User user = UserMother.validUser();
+        EditUserCommand command = new EditUserCommand(
+                user.getUserId(),
+                "",
+                "Smith"
+        );
+
+        when(userRepository.findById(user.getUserId()))
+                .thenReturn(Optional.of(user));
+
+        assertThrows(UserEditionException.class, () -> {
+            editUserUseCase.execute(command);
+        });
+
+        verify(userRepository, times(1)).findById(user.getUserId());
+
+        verifyNoMoreInteractions(
+                userRepository
+        );
     }
 }

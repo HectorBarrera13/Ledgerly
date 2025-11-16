@@ -31,6 +31,6 @@ public class ResultTest {
                         name,
                         phone
                 ));
-        assert result.isSuccess();
+        assert result.isOk();
     }
 }

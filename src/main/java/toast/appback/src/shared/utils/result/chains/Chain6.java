@@ -13,9 +13,9 @@ public final class Chain6<A, B, C, D, F, G, E extends IError> {
 
     public <H> Chain7<A, B, C, D, F, G, H, E> and(Supplier<Result<H, E>> fn) {
         Result<H, E> r7 = fn.get();
-        if (current.isSuccess() && r7.isSuccess()) {
-            var t = current.getValue();
-            return new Chain7<>(Result.success(new ResultTuples.Tuple7<>(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), r7.getValue())));
+        if (current.isOk() && r7.isOk()) {
+            var t = current.get();
+            return new Chain7<>(Result.ok(new ResultTuples.Tuple7<>(t._1(), t._2(), t._3(), t._4(), t._5(), t._6(), r7.get())));
         } else {
             Result<Void, E> emptyResult = Result.empty();
             if (current.isFailure()) {
@@ -29,9 +29,9 @@ public final class Chain6<A, B, C, D, F, G, E extends IError> {
     }
 
     public <R> Result<R, E> result(HexFunction<A, B, C, D, F, G, R> fn) {
-        if (current.isSuccess()) {
-            var t = current.getValue();
-            return Result.success(fn.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6()));
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2(), t._3(), t._4(), t._5(), t._6()));
         }
         return Result.failure(current.getErrors());
     }

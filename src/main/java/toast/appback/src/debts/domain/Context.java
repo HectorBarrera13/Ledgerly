@@ -25,7 +25,7 @@ public class Context {
         if(emptyResult.isFailure()){
             return emptyResult.castFailure();
         }
-        return Result.success(new Context(purpose,description));
+        return Result.ok(new Context(purpose,description));
     }
 
     //Method use for quick creation, it does not validates
@@ -40,14 +40,14 @@ public class Context {
         if(purpose.length()>maxPurposeLength){
             return Validators.TOO_LONG(fildName, purpose, maxPurposeLength);
         }
-        return Result.success(purpose);
+        return Result.ok(purpose);
     }
 
     public static Result<String, DomainError> descriptionValidation(String description, String fildName) {
         if(description != null && !description.isBlank() && description.length()>maxDescriptionLength){
             return Validators.TOO_LONG(fildName, description, maxDescriptionLength);
         }
-        return Result.success(description);
+        return Result.ok(description);
     }
 
     public String getPurpose() {
