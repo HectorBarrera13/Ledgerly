@@ -134,7 +134,8 @@ public class JWTService implements TokenService {
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean safe) {
         try {
-            Claims claims = jwtParser.parseSignedClaims(token).getPayload();
+            Claims claims = safe ? jwtParser.parseSignedClaims(token).getPayload()
+                    : jwtParser.parseUnsecuredClaims(token).getPayload();
             return claimsResolver.apply(claims);
         } catch (SignatureException e) {
             logger.warn("JWT signature inválida: {}", e.getMessage());
@@ -143,13 +144,8 @@ public class JWTService implements TokenService {
             logger.warn("JWT value malformado: {}", e.getMessage());
             throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
-            if (!safe) {
-                Claims claims = e.getClaims();
-                return claimsResolver.apply(claims);
-            } else {
-                logger.warn("JWT token expirado: {}", e.getMessage());
-                throw new TokenExpiredException();
-            }
+            logger.warn("JWT token expirado: {}", e.getMessage());
+            throw new TokenExpiredException();
         } catch (UnsupportedJwtException e) {
             logger.warn("JWT value no soportado: {}", e.getMessage());
             throw new TokenClaimsException("Unsupported JWT token", e);
