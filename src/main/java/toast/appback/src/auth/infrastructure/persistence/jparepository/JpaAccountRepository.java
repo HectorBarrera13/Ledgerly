@@ -17,4 +17,6 @@ public interface JpaAccountRepository extends JpaRepository<AccountEntity, Long>
            "FROM AccountEntity a " +
            "WHERE a.accountId = :accountId")
     Optional<AccountProjection> findProjectedByAccountId(UUID accountId);
+
+    AccountEntity getReferenceByAccountId(UUID accountId);
 }

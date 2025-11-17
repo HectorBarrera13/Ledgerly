@@ -39,7 +39,4 @@ public class SessionEntity {
 
     @Column(nullable = false, updatable = false)
     private Instant expiration;
-
-    @Column(nullable = false)
-    private Instant lastLogin;
 }
