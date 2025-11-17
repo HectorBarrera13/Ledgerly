@@ -7,7 +7,7 @@ import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserFactory;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class CreateUserUseCase implements CreateUser {
+public class  CreateUserUseCase implements CreateUser {
     private final UserRepository userRepository;
     private final UserFactory userFactory;
 

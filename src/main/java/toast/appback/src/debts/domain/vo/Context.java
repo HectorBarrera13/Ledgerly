@@ -1,4 +1,4 @@
-package toast.appback.src.debts.domain;
+package toast.appback.src.debts.domain.vo;
 
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
@@ -10,8 +10,8 @@ public class Context {
 
     private static final String FIELD_PURPOSE = "purpose";
     private static final String FIELD_DESCRIPTION = "description";
-    private static final int maxPurposeLength = 30;
-    private static final int maxDescriptionLength = 200;
+    private static final int MAX_PURPOSE_LENGTH = 30;
+    private static final int MAX_DESCRIPTION_LENGTH = 200;
 
     private Context(String purpose, String description) {
         this.purpose = purpose;
@@ -33,19 +33,19 @@ public class Context {
         return new Context(purpose,description);
     }
 
-    public static Result<String, DomainError> purposeValidation(String purpose, String fildName) {
+    private static Result<String, DomainError> purposeValidation(String purpose, String fildName) {
         if(purpose.isBlank()){
             return Validators.EMPTY_VALUE(fildName);
         }
-        if(purpose.length()>maxPurposeLength){
-            return Validators.TOO_LONG(fildName, purpose, maxPurposeLength);
+        if(purpose.length()>MAX_PURPOSE_LENGTH){
+            return Validators.TOO_LONG(fildName, purpose, MAX_PURPOSE_LENGTH);
         }
         return Result.ok(purpose);
     }
 
-    public static Result<String, DomainError> descriptionValidation(String description, String fildName) {
-        if(description != null && !description.isBlank() && description.length()>maxDescriptionLength){
-            return Validators.TOO_LONG(fildName, description, maxDescriptionLength);
+    private static Result<String, DomainError> descriptionValidation(String description, String fildName) {
+        if(description != null && !description.isBlank() && description.length()>MAX_DESCRIPTION_LENGTH){
+            return Validators.TOO_LONG(fildName, description, MAX_DESCRIPTION_LENGTH);
         }
         return Result.ok(description);
     }

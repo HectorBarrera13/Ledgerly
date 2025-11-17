@@ -1,8 +1,7 @@
 package toast.appback.src.debts.domain.repository;
 
 import toast.appback.src.debts.domain.Debt;
-import toast.appback.src.debts.domain.DebtId;
-import toast.appback.src.users.domain.UserId;
+import toast.appback.src.debts.domain.vo.DebtId;
 
 import java.util.Optional;
 

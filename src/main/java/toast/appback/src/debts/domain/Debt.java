@@ -1,60 +1,38 @@
 package toast.appback.src.debts.domain;
 
+import toast.appback.src.debts.domain.vo.Context;
+import toast.appback.src.debts.domain.vo.DebtId;
+import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.domain.User;
 
 import java.util.List;
 
 
 import java.util.ArrayList;
 
-public class Debt {
+public abstract class Debt {
     private final DebtId id;
     private Context context;
     private DebtMoney debtMoney;
-    private final User debtor;
-    private final User creditor;
-    private Status status = Status.PENDING;
+    protected Status status = Status.PENDING;
     private List<DomainEvent> debtEvents = new ArrayList<>();
 
-    public Debt(DebtId id, Context context, DebtMoney debtMoney, User debtor, User creditor){
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney){
         this.id = id;
         this.context = context;
-        this.debtor = debtor;
-        this.creditor = creditor;
         this.debtMoney = debtMoney;
     }
 
-    public Debt(DebtId id, Context context, DebtMoney debtMoney, User debtor, User creditor, List<DomainEvent> debtEvents){
-        this(id, context, debtMoney, debtor, creditor);
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, List<DomainEvent> debtEvents){
+        this(id, context, debtMoney);
         this.debtEvents = debtEvents;
-    }
-
-    public static Result<Debt,DomainError> create(String purpose,String description, String currency, Long amount, User creditor, User debtor){
-        Result<Context, DomainError> context = Context.create(purpose,description);
-        Result<DebtMoney, DomainError> debtMoney = DebtMoney.create(currency, amount);
-        Result<Void, DomainError> emptyResult = Result.empty();
-        emptyResult.collect(context);
-        emptyResult.collect(debtMoney);
-        if(emptyResult.isFailure()){
-            return emptyResult.castFailure();
-        }
-        DebtMoney validDebtMoney = debtMoney.get();
-        Context validContext = context.get();
-        DebtId debtId = DebtId.generate();
-        Debt debt = new Debt(debtId, validContext, validDebtMoney, debtor, creditor);
-        return Result.ok(debt);
     }
 
     public DebtId getId() {return id;}
 
     public Context getContext() {return context;}
-
-    public User getDebtor() {return debtor;}
-
-    public User getCreditor() {return creditor;}
 
     public Status getStatus() {return status;}
 
@@ -62,33 +40,54 @@ public class Debt {
 
     public List<DomainEvent> getDebtEvents() {return debtEvents;}
 
-    public Result< Void, DomainError> accept(){
-        boolean isSent =  status == Status.PENDING;
-        if(!isSent){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
+    public Result<Void, DomainError> accept(){
+        boolean isDebtPending = status == Status.PENDING;
+        if(!isDebtPending){
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.ACCEPTED;
         return Result.ok();
     }
 
-    public Result< Void, DomainError> reject(){
-        boolean isDebtSent = status == Status.PENDING;
-        if(!isDebtSent){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
+    public Result<Void, DomainError> reject(){
+        boolean isDebtPending = status == Status.PENDING;
+        if(!isDebtPending){
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.REJECTED;
         return Result.ok();
     }
 
-    public Result< Void, DomainError> pay(){
+    public Result<Void, DomainError> reportPayment(){
         boolean isDebtAccepted = status == Status.ACCEPTED;
+        boolean isDebtPaymentRejected = status == Status.PAYMENT_CONFIRMATION_REJECTED;
+        if(!isDebtAccepted && !isDebtPaymentRejected){
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
+        }
+        this.status = Status.PAYMENT_CONFIRMATION_PENDING;
+        return Result.ok();
+    }
+
+    public Result<Void, DomainError> rejectPayment(){
+        boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
         if(!isDebtAccepted){
             return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
-        this.status = Status.PAID;
+        this.status = Status.PAYMENT_CONFIRMATION_REJECTED;
+        return Result.ok();
+    }
+
+    public Result<Void, DomainError> confirmPayment(){
+        boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
+        if(!isDebtAccepted){
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
+        }
+        this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
 

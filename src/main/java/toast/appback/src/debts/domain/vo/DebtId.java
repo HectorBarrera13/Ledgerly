@@ -1,4 +1,4 @@
-package toast.appback.src.debts.domain;
+package toast.appback.src.debts.domain.vo;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -14,6 +14,12 @@ public class DebtId {
         return id;
     }
 
+    public static DebtId generate() {
+        return new DebtId(UUID.randomUUID());
+    }
+
+    public static DebtId load(UUID uuid){ return new DebtId(uuid); }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -27,10 +33,5 @@ public class DebtId {
         return Objects.hashCode(id);
     }
 
-    public static DebtId generate() {
-        return new DebtId(UUID.randomUUID());
-    }
-
-    public static DebtId load(UUID uuid){ return new DebtId(uuid); }
 
 }

@@ -9,7 +9,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Ajusta las importaciones de tu dominio
-import toast.appback.src.debts.domain.Context;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.result.Result;

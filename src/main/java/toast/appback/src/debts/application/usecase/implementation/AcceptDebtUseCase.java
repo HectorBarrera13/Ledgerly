@@ -1,16 +1,13 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
-import toast.appback.src.debts.application.communication.command.EditDebtCommand;
-import toast.appback.src.debts.application.exceptions.CreationDebtException;
+import toast.appback.src.debts.application.communication.command.AcceptDebtUseCaseCommand;
+import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
-import toast.appback.src.debts.application.exceptions.EditDebtException;
 import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
-import toast.appback.src.debts.application.usecase.contract.EditDebt;
+import toast.appback.src.debts.application.usecase.contract.AcceptDebt;
+import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.QuickDebt;
-import toast.appback.src.debts.domain.vo.Context;
-import toast.appback.src.debts.domain.Debt;
-import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
@@ -19,36 +16,30 @@ import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class EditDebtUseCase implements EditDebt{
+public class AcceptDebtUseCase implements AcceptDebt {
     private final DebtRepository debtRepository;
     private final UserRepository userRepository;
 
-    public EditDebtUseCase(DebtRepository debtRepository, UserRepository userRepository) {
+    public AcceptDebtUseCase(DebtRepository debtRepository, UserRepository userRepository) {
         this.debtRepository = debtRepository;
         this.userRepository = userRepository;
     }
 
     @Override
-    public Debt execute(EditDebtCommand command) {
+    public Debt execute(AcceptDebtUseCaseCommand command) {
         Debt debt = debtRepository.findById(command.debtId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 
         User actor = userRepository.findById(command.actorId())
-                        .orElseThrow(()-> new UserNotFound(command.actorId()));
+                .orElseThrow(() -> new UserNotFound(command.actorId()));
 
-        validateAuthorization(debt, actor.getUserId());
+        //validateAuthorization(debt, actor.getUserId());
 
-        DebtMoney newMoney = DebtMoney.create(command.newCurrency(), command.newAmount()).orElseThrow(CreationDebtException::new);
-        Context newContext = Context.create(command.newPurpose(), command.newDescription()).orElseThrow(CreationDebtException::new);
+        Result<Void, DomainError> result = debt.accept();
 
-        Result<Void, DomainError> editMoneyResult = debt.editDebtMoney(newMoney);
-        Result<Void, DomainError> editContextResult = debt.editContext(newContext);
-
-        Result<Void, DomainError> updateResult = Result.empty();
-        updateResult.collect(editMoneyResult);
-        updateResult.collect(editContextResult);
-
-        updateResult.ifFailureThrows(EditDebtException::new);
+        if (result.isFailure()) {
+            throw new AcceptDebtException(result.getErrors());
+        }
 
         debtRepository.save(debt);
 
@@ -56,14 +47,13 @@ public class EditDebtUseCase implements EditDebt{
     }
 
     private void validateAuthorization(Debt debt, UserId actorId) {
+
         if (debt instanceof DebtBetweenUsers) {
             DebtBetweenUsers specificDebt = (DebtBetweenUsers) debt;
             if (!specificDebt.getCreditorId().equals(actorId)) {
-                throw new UnauthorizedActionException("Solo el acreedor puede editar esta deuda de usuario a usuario.");
+                throw new UnauthorizedActionException("Solo el deudor puede editar esta deuda de usuario a usuario.");
             }
-        }
-
-        else if (debt instanceof QuickDebt) {
+        } else if (debt instanceof QuickDebt) {
             QuickDebt quickDebt = (QuickDebt) debt;
             if (!quickDebt.getUserId().equals(actorId)) {
                 throw new UnauthorizedActionException("Solo el creador puede editar esta deuda rápida.");
@@ -71,7 +61,3 @@ public class EditDebtUseCase implements EditDebt{
         }
     }
 }
-
-
-
-//Actualizar los use case create como este

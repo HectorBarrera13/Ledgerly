@@ -3,7 +3,6 @@ package toast.appback.src.debts.domain.vo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.debts.domain.DebtId;
 
 import java.util.UUID;
 
