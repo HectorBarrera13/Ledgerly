@@ -10,10 +10,8 @@ import toast.appback.src.auth.application.exceptions.domain.CreationAccountExcep
 import toast.appback.src.auth.application.mother.AccountMother;
 import toast.appback.src.auth.application.usecase.implementation.CreateAccountUseCase;
 import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.utils.result.Result;
+import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.users.domain.UserId;
 
 import java.util.Optional;
@@ -25,14 +23,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CreateAccountTest {
     private CreateAccountUseCase createAccountUseCase;
     private final AccountRepository accountRepository = mock(AccountRepository.class);
-    private final AccountFactory accountFactory = mock(AccountFactory.class);
+    private final PasswordHasher passwordHasher = new AccountMother.FakePasswordHasher();
     private final String email = "johndoe@gmail.com";
 
     @BeforeEach
     public void setUp() {
         this.createAccountUseCase = new CreateAccountUseCase(
                 accountRepository,
-                accountFactory
+                passwordHasher
         );
     }
 
@@ -42,7 +40,6 @@ public class CreateAccountTest {
         Account account = AccountMother.withEmail(email);
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(accountFactory.create(any())).thenReturn(Result.ok(account));
 
         CreateAccountCommand command = new CreateAccountCommand(
                 UserId.generate(),
@@ -52,16 +49,15 @@ public class CreateAccountTest {
 
         CreateAccountResult result = createAccountUseCase.execute(command);
         assertNotNull(result);
-        assertEquals(account, result.account());
+        assertNotNull(result.account());
         assertNotNull(result.session());
+        assertEquals(result.account().getEmail().getValue(), email);
 
         verify(accountRepository, times(1)).findByEmail(email);
-        verify(accountFactory, times(1)).create(any());
-        verify(accountRepository, times(1)).save(account);
+        verify(accountRepository, times(1)).save(result.account());
 
         verifyNoMoreInteractions(
-                accountRepository,
-                accountFactory
+                accountRepository
         );
     }
 
@@ -86,10 +82,6 @@ public class CreateAccountTest {
 
         verify(accountRepository, times(1)).findByEmail(email);
 
-        verifyNoInteractions(
-                accountFactory
-        );
-
         verifyNoMoreInteractions(
                 accountRepository
         );
@@ -99,22 +91,19 @@ public class CreateAccountTest {
     @DisplayName("Should throw CreationAccountException when account creation fails")
     public void testCreateAccountCreationFails() {
         when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(accountFactory.create(any())).thenReturn(Result.failure(DomainError.empty()));
 
         CreateAccountCommand command = new CreateAccountCommand(
                 UserId.generate(),
-                email,
+                "",
                 "securePassword123"
         );
 
         assertThrows(CreationAccountException.class, () -> createAccountUseCase.execute(command));
 
-        verify(accountRepository, times(1)).findByEmail(email);
-        verify(accountFactory, times(1)).create(any());
+        verify(accountRepository, times(1)).findByEmail("");
 
         verifyNoMoreInteractions(
-                accountRepository,
-                accountFactory
+                accountRepository
         );
     }
 }

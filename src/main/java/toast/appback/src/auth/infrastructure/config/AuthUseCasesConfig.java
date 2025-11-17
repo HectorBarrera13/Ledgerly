@@ -6,9 +6,7 @@ import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.implementation.*;
-import toast.appback.src.auth.domain.AccountFactory;
 import toast.appback.src.auth.domain.repository.AccountRepository;
-import toast.appback.src.auth.domain.DefaultAccount;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.application.port.UserReadRepository;
@@ -18,20 +16,13 @@ import toast.appback.src.users.application.usecase.contract.CreateUser;
 public class AuthUseCasesConfig {
 
     @Bean
-    public DefaultAccount defaultAccount(
-            PasswordHasher passwordHasher
-    ) {
-        return new DefaultAccount(passwordHasher);
-    }
-
-    @Bean
     public CreateAccountUseCase createAccount(
             AccountRepository accountRepository,
-            AccountFactory accountFactory
+            PasswordHasher passwordHasher
     ) {
         return new CreateAccountUseCase(
                 accountRepository,
-                accountFactory
+                passwordHasher
         );
     }
 

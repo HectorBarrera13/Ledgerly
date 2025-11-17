@@ -62,13 +62,8 @@ public class Email {
     }
 
     public static Email load(String email) {
-        String[] split = email.split("@");
-        String local = split[0];
-        String domainPart = split[1];
-        String[] domainSplit = domainPart.split("\\.", -1);
-        String domain = domainSplit[0];
-        String tld = domainSplit[1];
-        return new Email(local, domain, tld);
+        return create(email)
+                .orElseThrow(() -> new IllegalArgumentException("invalid email format: " + email));
     }
 
     private static Result<EmailParts, DomainError> verifyGeneral(String value) {

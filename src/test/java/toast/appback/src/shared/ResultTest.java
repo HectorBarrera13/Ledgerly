@@ -26,11 +26,7 @@ public class ResultTest {
         Result<User, DomainError> result = Result.<DomainError>chain()
                 .and(() -> Name.create(firstName, lastName))
                 .and(() -> Phone.create(countryCode, phoneNumber))
-                .result((name, phone) -> new User(
-                        UserId.generate(),
-                        name,
-                        phone
-                ));
+                .result(User::create);
         assert result.isOk();
     }
 }

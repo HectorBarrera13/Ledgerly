@@ -9,5 +9,4 @@ public interface AccountRepository {
     Optional<Account> findByEmail(String email);
     Optional<Account> findById(AccountId accountId);
     void save(Account account);
-    void updateSessions(Account account);
 }

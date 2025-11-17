@@ -1,7 +1,9 @@
 package toast.appback.src.users.domain;
 
 import toast.appback.src.shared.domain.DomainEvent;
+import toast.appback.src.users.domain.event.UserCreated;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,17 +12,21 @@ public class User {
     private final UserId userId;
     private Name name;
     private final Phone phone;
-    private List<DomainEvent> domainEvents = new ArrayList<>();
+    private final Instant createdAt;
+    private final List<DomainEvent> domainEvents = new ArrayList<>();
 
-    public User(UserId userId, Name name, Phone phone) {
+    public User(UserId userId, Name name, Phone phone, Instant createdAt) {
         this.userId = userId;
         this.name = name;
         this.phone = phone;
+        this.createdAt = createdAt;
     }
 
-    public User(UserId userId, Name name, Phone phone, List<DomainEvent> domainEvents) {
-        this(userId, name, phone);
-        this.domainEvents = new ArrayList<>(domainEvents);
+    public static User create(Name name, Phone phone) {
+        UserId userId = UserId.generate();
+        User user = new User(userId, name, phone, Instant.now());
+        user.recordEvent(new UserCreated(userId, name));
+        return user;
     }
 
     public UserId getUserId() {
@@ -33,6 +39,10 @@ public class User {
 
     public Phone getPhone() {
         return phone;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public List<DomainEvent> pullEvents() {

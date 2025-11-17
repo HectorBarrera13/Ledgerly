@@ -40,7 +40,8 @@ public class Phone {
     }
 
     public static Phone load(String countryCode, String number) {
-        return new Phone(countryCode, number);
+        return create(countryCode, number)
+                .orElseThrow(() -> new IllegalArgumentException("invalid phone data: " + countryCode + ", " + number));
     }
 
     private static Result<Void, DomainError> isValidPhoneNumber(String phoneNumber) {

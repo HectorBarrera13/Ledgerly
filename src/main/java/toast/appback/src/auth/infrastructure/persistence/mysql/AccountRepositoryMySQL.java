@@ -45,9 +45,4 @@ public class AccountRepositoryMySQL implements AccountRepository {
         AccountMapper.syncSessions(account.getSessions(), accountEntity);
         jpaAccountRepository.save(accountEntity);
     }
-
-    @Override
-    public void updateSessions(Account account) {
-        save(account);
-    }
 }

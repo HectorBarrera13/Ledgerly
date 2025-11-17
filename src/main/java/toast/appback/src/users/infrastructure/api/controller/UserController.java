@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.users.application.port.UserReadRepository;
-import toast.appback.src.users.infrastructure.api.dto.UserMapper;
+import toast.appback.src.users.infrastructure.api.dto.UserResponseMapper;
 import toast.appback.src.users.infrastructure.api.dto.request.EditUserRequest;
 import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
 import toast.appback.src.users.infrastructure.service.transactional.EditUserService;
@@ -31,7 +31,7 @@ public class UserController {
     ) {
         var command = editUserRequest.toCommand(customUserDetails.getUserId());
         var userView = editUserService.execute(command);
-        var userResponse = UserMapper.toUserResponse(userView);
+        var userResponse = UserResponseMapper.toUserResponse(userView);
         return ResponseEntity.ok(userResponse);
     }
 }

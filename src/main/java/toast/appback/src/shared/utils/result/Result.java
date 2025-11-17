@@ -3,7 +3,6 @@ package toast.appback.src.shared.utils.result;
 import toast.appback.src.shared.errors.IError;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -83,12 +82,6 @@ public class Result<T, E extends IError> {
         return errors;
     }
 
-    public void ifFailure(Consumer<List<E>> consumer) {
-        if (isFailure()) {
-            consumer.accept(errors);
-        }
-    }
-
     public <X extends Throwable> void ifFailureThrows(Function<List<E>, ? extends X> exceptionFunction) throws X {
         if (isFailure()) {
             throw exceptionFunction.apply(errors);
@@ -98,6 +91,13 @@ public class Result<T, E extends IError> {
     public <X extends Throwable> T orElseThrow(Function<List<E>, ? extends X> exceptionFunction) throws X {
         if (isFailure()) {
             throw exceptionFunction.apply(errors);
+        }
+        return value;
+    }
+
+    public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
+        if (isFailure()) {
+            throw exceptionSupplier.get();
         }
         return value;
     }

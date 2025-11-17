@@ -58,18 +58,16 @@ public class DebtTest {
         debtMoney = DebtMoney.load(1000L, "USD");
 
         // --- User VOs para DEBTOR ---
-        UserId debtorId = UserId.load(UUID.randomUUID());
         Name debtorName = Name.load("John", "Doe");
         Phone debtorPhone = Phone.load("+52","123456789");
 
         // --- User VOs para CREDITOR ---
-        UserId creditorId = UserId.load(UUID.randomUUID());
         Name creditorName = Name.load("Jane", "Smith");
         Phone creditorPhone = Phone.load("+52","987654321");
 
         // Asume constructor User(UserId, Name, Phone) existe
-        debtor = new User(debtorId, debtorName, debtorPhone);
-        creditor = new User(creditorId, creditorName, creditorPhone);
+        debtor = User.create(debtorName, debtorPhone);
+        creditor = User.create(creditorName, creditorPhone);
     }
 
     // Helper para crear una instancia base
