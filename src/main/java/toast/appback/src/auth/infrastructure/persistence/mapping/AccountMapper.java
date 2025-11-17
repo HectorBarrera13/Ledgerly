@@ -42,12 +42,14 @@ public class AccountMapper {
             if (existing != null) {
                 // Ya existe, actualizar campos
                 existing.setSessionStatus(SessionStatusE.valueOf(domainSession.getStatus().name()));
+                existing.setStartedAt(domainSession.getCreatedAt());
                 existing.setExpiration(domainSession.getExpiration());
             } else {
                 // Nueva sesión → crear entidad
                 SessionEntity newEntity = new SessionEntity();
                 newEntity.setSessionId(domainSession.getSessionId().getValue());
                 newEntity.setAccount(entity);
+                newEntity.setStartedAt(domainSession.getCreatedAt());
                 newEntity.setExpiration(domainSession.getExpiration());
                 newEntity.setSessionStatus(SessionStatusE.valueOf(domainSession.getStatus().name()));
                 entitySessions.add(newEntity);
@@ -61,10 +63,10 @@ public class AccountMapper {
     }
 
     private static Session toDomainSession(SessionEntity entity) {
-        return Session.load(
+        return new Session(
                 SessionId.load(entity.getSessionId()),
                 SessionStatus.valueOf(entity.getSessionStatus().name()),
-                entity.getExpiration()
+                entity.getStartedAt()
         );
     }
 
