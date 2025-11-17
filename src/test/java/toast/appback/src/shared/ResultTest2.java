@@ -17,8 +17,8 @@ public class ResultTest2 {
     private final String description = "Testing the Result chaining functionality";
     private final String currency = "USD";
     private final Long amount = 1000L;
-    private final User debtor = new User(UserId.generate(), null, null);
-    private final User creditor = new User(UserId.generate(), null, null);
+    private final User debtor = User.create(null, null);
+    private final User creditor = User.create(null, null);
 
     private final String invalidPurpose = "";
     private final String invalidDescription = "D".repeat(301);

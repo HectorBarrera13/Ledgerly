@@ -29,6 +29,9 @@ public class Password {
     }
 
     public static Password fromHashed(String hashedPassword) {
+        if (hashedPassword == null || hashedPassword.isBlank()) {
+            throw new IllegalArgumentException("Hashed password cannot be null or blank");
+        }
         return new Password(hashedPassword);
     }
 

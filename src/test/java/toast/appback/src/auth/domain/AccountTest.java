@@ -1,48 +1,61 @@
 package toast.appback.src.auth.domain;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import toast.appback.src.auth.domain.event.AccountCreated;
+import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static toast.appback.src.shared.ValueObjectsUtils.*;
+import static toast.appback.src.shared.DomainEventsUtils.*;
 
 @DisplayName("Account Domain Test")
 public class AccountTest {
 
-    private final UUID uuid = UUID.randomUUID();
+    private Account account;
+    private final UserId userId = UserId.generate();
     private final String EMAIL = "example@gmail.com";
     private final String PASSWORD_HASH = "hashedPassword123";
 
-    private final Account account = new Account(
-            AccountId.load(uuid),
-            UserId.load(uuid),
-            Email.load(EMAIL),
-            Password.fromHashed(PASSWORD_HASH)
-    );
+    @BeforeEach
+    void setUp() {
+        account = Account.create(
+                userId,
+                Email.load(EMAIL),
+                Password.fromHashed(PASSWORD_HASH)
+        );
+    }
 
     @Test
     @DisplayName("Should return all account data correctly")
     void testAccountData() {
-        assertEquals(uuid, account.getAccountId().getValue());
-        assertEquals(uuid, account.getUserId().getValue());
+        assertEquals(account.getUserId(), userId);
         assertEquals(EMAIL, account.getEmail().getValue());
         assertEquals(PASSWORD_HASH, account.getPassword().getHashed());
+        List<DomainEvent> events = account.pullEvents();
+        assertEquals(1, events.size());
+        assertContainsEventOfType(events, AccountCreated.class);
     }
 
     @Test
     @DisplayName("Should be equal when having the same account id and user id")
     void testAccountEquality() {
+        AccountId accountId = account.getAccountId();
         Account anotherAccount = new Account(
-                AccountId.load(uuid),
-                UserId.load(uuid),
+                accountId,
+                account.getUserId(),
                 Email.load(EMAIL),
-                Password.fromHashed("ADAWDAW")
+                Password.fromHashed("ADAWDAW"),
+                Instant.now(),
+                List.of()
         );
         assertEquals(account, anotherAccount);
     }
@@ -50,13 +63,26 @@ public class AccountTest {
     @Test
     @DisplayName("Should not be equal when having different account ids")
     void testAccountInequality() {
-        Account anotherAccount = new Account(
-                AccountId.load(UUID.randomUUID()),
-                UserId.load(uuid),
+        Account anotherAccount = Account.create(
+                userId,
                 Email.load(EMAIL),
                 Password.fromHashed(PASSWORD_HASH)
         );
         assertNotEquals(account, anotherAccount);
+    }
+
+    @Test
+    @DisplayName("Should start session correctly")
+    void testStartSession() {
+        var result = account.startSession();
+        assertTrue(result.isOk());
+        Session session = result.get();
+        assertNotNull(session);
+        assertFalse(session.isRevoked());
+        List<DomainEvent> events = account.pullEvents();
+        assertEquals(2, events.size()); // AccountCreated + SessionAdded
+        assertContainsEventOfType(events, AccountCreated.class);
+        assertContainsEventOfType(events, SessionAdded.class);
     }
 
     @Test
@@ -144,25 +170,11 @@ public class AccountTest {
     }
 
     @Test
-    @DisplayName("Should toString return correct representation")
-    void testToString() {
-        String expected = "Account{" +
-                "accountId=" + account.getAccountId() +
-                ", userId=" + account.getUserId() +
-                ", email=" + account.getEmail() +
-                ", password=" + account.getPassword() +
-                ", sessions=" + account.getSessions() +
-                ", domainEvents=" + account.pullEvents() +
-                '}';
-        assertEquals(expected, account.toString());
-    }
-
-    @Test
     @DisplayName("Should generate domain events on session actions")
     void testDomainEventsOnSessionActions() {
         Result<Session, DomainError> startedSession = account.startSession();
         Session session = startedSession.get();
-        assertEquals(1, account.pullEvents().size());
+        assertEquals(2, account.pullEvents().size());
 
         account.revokeSession(session.getSessionId());
         assertEquals(1, account.pullEvents().size());

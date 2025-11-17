@@ -13,7 +13,7 @@ import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.port.FriendReadRepository;
 import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.domain.UserId;
-import toast.appback.src.users.infrastructure.api.dto.UserMapper;
+import toast.appback.src.users.infrastructure.api.dto.UserResponseMapper;
 import toast.appback.src.users.infrastructure.api.dto.response.FriendResponse;
 import toast.appback.src.users.infrastructure.service.FriendRequestQRService;
 import toast.appback.src.users.infrastructure.service.transactional.AddFriendService;
@@ -40,10 +40,10 @@ public class FriendController {
         List<FriendResponse> friendsContent;
         if (cursor == null) {
             friendsContent = friendReadRepository.findFriendsByUserId(userId, limit + 1)
-                    .stream().map(UserMapper::toFriendResponse).toList();
+                    .stream().map(UserResponseMapper::toFriendResponse).toList();
         } else {
             friendsContent = friendReadRepository.findFriendsByUserIdAfterCursor(userId, cursor, limit + 1)
-                    .stream().map(UserMapper::toFriendResponse).toList();
+                    .stream().map(UserResponseMapper::toFriendResponse).toList();
         }
         if (friendsContent.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -77,7 +77,7 @@ public class FriendController {
         UserId requesterId = customUserDetails.getUserId();
         AddFriendCommand command = new AddFriendCommand(requesterId, UserId.load(receiverId));
         FriendView friendView = addFriend.execute(command);
-        FriendResponse friendResponse = UserMapper.toFriendResponse(friendView);
+        FriendResponse friendResponse = UserResponseMapper.toFriendResponse(friendView);
         return ResponseEntity.ok(friendResponse);
     }
 

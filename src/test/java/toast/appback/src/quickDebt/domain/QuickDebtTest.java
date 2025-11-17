@@ -10,10 +10,9 @@ import toast.appback.src.users.domain.*;
 import java.util.UUID;
 
 public class QuickDebtTest {
-    private final UserId idUser1 = UserId.load(UUID.randomUUID());
     private final Name nameUser1 = Name.load("Hector", "Barrera");
-    private final Phone phoneUser1 = Phone.load("52","987654321");
-    private final User knownUser = new User(idUser1, nameUser1, phoneUser1);
+    private final Phone phoneUser1 = Phone.load("+52","9854321");
+    private final User knownUser = User.create(nameUser1, phoneUser1);
     private final Role role = Role.DEBTOR;
 
     private final String unknownUser = "Antonio Polanco";

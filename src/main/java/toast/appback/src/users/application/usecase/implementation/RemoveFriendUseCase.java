@@ -33,6 +33,8 @@ public class RemoveFriendUseCase implements RemoveFriend {
             throw new FriendShipNotFound(command.requesterId(), command.friendId());
         }
 
+        friendShipRepository.delete(command.requesterId(), command.friendId());
+
         applicationEventBus.publish(
                 new FriendShipBroke(command.requesterId(), command.friendId())
         );

@@ -65,7 +65,8 @@ public class Name {
     }
 
     public static Name load(String firstName, String lastName) {
-        return new Name(firstName, lastName);
+        return create(firstName, lastName)
+                .orElseThrow(() -> new IllegalArgumentException("invalid name values: " + firstName + " " + lastName));
     }
 
     private static Result<Void, DomainError> validation(String value, String fieldName) {

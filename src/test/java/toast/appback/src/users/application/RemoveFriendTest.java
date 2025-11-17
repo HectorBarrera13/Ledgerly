@@ -47,6 +47,11 @@ public class RemoveFriendTest {
                 command.requesterId(),
                 command.friendId()
         );
+        verify(friendShipRepository, times(1)).delete(
+                command.requesterId(),
+                command.friendId()
+        );
+
         verify(applicationEventBus, times(1)).publish(any());
 
         verifyNoMoreInteractions(

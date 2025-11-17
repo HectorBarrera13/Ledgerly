@@ -1,5 +1,6 @@
 package toast.appback.src.auth.domain;
 
+import toast.appback.src.auth.domain.event.AccountCreated;
 import toast.appback.src.auth.domain.event.AllSessionsRevoked;
 import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.auth.domain.event.SessionRevoked;
@@ -8,6 +9,7 @@ import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.UserId;
 
+import java.time.Instant;
 import java.util.*;
 
 public class Account {
@@ -16,20 +18,23 @@ public class Account {
     private final UserId userId;
     private final Email email;
     private final Password password;
-    private List<Session> sessions = new ArrayList<>(); // Only five active sessions allowed
-    private List<DomainEvent> userEvents = new ArrayList<>();
+    private final List<Session> sessions; // Only five active sessions allowed
+    private final Instant createdAt;
+    private final List<DomainEvent> userEvents = new ArrayList<>();
 
-    public Account(AccountId accountId, UserId userId, Email email, Password password) {
+    public Account(AccountId accountId, UserId userId, Email email, Password password, Instant createdAt, List<Session> sessions) {
         this.accountId = accountId;
         this.userId = userId;
         this.email = email;
         this.password = password;
+        this.createdAt = createdAt;
+        this.sessions = new ArrayList<>(sessions);
     }
 
-    public Account(AccountId accountId, UserId userId, Email email, Password password, List<Session> sessions, List<DomainEvent> userEvents) {
-        this(accountId, userId, email, password);
-        this.sessions = new ArrayList<>(sessions);
-        this.userEvents = new ArrayList<>(userEvents);
+    public static Account create(UserId userId, Email email, Password password) {
+        Account account = new Account(AccountId.generate(), userId, email, password, Instant.now(), List.of());
+        account.recordEvent(new AccountCreated(account.getAccountId(), userId, email));
+        return account;
     }
 
     public AccountId getAccountId() {
@@ -42,6 +47,10 @@ public class Account {
 
     public Email getEmail() {
         return email;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     public Password getPassword() {

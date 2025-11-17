@@ -1,18 +1,42 @@
 package toast.appback.src.auth.application.mother;
 
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
-import toast.appback.src.auth.domain.Account;
-import toast.appback.src.auth.domain.DefaultAccount;
-import toast.appback.src.auth.domain.Session;
+import toast.appback.src.auth.domain.*;
 import toast.appback.src.auth.domain.service.PasswordHasher;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
 public class AccountMother {
 
     private static final int MAX_SESSIONS = 5;
 
-    private static final DefaultAccount factory =
-            new DefaultAccount(new FakePasswordHasher());
+    public static Result<Account, DomainError> create(UserId userId, String email, String password) {
+        Result<Email, DomainError> emailResult = Email.create(email);
+        Result<Password, DomainError> passwordResult = Password.fromPlain(password, new FakePasswordHasher());
+        Result<Void, DomainError> creationResult = Result.empty();
+        creationResult.collect(emailResult);
+        creationResult.collect(passwordResult);
+        if (creationResult.isFailure()) {
+            return creationResult.castFailure();
+        }
+        Email validEmail = emailResult.get();
+        Password validPassword = passwordResult.get();
+        Account account = Account.create(
+                userId,
+                validEmail,
+                validPassword
+        );
+        return Result.ok(account);
+    }
+
+    public static Result<Account, DomainError> create(CreateAccountCommand command) {
+        return create(
+                command.userId(),
+                command.email(),
+                command.password()
+        );
+    }
 
     public static Account withEmail(String email) {
         return build(new CreateAccountCommand(
@@ -75,14 +99,14 @@ public class AccountMother {
     }
 
     private static Account build(CreateAccountCommand command) {
-        return factory.create(command).orElseThrow(result ->
+        return create(command).orElseThrow(result ->
                 new IllegalStateException(
                         "AccountMother failed to create account:\n" + result
                 )
         );
     }
 
-    private static class FakePasswordHasher implements PasswordHasher {
+    public static class FakePasswordHasher implements PasswordHasher {
         @Override public String hash(String raw) { return "hashed_" + raw; }
         @Override public boolean verify(String raw, String hashed) {
             return hashed.equals("hashed_" + raw);

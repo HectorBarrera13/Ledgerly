@@ -9,8 +9,9 @@ public class UserMapper {
         if (userEntity == null) return null;
         return new User(
                 UserId.load(userEntity.getUserId()),
-                Name.create(userEntity.getFirstName(), userEntity.getLastName()).get(),
-                Phone.create(userEntity.getPhone().getCountryCode(), userEntity.getPhone().getNumber()).get()
+                Name.load(userEntity.getFirstName(), userEntity.getLastName()),
+                Phone.load(userEntity.getPhone().getCountryCode(), userEntity.getPhone().getNumber()),
+                userEntity.getCreatedAt()
         );
     }
 }

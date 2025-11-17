@@ -20,8 +20,8 @@ public class AccountMapper {
                 UserId.load(entity.getUser().getUserId()),
                 Email.load(entity.getEmail()),
                 Password.fromHashed(entity.getPasswordHash()),
-                sessions,
-                List.of()
+                entity.getCreatedAt(),
+                sessions
         );
     }
 
