@@ -1,4 +1,4 @@
-package toast.appback.src.debts.domain;
+package toast.appback.src.debts.domain.vo;
 
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
@@ -11,6 +11,10 @@ import java.util.Objects;
 public class DebtMoney {
     private final BigDecimal amount;
     private final String currency;
+    private static final String FIELD_CURRENCY = "currency";
+    private static final String FIELD_AMOUNT = "amount";
+    private static final String REGEX_CURRENCY = "^[A-Z]{3}$";
+    private static final int SCALE = 2;
 
     @Override
     public boolean equals(Object o) {
@@ -26,11 +30,6 @@ public class DebtMoney {
         result = 31 * result + Objects.hashCode(currency);
         return result;
     }
-
-    private static final String FIELD_CURRENCY = "currency";
-    private static final String FIELD_AMOUNT = "amount";
-    private static final String REGEX_CURRENCY = "^[A-Z]{3}$";
-    private static final int SCALE = 2;
 
     private DebtMoney(BigDecimal amount, String currency) {
         this.amount = amount;
@@ -52,7 +51,7 @@ public class DebtMoney {
         return new DebtMoney(amountTransformed, currency);
     }
 
-    public static Result<String, DomainError> currencyValidation(String currency, String format, String field) {
+    private static Result<String, DomainError> currencyValidation(String currency, String format, String field) {
         if (currency == null) {
             return Validators.EMPTY_VALUE(field);
         }
@@ -62,7 +61,7 @@ public class DebtMoney {
         return Result.ok();
     }
 
-    public static Result<String, DomainError> amountValidation(Long amount, String field) {
+    private static Result<String, DomainError> amountValidation(Long amount, String field) {
         if (amount == null) {
             return Validators.EMPTY_VALUE(field);
         }
