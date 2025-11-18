@@ -1,6 +1,6 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
-import toast.appback.src.debts.application.communication.command.AcceptDebtUseCaseCommand;
+import toast.appback.src.debts.application.communication.command.AcceptDebtCommand;
 import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
@@ -26,7 +26,7 @@ public class AcceptDebtUseCase implements AcceptDebt {
     }
 
     @Override
-    public Debt execute(AcceptDebtUseCaseCommand command) {
+    public Debt execute(AcceptDebtCommand command) {
         Debt debt = debtRepository.findById(command.debtId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 

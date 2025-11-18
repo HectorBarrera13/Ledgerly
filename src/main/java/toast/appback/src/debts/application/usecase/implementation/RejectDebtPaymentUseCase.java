@@ -1,10 +1,10 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
-import toast.appback.src.debts.application.communication.command.ReportDebtPaymentCommand;
+import toast.appback.src.debts.application.communication.command.RejectDebtPaymentCommand;
 import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
-import toast.appback.src.debts.application.usecase.contract.ReportDebtPayment;
+import toast.appback.src.debts.application.usecase.contract.RejectDebtPayment;
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.QuickDebt;
@@ -16,18 +16,17 @@ import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class ReportDebtPaymentUseCase implements ReportDebtPayment {
+public class RejectDebtPaymentUseCase implements RejectDebtPayment {
     private final DebtRepository debtRepository;
     private final UserRepository userRepository;
 
-    public ReportDebtPaymentUseCase(DebtRepository debtRepository, UserRepository userRepository) {
+    public RejectDebtPaymentUseCase(DebtRepository debtRepository, UserRepository userRepository) {
         this.debtRepository = debtRepository;
         this.userRepository = userRepository;
     }
 
-
     @Override
-    public Debt execute(ReportDebtPaymentCommand command) {
+    public Debt execute(RejectDebtPaymentCommand command) {
         Debt debt = debtRepository.findById(command.debtId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 
@@ -36,7 +35,7 @@ public class ReportDebtPaymentUseCase implements ReportDebtPayment {
 
         validateAuthorization(debt, actor.getUserId());
 
-        Result<Void, DomainError> result = debt.reportPayment();
+        Result<Void, DomainError> result = debt.rejectPayment();
 
         if (result.isFailure()) {
             throw new AcceptDebtException(result.getErrors());
@@ -51,8 +50,8 @@ public class ReportDebtPaymentUseCase implements ReportDebtPayment {
 
         if (debt instanceof DebtBetweenUsers) {
             DebtBetweenUsers specificDebt = (DebtBetweenUsers) debt;
-            if (!specificDebt.getDebtorId().equals(actorId)) {
-                throw new UnauthorizedActionException("Solo el deudor puede marcar esta deuda como pagada.");
+            if (!specificDebt.getCreditorId().equals(actorId)) {
+                throw new UnauthorizedActionException("Solo el creditor puede marcar esta deuda como pagada.");
             }
         } else if (debt instanceof QuickDebt) {
             QuickDebt quickDebt = (QuickDebt) debt;
