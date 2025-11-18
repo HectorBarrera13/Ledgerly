@@ -8,7 +8,7 @@ import toast.appback.src.users.infrastructure.api.dto.response.FriendResponse;
 import toast.appback.src.users.infrastructure.api.dto.response.ProfileResponse;
 import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
 
-public class UserMapper {
+public class UserResponseMapper {
 
     public static UserResponse toUserResponse(UserView userView) {
         return new UserResponse(

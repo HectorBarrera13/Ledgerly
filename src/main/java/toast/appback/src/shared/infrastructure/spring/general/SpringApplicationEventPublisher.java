@@ -1,4 +1,4 @@
-package toast.appback.src.spring.general;
+package toast.appback.src.shared.infrastructure.spring.general;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

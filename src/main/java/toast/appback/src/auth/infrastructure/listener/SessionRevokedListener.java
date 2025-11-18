@@ -8,7 +8,6 @@ import toast.appback.src.auth.domain.event.SessionRevoked;
 
 @Component
 public class SessionRevokedListener {
-
     private static final Logger log = LoggerFactory.getLogger(SessionRevokedListener.class);
 
     @EventListener

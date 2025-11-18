@@ -9,7 +9,7 @@ import toast.appback.src.auth.application.port.AccountReadRepository;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.port.UserReadRepository;
-import toast.appback.src.users.infrastructure.api.dto.UserMapper;
+import toast.appback.src.users.infrastructure.api.dto.UserResponseMapper;
 import toast.appback.src.users.infrastructure.api.dto.response.ProfileResponse;
 
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class ProfileController {
         if (userView.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        ProfileResponse profileResponse = UserMapper.toProfileResponse(accountView.get(), userView.get());
+        ProfileResponse profileResponse = UserResponseMapper.toProfileResponse(accountView.get(), userView.get());
         return ResponseEntity.ok(profileResponse);
     }
 }

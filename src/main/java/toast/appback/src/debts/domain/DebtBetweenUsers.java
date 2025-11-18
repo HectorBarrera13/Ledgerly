@@ -46,6 +46,17 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
+    @Override
+    public Result<Void, DomainError> pay(){
+        boolean isDebtAccepted = status == Status.ACCEPTED;
+        if(!isDebtAccepted){
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name() +" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
+        }
+        this.status = Status.PAYMENT_CONFIRMATION_PENDING;
+        return Result.ok();
+    }
+
     public UserId getCreditorId() {
         return idCreditor;
     }

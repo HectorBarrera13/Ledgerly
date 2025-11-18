@@ -113,6 +113,8 @@ public abstract class Debt {
         return Result.ok();
     }
 
+    public abstract Result<Void, DomainError> pay();
+
     public void recordEvent(DomainEvent event) {
         this.debtEvents.add(event);
     }

@@ -16,14 +16,12 @@ public class FriendShipTest {
     @Test
     @DisplayName("Should create a friendship between two users")
     void testCreateFriendship() {
-        User firstUser = new User(
-                UserId.load(UUID.randomUUID()),
+        User firstUser = User.create(
                 Name.load("Alice", "Smith"),
                 Phone.load("+24", "1234567890")
         );
 
-        User secondUser = new User(
-                UserId.load(UUID.randomUUID()),
+        User secondUser = User.create(
                 Name.load("Bob", "Johnson"),
                 Phone.load("+24", "0987654321")
         );

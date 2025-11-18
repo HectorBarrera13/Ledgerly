@@ -8,8 +8,6 @@ import toast.appback.src.users.application.usecase.implementation.AddFriendUseCa
 import toast.appback.src.users.application.usecase.implementation.CreateUserUseCase;
 import toast.appback.src.users.application.usecase.implementation.EditUserUseCase;
 import toast.appback.src.users.application.usecase.implementation.RemoveFriendUseCase;
-import toast.appback.src.users.domain.DefaultUser;
-import toast.appback.src.users.domain.UserFactory;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
 
@@ -17,18 +15,11 @@ import toast.appback.src.users.domain.repository.UserRepository;
 public class UserUseCasesConfig {
 
     @Bean
-    public DefaultUser defaultUser() {
-        return new DefaultUser();
-    }
-
-    @Bean
     public CreateUserUseCase createUserUseCase(
-            UserRepository userRepository,
-            UserFactory userFactory
+            UserRepository userRepository
     ) {
         return new CreateUserUseCase(
-                userRepository,
-                userFactory
+                userRepository
         );
     }
 

@@ -2,11 +2,10 @@ package toast.appback.src.shared;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import toast.appback.src.debts.domain.DebtBetweenUsers;
-import toast.appback.src.debts.domain.vo.Context;
+import toast.appback.src.debts.domain.Context;
 import toast.appback.src.debts.domain.Debt;
-import toast.appback.src.debts.domain.vo.DebtId;
-import toast.appback.src.debts.domain.vo.DebtMoney;
+import toast.appback.src.debts.domain.DebtId;
+import toast.appback.src.debts.domain.DebtMoney;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.User;
@@ -18,8 +17,8 @@ public class ResultTest2 {
     private final String description = "Testing the Result chaining functionality";
     private final String currency = "USD";
     private final Long amount = 1000L;
-    private final UserId debtorId = UserId.generate();
-    private final UserId creditorId = UserId.generate();
+    private final User debtor = User.create(null, null);
+    private final User creditor = User.create(null, null);
 
     private final String invalidPurpose = "";
     private final String invalidDescription = "D".repeat(301);
@@ -34,12 +33,12 @@ public class ResultTest2 {
         Result<Debt, DomainError> result = Result.<DomainError>chain()
                 .and(() -> Context.create(purpose, description))
                 .and(() -> DebtMoney.create(currency, amount))
-                .result((context, debtMoney) -> new DebtBetweenUsers(
+                .result((context, debtMoney) -> new Debt(
                         DebtId.generate(),
                         context,
                         debtMoney,
-                        debtorId,
-                        creditorId
+                        creditor,
+                        debtor
                 ));
         assert result.isOk();
     }
