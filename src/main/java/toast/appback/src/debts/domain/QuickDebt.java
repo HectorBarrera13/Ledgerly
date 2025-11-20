@@ -37,6 +37,11 @@ public class QuickDebt extends Debt {
         return Result.ok();
     }
 
+    @Override
+    public Result<Void, DomainError> pay() {
+        return null;
+    }
+
     public UserId getUserId(){
         return this.userId;
     }

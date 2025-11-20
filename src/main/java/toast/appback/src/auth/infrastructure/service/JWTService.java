@@ -38,6 +38,9 @@ public class JWTService implements TokenService {
     @Value("${jwt.expiration.access.seconds}")
     private long accessExpirationInSeconds;
 
+    @Value("${jwt.expiration.refresh.seconds}")
+    private long refreshExpirationInSeconds;
+
     private SecretKey secretKey;
 
     private JwtParser jwtParser;
@@ -53,14 +56,14 @@ public class JWTService implements TokenService {
         return getJwt(tokenClaims, accessExpirationInSeconds, "access");
     }
 
-    private Jwt generateRefreshToken(TokenClaims tokenClaims, long sessionExpirationInSeconds) {
-        return getJwt(tokenClaims, sessionExpirationInSeconds, "refresh");
+    private Jwt generateRefreshToken(TokenClaims tokenClaims) {
+        return getJwt(tokenClaims, refreshExpirationInSeconds, "refresh");
     }
 
     @Override
-    public Tokens generateTokens(TokenClaims tokenClaims, long sessionDurationInSeconds) {
+    public Tokens generateTokens(TokenClaims tokenClaims) {
         Jwt accessToken = generateAccessToken(tokenClaims);
-        Jwt refreshToken = generateRefreshToken(tokenClaims, sessionDurationInSeconds);
+        Jwt refreshToken = generateRefreshToken(tokenClaims);
         return new Tokens(accessToken, refreshToken);
     }
 

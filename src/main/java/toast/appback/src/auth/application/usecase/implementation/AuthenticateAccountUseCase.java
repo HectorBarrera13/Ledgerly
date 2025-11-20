@@ -52,8 +52,7 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
                         account.getAccountId(),
                         account.getUserId(),
                         newSession.getSessionId()
-                ),
-                newSession.getMaxDurationSeconds()
+                )
         );
 
 

@@ -26,6 +26,7 @@ public class UserRepositoryMySQL implements UserRepository {
         userEntity.setFirstName(user.getName().getFirstName());
         userEntity.setLastName(user.getName().getLastName());
         userEntity.setPhone(PhoneEmbeddable.create(user.getPhone().getCountryCode(), user.getPhone().getNumber()));
+        userEntity.setCreatedAt(user.getCreatedAt());
         jpaUserRepository.save(userEntity);
     }
 
