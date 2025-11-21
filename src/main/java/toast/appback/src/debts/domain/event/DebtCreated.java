@@ -1,4 +1,9 @@
 package toast.appback.src.debts.domain.event;
 
-public record DebtCreated() {
+import toast.appback.src.debts.domain.vo.DebtId;
+import toast.appback.src.shared.domain.DomainEvent;
+
+public record DebtCreated(
+        DebtId debtId
+) implements DomainEvent {
 }

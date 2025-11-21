@@ -43,4 +43,8 @@ public class Role {
         }
         return Validators.INVALID_FORMAT(field, role, "Must be either DEBTOR or CREDITOR");
     }
+
+    public String getRole() {
+        return role;
+    }
 }

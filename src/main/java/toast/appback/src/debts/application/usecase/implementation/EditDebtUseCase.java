@@ -1,42 +1,34 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.EditDebtCommand;
+import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.EditDebtException;
-import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
 import toast.appback.src.debts.application.usecase.contract.EditDebt;
-import toast.appback.src.debts.domain.DebtBetweenUsers;
-import toast.appback.src.debts.domain.QuickDebt;
-import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.Debt;
+import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.debts.domain.repository.DebtRepository;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.application.exceptions.UserNotFound;
-import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
-import toast.appback.src.users.domain.repository.UserRepository;
 
 public class EditDebtUseCase implements EditDebt{
     private final DebtRepository debtRepository;
-    private final UserRepository userRepository;
+    private final DomainEventBus domainEventBus;
+    private final String DEBTOR = "DEBTOR";
+    private final String CREDITOR = "CREDITOR";
 
-    public EditDebtUseCase(DebtRepository debtRepository, UserRepository userRepository) {
+    public EditDebtUseCase(DebtRepository debtRepository, DomainEventBus domainEventBus) {
         this.debtRepository = debtRepository;
-        this.userRepository = userRepository;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
-    public Debt execute(EditDebtCommand command) {
-        Debt debt = debtRepository.findById(command.debtId())
+    public DebtView execute(EditDebtCommand command) {
+        Debt debt = debtRepository.findDebtById(command.debtId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
-
-        User actor = userRepository.findById(command.actorId())
-                        .orElseThrow(()-> new UserNotFound(command.actorId()));
-
-        validateAuthorization(debt, actor.getUserId());
 
         DebtMoney newMoney = DebtMoney.create(command.newCurrency(), command.newAmount()).orElseThrow(CreationDebtException::new);
         Context newContext = Context.create(command.newPurpose(), command.newDescription()).orElseThrow(CreationDebtException::new);
@@ -48,30 +40,24 @@ public class EditDebtUseCase implements EditDebt{
         updateResult.collect(editMoneyResult);
         updateResult.collect(editContextResult);
 
-        updateResult.ifFailureThrows(EditDebtException::new);
+        if(updateResult.isFailure()){
+            throw new EditDebtException(updateResult.getErrors());
+        }
 
         debtRepository.save(debt);
 
-        return debt;
-    }
+        domainEventBus.publishAll(debt.pullEvents());
 
-    private void validateAuthorization(Debt debt, UserId actorId) {
-        if (debt instanceof DebtBetweenUsers) {
-            DebtBetweenUsers specificDebt = (DebtBetweenUsers) debt;
-            if (!specificDebt.getCreditorId().equals(actorId)) {
-                throw new UnauthorizedActionException("Solo el acreedor puede editar esta deuda de usuario a usuario.");
-            }
-        }
-
-        else if (debt instanceof QuickDebt) {
-            QuickDebt quickDebt = (QuickDebt) debt;
-            if (!quickDebt.getUserId().equals(actorId)) {
-                throw new UnauthorizedActionException("Solo el creador puede editar esta deuda rápida.");
-            }
-        }
+        return new DebtView(
+                debt.getId().getValue(),
+                debt.getContext().getPurpose(),
+                debt.getContext().getDescription(),
+                debt.getDebtMoney().getAmount().longValue(),
+                debt.getDebtMoney().getCurrency(),
+                debt.getDebtorName(),
+                debt.getCreditorName(),
+                debt.getStatus().toString()
+        );
     }
 }
 
-
-
-//Actualizar los use case create como este

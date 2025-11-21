@@ -1,4 +1,4 @@
-# API de Grupos, Deudas, Contactos y Notificaciones
+2# API de Grupos, Deudas, Contactos y Notificaciones
 
 Una propuesta de endpoints REST para cubrir las historias de usuario descritas. Incluye tablas resumen, ejemplos de request/response y convenciones para lograr una implementación consistente y agradable a consumir.
 
@@ -253,34 +253,55 @@ DELETE `/friends/{friendId}`
 
 ---
 
-## Deudas rápidas
+## Deudas en general
 
-Resumen
-| Método | Path | Descripción |
-|--------|------|-------------|
-| POST | /quick-debts | Registrar deuda rápida |
-| GET | /quick-debts/debtor | Listar por pagar |
-| GET | /quick-debts/creditor | Listar por cobrar |
-| PATCH | /quick-debts/{quickDebtId} | Editar deuda rápida |
-| DELETE | /quick-debts/{quickDebtId} | Eliminar deuda rápida |
-| POST | /quick-debt/{quickDebtId}/accept | Aceptar |
-| POST | /quick-debt/{quickDebtId}/reject | Rechazar |
-| POST | /quick-debts/{quickDebtId}/settle | Marcar como saldada |
+| Método | Path                  | Descripción                               |
+|--------|-----------------------|-------------------------------------------|
+| PATCH | /debt/{DebtId}        | Editar deuda                              |
+| DELETE | /debt/{DebtId}        | Eliminar deuda                            |
+| POST | /debt/{DebtId}/settle | Marcar pago realizado                     |
 
-POST `/quick-debts`
-
--   Body:
+PATCH `/debt/{DebtId}`
+-   Body (ready):
 
 ```json
 {
-    "creditor_user_id": "me|uuidCreditor",
-    "debtor_user_id": "uuidDebtor|me",
-    "amount_minor_units": 5000,
-    "concept": "Café"
+    "actor_id": "UUID",
+    "debt_id": "UUID",
+    "new_purpose": "Nuevo propósito",
+    "new_description": "Nueva descripción",
+    "new_currency": "MXN",
+    "new_amount": "15000L"
 }
 ```
 
--   201:
+## Deudas rápidas
+
+
+| Método | Path                    | Descripción |
+|--------|-------------------------|-------------|
+| POST | /quick-debt             | Registrar deuda rápida |
+| GET | /quick-debt/debtor      | Listar por pagar |
+| GET | /quick-debt/creditor    | Listar por cobrar |
+| PATCH | /quick-debt/{DebtId}    | Editar deuda rápida |
+
+POST `/quick-debts`
+
+-   Body: (Correct)
+
+```json
+{
+    "purpose": "Café",
+    "description" : "", 
+    "currency" : "MXN",
+    "amount" : "5000L" ,
+    "user_id": "me",
+    "role": "CREDITOR",
+    "target_user": "targerName"
+}
+```
+
+-   201: (pendiente de confirmar los campos)
 
 ```json
 {
@@ -412,7 +433,7 @@ GET `/quick-debts/creditor/?status=PENDING|ACCEPTED|REJECTED|SETTLED&limit=50&cu
 }
 ```
 
-PATCH `/quick-debts/{quickDebtId}`
+PATCH `/quick-debts/{DebtId}`
 
 -   Body (parcial):
 
@@ -434,29 +455,165 @@ PATCH `/quick-debts/{quickDebtId}`
 }
 ```
 
-DELETE `/quick-debts/{quickDebtId}`
+DELETE `/quick-debts/{DebtId}`
 
 -   204
 
-POST `/quick-debt/{quickDebtId}/accept`
+
+
+POST `/quick-debts/{DebtId}/settle`
+
+```json
+{
+    "status": "SETTLED",
+    "settled_at": "2025-10-30T01:00:00Z"
+}
+```
+
+---
+
+## Deudas entre usuarios
+
+| Método | Path                       | Descripción                               |
+|--------|----------------------------|-------------------------------------------|
+| POST | /debt-between-users        | Registrar deuda rápida                    |
+| GET | /debt-between-users/debtor        | Listar por pagar                          |
+| GET | /debt-between-users/creditor      | Listar por cobrar                         | 
+|POST | /debt/{DebtId}/verify-payment | Confirmar el pago(La deuda queda saldada) |
+|POST | /debt/{DebtId}/reject-payment  | Rechazar el pago                          |
+|POST | /debt/{DebtId}/settle         | Reportar deuda como saldada               |
+
+POST `/debt-between-users`
+
+-   Body:
+
+```json
+{
+    "purpose": "Pizza",
+    "description": "",
+    "currency" : "MXN",
+    "amount" : "10000L" ,
+    "debtor_id": "targetUserId|me",
+    "creditor_id": "me|targetUserId"
+}
+```
+
+-   201:
+
+```json
+{
+    "debt_id": "d1",
+    "debtor_id": "me|uuiddebtor",
+    "creditor_id" : "uuidcreditor|me",
+    "purpose": "Pizza",
+    "description": "",
+    "currency": "MXN",
+    "amount" : "10000L",
+    "status": "PENDING",
+    "created_at": "2025-10-29"
+}
+```
+
+
+
+GET `/quick-debts/debtor/?status=PENDING|ACCEPTED|REJECTED|SETTLED&limit=50&cursor=...`
 
 -   200:
 
 ```json
 {
-    "status": "ACCEPTED"
+    "items": [
+        {
+          "debt_id": "d1",
+          "debtor_id": "me",
+          "creditor_id" : "uuidcreditor",
+          "purpose": "Pizza",
+          "description": "",
+          "currency": "MXN",
+          "amount" : "10000L",
+          "status": "PENDING",
+          "created_at": "2025-10-29"
+        },
+        {
+          "debt_id": "d1",
+          "debtor_id": "me",
+          "creditor_id" : "uuidcreditor",
+          "purpose": "Cafe",
+          "description": "",
+          "currency": "MXN",
+          "amount" : "10000L",
+          "status": "PENDING",
+          "created_at": "2025-10-29"
+        }
+    ]
 }
 ```
 
-POST `/quick-debt/{quickDebtId}/reject`
+GET `/quick-debts/creditor/?status=PENDING|ACCEPTED|REJECTED|SETTLED&limit=50&cursor=...`
+
+-   200:
 
 ```json
 {
-    "status": "REJECTED"
+    "items": [
+        {
+          "debt_id": "d1",
+          "debtor_id": "uuiddebtor",
+          "creditor_id" : "me",
+          "purpose": "Pizza",
+          "description": "",
+          "currency": "MXN",
+          "amount" : "10000L",
+          "status": "PENDING",
+          "created_at": "2025-10-29"
+        },
+        {
+          "debt_id": "d1",
+          "debtor_id": "uuiddebtor",
+          "creditor_id" : "me",
+          "purpose": "Cafe",
+          "description": "",
+          "currency": "MXN",
+          "amount" : "10000L",
+          "status": "PENDING",
+          "created_at": "2025-10-29"
+        }
+    ]
 }
 ```
 
-POST `/quick-debts/{quickDebtId}/settle`
+PATCH `/quick-debts/{DebtId}`
+
+-   Body (parcial):
+
+```json
+{
+  "debt_id": "d1",
+  "purpose": "Pizza",
+  "description": "",
+  "currency": "MXN",
+  "amount" : "10000L"
+}
+```
+
+-   200:
+
+```json
+{
+    "quick_debt_id": "qd1",
+    "amount_minor_units": 6500,
+    "status": "PENDING",
+    "date": "2025-10-30"
+}
+```
+
+DELETE `/quick-debts/{DebtId}`
+
+-   204
+
+
+
+POST `/quick-debts/{DebtId}/settle`
 
 ```json
 {

@@ -8,7 +8,7 @@ import toast.appback.src.users.application.usecase.contract.RemoveFriend;
 import toast.appback.src.users.application.event.FriendShipBroke;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 
-public class RemoveFriendUseCase implements RemoveFriend {
+public class  RemoveFriendUseCase implements RemoveFriend {
     private final FriendShipRepository friendShipRepository;
     private final ApplicationEventBus applicationEventBus;
 

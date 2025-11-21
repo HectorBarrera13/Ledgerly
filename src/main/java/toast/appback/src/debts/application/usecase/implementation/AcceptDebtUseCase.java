@@ -1,39 +1,36 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
-import toast.appback.src.debts.application.communication.command.AcceptDebtCommand;
+import toast.appback.src.debts.application.communication.command.EditDebtStatusCommand;
+import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
-import toast.appback.src.debts.application.usecase.contract.AcceptDebt;
-import toast.appback.src.debts.domain.Debt;
+import toast.appback.src.debts.application.usecase.contract.EditDebtStatus;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
-import toast.appback.src.debts.domain.QuickDebt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.application.exceptions.UserNotFound;
-import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class AcceptDebtUseCase implements AcceptDebt {
+public class AcceptDebtUseCase implements EditDebtStatus {
     private final DebtRepository debtRepository;
-    private final UserRepository userRepository;
+    private final DomainEventBus domainEventBus;
 
-    public AcceptDebtUseCase(DebtRepository debtRepository, UserRepository userRepository) {
+    public AcceptDebtUseCase(DebtRepository debtRepository, DomainEventBus domainEventBus) {
         this.debtRepository = debtRepository;
-        this.userRepository = userRepository;
+        this.domainEventBus = domainEventBus;
     }
 
     @Override
-    public Debt execute(AcceptDebtCommand command) {
-        Debt debt = debtRepository.findById(command.debtId())
+    public DebtView execute(EditDebtStatusCommand command) {
+        DebtBetweenUsers debt = debtRepository.findDebtBetweenUsersById(command.debtId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 
-        User actor = userRepository.findById(command.actorId())
-                .orElseThrow(() -> new UserNotFound(command.actorId()));
-
-        //validateAuthorization(debt, actor.getUserId());
+        boolean isActorTheCreditor = command.actorId().equals(debt.getCreditorId());
+        if (!isActorTheCreditor) {
+            throw new UnauthorizedActionException("You are not authorized to perform this action");
+        }
 
         Result<Void, DomainError> result = debt.accept();
 
@@ -43,21 +40,18 @@ public class AcceptDebtUseCase implements AcceptDebt {
 
         debtRepository.save(debt);
 
-        return debt;
+        domainEventBus.publishAll(debt.pullEvents());
+
+        return new DebtView(
+                debt.getId().getValue(),
+                debt.getContext().getPurpose(),
+                debt.getContext().getDescription(),
+                debt.getDebtMoney().getAmount().longValue(),
+                debt.getDebtMoney().getCurrency(),
+                debt.getDebtorName(),
+                debt.getCreditorName(),
+                debt.getStatus().toString()
+        );
     }
 
-    private void validateAuthorization(Debt debt, UserId actorId) {
-
-        if (debt instanceof DebtBetweenUsers) {
-            DebtBetweenUsers specificDebt = (DebtBetweenUsers) debt;
-            if (!specificDebt.getCreditorId().equals(actorId)) {
-                throw new UnauthorizedActionException("Solo el deudor puede editar esta deuda de usuario a usuario.");
-            }
-        } else if (debt instanceof QuickDebt) {
-            QuickDebt quickDebt = (QuickDebt) debt;
-            if (!quickDebt.getUserId().equals(actorId)) {
-                throw new UnauthorizedActionException("Solo el creador puede editar esta deuda rápida.");
-            }
-        }
-    }
 }
