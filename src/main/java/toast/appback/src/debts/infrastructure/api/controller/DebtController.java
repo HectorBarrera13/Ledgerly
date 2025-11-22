@@ -22,8 +22,8 @@ import java.util.UUID;
 @RequestMapping("/debt")
 @RequiredArgsConstructor
 public class DebtController {
+
     private final EditDebt editDebt;
-    private final EditDebtStatus editDebtStatus;
 
     @PatchMapping("/{debtId}")
     public ResponseEntity<DebtResponse> editDebt(
@@ -44,16 +44,4 @@ public class DebtController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{debtId}/settle")
-    public ResponseEntity<DebtResponse> settleDebt(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable("debtId") UUID debtId
-    ) {
-        UserId userId = customUserDetails.getUserId();
-        DebtId requiredDebtId = DebtId.load(debtId);
-        EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
-        DebtView debtView = editDebtStatus.execute(command);
-        DebtResponse debtResponse = DebtResponseMapper.toDebtResponse(debtView);
-        return ResponseEntity.ok(debtResponse);
-    }
 }

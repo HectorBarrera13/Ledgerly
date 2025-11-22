@@ -4,5 +4,6 @@ import toast.appback.src.debts.application.communication.command.EditDebtStatusC
 import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.shared.application.UseCaseFunction;
 
-public interface EditDebtStatus extends UseCaseFunction<DebtView, EditDebtStatusCommand> {
+public interface EditDebtStatus{
+    DebtView execute(EditDebtStatusCommand command);
 }

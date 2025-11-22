@@ -19,16 +19,13 @@ import java.util.UUID;
 public class DebtEntity {
 
     @Id()
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false, unique = true, updatable = false)
     private UUID debtId;
 
     @Column(nullable = false)
     private String purpose;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String description;
 
     @Column(nullable = false)

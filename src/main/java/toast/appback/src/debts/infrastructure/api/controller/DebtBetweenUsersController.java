@@ -9,6 +9,7 @@ import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.debts.application.communication.command.CreateDebtBetweenUsersCommand;
 import toast.appback.src.debts.application.communication.command.EditDebtStatusCommand;
 import toast.appback.src.debts.application.communication.result.DebtView;
+import toast.appback.src.debts.application.port.DebtBetweenUsersReadRepository;
 import toast.appback.src.debts.application.port.DebtReadRepository;
 import toast.appback.src.debts.application.usecase.contract.CreateDebtBetweenUsers;
 import toast.appback.src.debts.application.usecase.contract.EditDebtStatus;
@@ -31,19 +32,22 @@ public class DebtBetweenUsersController {
     private final EditDebtStatus reportDebtPaymentUseCase;
     private final CreateDebtBetweenUsers createDebtBetweenUsers;
     private final DebtReadRepository debtReadRepository;
+    private final DebtBetweenUsersReadRepository debtBetweenUsersReadRepository;
 
     public DebtBetweenUsersController(
             @Qualifier("rejectDebtPaymentUseCase") EditDebtStatus reject,
             @Qualifier("confirmDebtPaymentUseCase") EditDebtStatus confirm,
             @Qualifier("reportDebtPaymentUseCase") EditDebtStatus report,
             CreateDebtBetweenUsers createDebtBetweenUsers,
-            DebtReadRepository debtReadRepository
+            DebtReadRepository debtReadRepository,
+            DebtBetweenUsersReadRepository debtBetweenUsersReadRepository
     ) {
         this.rejectDebtPaymentUseCase = reject;
         this.confirmDebtPaymentUseCase = confirm;
         this.reportDebtPaymentUseCase = report;
         this.createDebtBetweenUsers = createDebtBetweenUsers;
         this.debtReadRepository = debtReadRepository;
+        this.debtBetweenUsersReadRepository = debtBetweenUsersReadRepository;
     }
 
 
@@ -67,10 +71,10 @@ public class DebtBetweenUsersController {
         UserId userId = customUserDetails.getUserId();
         List<DebtResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = debtReadRepository.getDebtorDebtsBetweenUsers(userId, limit + 1)
+            debtsContent = debtBetweenUsersReadRepository.getDebtorDebtsBetweenUsers(userId, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         } else {
-            debtsContent = debtReadRepository.getDebtorDebtsBetweenUsersAfterCursor(userId, cursor, limit + 1)
+            debtsContent = debtBetweenUsersReadRepository.getDebtorDebtsBetweenUsersAfterCursor(userId, cursor, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         }
         if (debtsContent.isEmpty()) {
@@ -96,10 +100,10 @@ public class DebtBetweenUsersController {
         UserId userId = customUserDetails.getUserId();
         List<DebtResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = debtReadRepository.getCreditorDebtsBetweenUsers(userId, limit + 1)
+            debtsContent = debtBetweenUsersReadRepository.getCreditorDebtsBetweenUsers(userId, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         } else {
-            debtsContent = debtReadRepository.getCreditorDebtsBetweenUsersAfterCursor(userId, cursor, limit + 1)
+            debtsContent = debtBetweenUsersReadRepository.getCreditorDebtsBetweenUsersAfterCursor(userId, cursor, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         }
         if (debtsContent.isEmpty()) {

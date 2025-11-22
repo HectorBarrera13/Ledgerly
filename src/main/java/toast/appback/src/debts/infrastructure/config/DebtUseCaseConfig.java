@@ -79,7 +79,7 @@ public class DebtUseCaseConfig {
         );
     }
 
-    @Bean
+    @Bean("rejectDebtPaymentUseCase")
     public RejectDebtPaymentUseCase rejectDebtPaymentUseCase(
             DebtRepository debtRepository,
             DomainEventBus domainEventBus

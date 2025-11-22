@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.debts.application.communication.command.CreateQuickDebtCommand;
 import toast.appback.src.debts.application.communication.result.DebtView;
+import toast.appback.src.debts.application.port.DebtBetweenUsersReadRepository;
 import toast.appback.src.debts.application.port.DebtReadRepository;
+import toast.appback.src.debts.application.port.QuickDebtReadRepository;
 import toast.appback.src.debts.application.usecase.contract.CreateQuickDebt;
 import toast.appback.src.debts.infrastructure.api.dto.DebtResponseMapper;
 import toast.appback.src.debts.infrastructure.api.dto.request.CreateQuickDebtRequest;
@@ -24,7 +26,7 @@ import java.util.UUID;
 @RequestMapping("/quick-debt")
 @RequiredArgsConstructor
 public class QuickDebtController {
-    private final DebtReadRepository debtReadRepository;
+    private final QuickDebtReadRepository quickDebtReadRepository;
     private final CreateQuickDebt createQuickDebt;
 
     @PostMapping
@@ -47,10 +49,10 @@ public class QuickDebtController {
         UserId userId = customUserDetails.getUserId();
         List<DebtResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = debtReadRepository.getDebtorQuickDebts(userId, limit+1)
+            debtsContent = quickDebtReadRepository.getDebtorQuickDebts(userId, limit+1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         } else {
-            debtsContent = debtReadRepository.getDebtorQuickDebtsAfterCursor(userId, cursor, limit + 1)
+            debtsContent = quickDebtReadRepository.getDebtorQuickDebtsAfterCursor(userId, cursor, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         }
         if (debtsContent.isEmpty()) {
@@ -77,10 +79,10 @@ public class QuickDebtController {
         UserId userId = customUserDetails.getUserId();
         List<DebtResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = debtReadRepository.getCreditorQuickDebts(userId, limit+1)
+            debtsContent = quickDebtReadRepository.getCreditorQuickDebts(userId, limit+1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         } else {
-            debtsContent = debtReadRepository.getCreditorQuickDebtsAfterCursor(userId, cursor, limit + 1)
+            debtsContent = quickDebtReadRepository.getCreditorQuickDebtsAfterCursor(userId, cursor, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtResponse).toList();
         }
         if (debtsContent.isEmpty()) {

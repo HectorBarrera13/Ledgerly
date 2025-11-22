@@ -2,22 +2,16 @@ package toast.model.entities.debt;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "debt_between_users")
-public class DebtBetweenUsersEntity {
-
-    @Id()
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID debtId;
+public class DebtBetweenUsersEntity extends DebtEntity {
 
     @Column(nullable = false)
     private UUID debtorId;

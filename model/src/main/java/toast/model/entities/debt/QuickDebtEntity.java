@@ -2,28 +2,22 @@ package toast.model.entities.debt;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "quick_debt", indexes =  {
-        @Index(name = "idx_quick_debt_uuid", columnList = "uuid", unique = true),
-        @Index(name = "idx_quick_debt_created_at", columnList = "createdAt")
-})
-public class QuickDebtEntity {
+public class QuickDebtEntity extends DebtEntity{
 
-    @Id()
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true, updatable = false)
+    @Column(nullable = false, updatable = false)
     private UUID userId;
+
+    @Column(nullable = false, updatable = false)
+    private String userName;
 
     @Column(nullable = false)
     private String role;
