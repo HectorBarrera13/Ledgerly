@@ -61,7 +61,7 @@ public class AuthenticateAccountTest {
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
-        when(tokenService.generateTokens(any(), anyLong())).thenReturn(tokens);
+        when(tokenService.generateTokens(any())).thenReturn(tokens);
         when(userReadRepository.findById(any())).thenReturn(Optional.of(userView));
 
         AuthenticateAccountCommand authenticateAccountCommand = new AuthenticateAccountCommand(
@@ -77,7 +77,7 @@ public class AuthenticateAccountTest {
         assertEquals(tokens, authResult.tokens());
 
         verify(accountRepository, times(1)).findByEmail(email);
-        verify(tokenService, times(1)).generateTokens(any(), anyLong());
+        verify(tokenService, times(1)).generateTokens(any());
         verify(userReadRepository, times(1)).findById(any());
         verify(authService, times(1)).authenticate(authenticateAccountCommand);
         verify(accountRepository, times(1)).save(account);
@@ -162,7 +162,7 @@ public class AuthenticateAccountTest {
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
-        when(tokenService.generateTokens(any(), anyLong())).thenReturn(tokens);
+        when(tokenService.generateTokens(any())).thenReturn(tokens);
 
         when(userReadRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -179,7 +179,7 @@ public class AuthenticateAccountTest {
         verify(accountRepository, times(1)).findByEmail(email);
 
         verify(authService, times(1)).authenticate(authenticateAccountCommand);
-        verify(tokenService, times(1)).generateTokens(any(), anyLong());
+        verify(tokenService, times(1)).generateTokens(any());
         verify(userReadRepository, times(1)).findById(any());
 
         verifyNoInteractions(

@@ -4,7 +4,7 @@ import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.communication.result.Tokens;
 
 public interface TokenService {
-    Tokens generateTokens(TokenClaims tokenClaims, long sessionDurationInSeconds);
+    Tokens generateTokens(TokenClaims tokenClaims);
     Jwt generateAccessToken(TokenClaims tokenClaims);
     TokenClaims extractClaimsFromRefreshToken(String refreshToken);
     TokenClaims extractClaimsFromAccessTokenUnsafe(String refreshToken);

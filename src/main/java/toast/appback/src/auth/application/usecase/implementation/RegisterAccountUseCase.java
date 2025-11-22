@@ -56,8 +56,7 @@ public class RegisterAccountUseCase implements RegisterAccount {
                         newAccount.getAccountId(),
                         newAccount.getUserId(),
                         session.getSessionId()
-                ),
-                session.getMaxDurationSeconds()
+                )
         );
 
         UserView userView = new UserView(
