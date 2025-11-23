@@ -39,7 +39,13 @@ public class QuickDebt extends Debt {
 
     @Override
     public Result<Void, DomainError> pay() {
-        return null;
+        boolean isDebtPending = status == Status.PENDING;
+        if(!isDebtPending){
+            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
+        }
+        this.status = Status.PAID;
+        return Result.ok();
     }
 
     public UserId getUserId(){

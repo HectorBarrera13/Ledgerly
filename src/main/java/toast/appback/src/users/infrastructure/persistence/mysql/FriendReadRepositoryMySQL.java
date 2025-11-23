@@ -1,7 +1,12 @@
 package toast.appback.src.users.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
+import toast.appback.src.shared.application.CursorRequest;
+import toast.appback.src.shared.application.PageRequest;
+import toast.appback.src.shared.application.PageResult;
+import toast.appback.src.shared.infrastructure.PageMapper;
 import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.port.FriendReadRepository;
 import toast.appback.src.users.domain.UserId;
@@ -18,35 +23,88 @@ public class FriendReadRepositoryMySQL implements FriendReadRepository {
     private final JpaUserRepository jpaUserRepository;
 
     @Override
-    public List<FriendView> findFriendsByUserId(UserId userId, int limit) {
+    public PageResult<FriendView, UUID> findFriendsByUserId(UserId userId, PageRequest pageRequest) {
         Long userDbId = jpaUserRepository.findByUserId(userId.getValue())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
                 .getId();
-        return jpaFriendShipRepository.findAllUserFriendsByUserId(userDbId, limit).stream()
-                .map(projection -> new FriendView(
-                        projection.getUserId(),
-                        projection.getFirstName(),
-                        projection.getLastName(),
-                        projection.getPhone(),
-                        projection.getAddedAt()
-                )).toList();
+
+        Page<FriendView> pageable = jpaFriendShipRepository
+                .findAllUserFriendsByUserId(userDbId, PageMapper.toPageable(pageRequest))
+                .map(
+                        projection -> new FriendView(
+                                projection.getUserId(),
+                                projection.getFirstName(),
+                                projection.getLastName(),
+                                projection.getPhone(),
+                                projection.getAddedAt()
+                        )
+                );
+        return PageMapper.toPageResult(pageable);
     }
 
     @Override
-    public List<FriendView> findFriendsByUserIdAfterCursor(UserId userId, UUID cursor, int limit) {
+    public PageResult<FriendView, UUID> findFriendsByUserIdAfterCursor(UserId userId, CursorRequest<UUID> cursorRequest) {
         Long userDbId = jpaUserRepository.findByUserId(userId.getValue())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
                 .getId();
-        Long cursorDbId = jpaUserRepository.findByUserId(cursor)
+        Long cursorDbId = jpaUserRepository.findByUserId(cursorRequest.cursor())
                 .orElseThrow(() -> new IllegalArgumentException("Cursor user not found"))
                 .getId();
-        return jpaFriendShipRepository.findAllUserFriendsByUserIdAfterCursor(userDbId, cursorDbId, limit).stream()
-                .map(projection -> new FriendView(
-                        projection.getUserId(),
-                        projection.getFirstName(),
-                        projection.getLastName(),
-                        projection.getPhone(),
-                        projection.getAddedAt()
-                )).toList();
+        Page<FriendView> pageable = jpaFriendShipRepository
+                .findAllUserFriendsByUserIdAfterCursor(userDbId, cursorDbId, PageMapper.toPageable(cursorRequest))
+                .map(
+                        projection -> new FriendView(
+                                projection.getUserId(),
+                                projection.getFirstName(),
+                                projection.getLastName(),
+                                projection.getPhone(),
+                                projection.getAddedAt()
+                        )
+                );
+        return PageMapper.toPageResult(pageable);
+    }
+
+    @Override
+    public PageResult<FriendView, UUID> searchFriendsByName(UserId userId, String nameQuery, PageRequest pageRequest) {
+        Long userDbId = jpaUserRepository.findByUserId(userId.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        Page<FriendView> pageable = jpaFriendShipRepository
+                .searchFriendsByName(
+                        userDbId,
+                        nameQuery,
+                        PageMapper.toPageable(pageRequest)
+                ).map(
+                        projection -> new FriendView(
+                                projection.getUserId(),
+                                projection.getFirstName(),
+                                projection.getLastName(),
+                                projection.getPhone(),
+                                projection.getAddedAt()
+                        )
+                );
+        return PageMapper.toPageResult(pageable);
+    }
+
+    @Override
+    public PageResult<FriendView, UUID> searchFriendsByPhone(UserId userId, String phoneQuery, PageRequest pageRequest) {
+        Long userDbId = jpaUserRepository.findByUserId(userId.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .getId();
+        Page<FriendView> pageable = jpaFriendShipRepository
+                .searchFriendsByPhone(
+                        userDbId,
+                        phoneQuery,
+                        PageMapper.toPageable(pageRequest)
+                ).map(
+                        projection -> new FriendView(
+                                projection.getUserId(),
+                                projection.getFirstName(),
+                                projection.getLastName(),
+                                projection.getPhone(),
+                                projection.getAddedAt()
+                        )
+                );
+        return PageMapper.toPageResult(pageable);
     }
 }

@@ -19,8 +19,7 @@ import java.util.UUID;
         @Index(name = "idx_email", columnList = "email", unique = true),
         @Index(name = "idx_account_uuid", columnList = "accountId", unique = true),
         @Index(name = "idx_account_created_at", columnList = "createdAt"),
-        @Index(name = "idx_account_last_updated_at", columnList = "lastUpdatedAt"),
-        @Index(name = "idx_account_last_login", columnList = "lastLogin")
+        @Index(name = "idx_account_last_updated_at", columnList = "lastUpdatedAt")
 })
 public class AccountEntity {
 

@@ -19,10 +19,10 @@ import toast.appback.src.auth.infrastructure.service.transactional.RegisterAccou
 import toast.appback.src.auth.infrastructure.service.transactional.TerminateSessionService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(AuthController.PATH)
 @RequiredArgsConstructor
 public class AuthController {
-    private static final String PATH = "/auth";
+    static final String PATH = "/auth";
     private static final String CLIENT_TYPE_HEADER = "X-Client-Type";
 
     private final RegisterAccountService registerAccount;

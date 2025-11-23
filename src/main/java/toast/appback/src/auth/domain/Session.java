@@ -11,11 +11,11 @@ public class Session {
     private final Instant createdAt;
     private static final long MAX_DURATION_SECONDS = 60 * 60 * 24 * 20; // 20 days
 
-    public Session(SessionId sessionId, SessionStatus status, Instant createdAt) {
+    private Session(SessionId sessionId, SessionStatus status, Instant createdAt, Instant expiration) {
         this.sessionId = sessionId;
         this.status = status;
         this.createdAt = createdAt;
-        this.expiration = createdAt.plusSeconds(MAX_DURATION_SECONDS);
+        this.expiration = expiration;
     }
 
     public SessionId getSessionId() {
@@ -34,16 +34,12 @@ public class Session {
         return createdAt;
     }
 
-    public long getMaxDurationSeconds() {
-        return MAX_DURATION_SECONDS;
-    }
-
     public static Session create() {
-        return new Session(SessionId.generate(), SessionStatus.NORMAL, Instant.now());
+        return new Session(SessionId.generate(), SessionStatus.NORMAL, Instant.now(), Instant.now().plusSeconds(MAX_DURATION_SECONDS));
     }
 
-    public static Session load(SessionId sessionId, SessionStatus status, Instant createdAt) {
-        return new Session(sessionId, status, createdAt);
+    public static Session load(SessionId sessionId, SessionStatus status, Instant createdAt, Instant expiration) {
+        return new Session(sessionId, status, createdAt, expiration);
     }
 
     public void revoke() {

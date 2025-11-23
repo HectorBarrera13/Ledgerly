@@ -15,4 +15,8 @@ public class PhoneEmbeddable {
         phone.setNumber(number);
         return phone;
     }
+
+    public String getFullNumber() {
+        return countryCode + "-" + number;
+    }
 }
