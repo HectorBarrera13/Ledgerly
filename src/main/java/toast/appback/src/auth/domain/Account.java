@@ -22,7 +22,7 @@ public class Account {
     private final Instant createdAt;
     private final List<DomainEvent> userEvents = new ArrayList<>();
 
-    public Account(AccountId accountId, UserId userId, Email email, Password password, Instant createdAt, List<Session> sessions) {
+    private Account(AccountId accountId, UserId userId, Email email, Password password, Instant createdAt, List<Session> sessions) {
         this.accountId = accountId;
         this.userId = userId;
         this.email = email;
@@ -35,6 +35,10 @@ public class Account {
         Account account = new Account(AccountId.generate(), userId, email, password, Instant.now(), List.of());
         account.recordEvent(new AccountCreated(account.getAccountId(), userId, email));
         return account;
+    }
+
+    public static Account load(AccountId accountId, UserId userId, Email email, Password password, Instant createdAt, List<Session> sessions) {
+        return new Account(accountId, userId, email, password, createdAt, sessions);
     }
 
     public AccountId getAccountId() {

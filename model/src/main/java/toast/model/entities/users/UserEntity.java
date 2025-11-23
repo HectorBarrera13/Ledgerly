@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "user", indexes = {
-        @Index(name = "idx_user_uuid", columnList = "uuid", unique = true),
+        @Index(name = "idx_user_uuid", columnList = "userId", unique = true),
         @Index(name = "idx_user_created_at", columnList = "createdAt"),
         @Index(name = "idx_user_last_name", columnList = "lastName"),
         @Index(name = "idx_user_first_name", columnList = "firstName")

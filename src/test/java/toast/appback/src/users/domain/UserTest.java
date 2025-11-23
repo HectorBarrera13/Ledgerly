@@ -44,7 +44,7 @@ public class UserTest {
     @Test
     @DisplayName("Should be equal when having the same id")
     void testUserEquality() {
-        User anotherUser = new User(
+        User anotherUser = User.load(
                 user.getUserId(),
                 Name.load("Jane", "Smith"),
                 Phone.load("+1", "1234567"),
