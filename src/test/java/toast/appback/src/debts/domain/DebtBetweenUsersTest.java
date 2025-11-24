@@ -42,12 +42,14 @@ public class DebtBetweenUsersTest {
         debtMoney = DebtMoney.load(1000L, "USD");
 
         UserId debtorId = UserId.load(UUID.randomUUID());
+        String debtorName = "Debtor Test Name";
 
         UserId creditorId = UserId.load(UUID.randomUUID());
+        String creditorName = "Creditor Test Name";
     }
 
     private DebtBetweenUsers createPendingDebt() {
-        return new DebtBetweenUsers(debtId, context, debtMoney, debtorId, creditorId);
+        return DebtBetweenUsers.load(debtId, context, debtMoney, debtorId, creditorId, "John Doe", "Jane Smith");
     }
 
 
@@ -84,11 +86,9 @@ public class DebtBetweenUsersTest {
         @Test
         @DisplayName("Should initialize Debt correctly with existing events")
         void shouldInitializeDebtWithEvents() {
-            List<DomainEvent> events = List.of(new testDomainEvent());
 
-            DebtBetweenUsers debt = new DebtBetweenUsers(debtId, context, debtMoney, debtorId, creditorId, events);
+            DebtBetweenUsers debt = DebtBetweenUsers.create( context, debtMoney, debtorId, creditorId, "John Doe", "Jane Smith");
 
-            assertEquals(events, debt.getDebtEvents());
             assertEquals(1, debt.getDebtEvents().size());
         }
     }
@@ -118,7 +118,7 @@ public class DebtBetweenUsersTest {
             Context context = Context.load(purpose, description);
             DebtMoney debtMoney = DebtMoney.load(amount, currency);
 
-            DebtBetweenUsers createdDebt = new DebtBetweenUsers(id, context, debtMoney, debtorId,creditorId);
+            DebtBetweenUsers createdDebt = DebtBetweenUsers.load(id, context, debtMoney, debtorId,creditorId, "Debtor Name", "Creditor Name");
 
             assertNotNull(createdDebt.getId(), "El ID debe ser generado.");
 

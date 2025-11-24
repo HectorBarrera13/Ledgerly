@@ -48,8 +48,8 @@ public class CreateDebtBetweenUsersTest {
         debtorId   = UserId.generate();
         creditorId = UserId.generate();
 
-        debtor = new User(debtorId,name, phone);
-        creditor = new User(creditorId,name,phone);
+        debtor = User.create(name, phone);
+        creditor = User.create(name,phone);
 
         doNothing().when(debtRepository).save(any(Debt.class));
 

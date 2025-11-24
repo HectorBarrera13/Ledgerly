@@ -10,6 +10,7 @@ import toast.appback.src.users.infrastructure.persistence.mapping.UserMapper;
 import toast.model.entities.users.PhoneEmbeddable;
 import toast.model.entities.users.UserEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,6 +27,7 @@ public class UserRepositoryMySQL implements UserRepository {
         userEntity.setFirstName(user.getName().getFirstName());
         userEntity.setLastName(user.getName().getLastName());
         userEntity.setPhone(PhoneEmbeddable.create(user.getPhone().getCountryCode(), user.getPhone().getNumber()));
+        userEntity.setCreatedAt(user.getCreatedAt());
         jpaUserRepository.save(userEntity);
     }
 
@@ -34,4 +36,5 @@ public class UserRepositoryMySQL implements UserRepository {
         return jpaUserRepository.findByUserId(id.getValue())
                 .map(UserMapper::toDomain);
     }
+
 }

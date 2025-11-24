@@ -1,40 +1,64 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
-import toast.appback.src.debts.application.communication.command.AcceptDebtCommand;
-import toast.appback.src.debts.application.communication.command.ConfirmDebtPaymentCommand;
+import toast.appback.src.debts.application.communication.command.EditDebtStatusCommand;
+import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
+import toast.appback.src.debts.application.communication.result.DebtView;
+import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
+import toast.appback.src.debts.application.exceptions.DebtorNotFound;
 import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
-import toast.appback.src.debts.application.usecase.contract.ConfirmDebtPayment;
-import toast.appback.src.debts.domain.Debt;
+import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsersStatus;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
-import toast.appback.src.debts.domain.QuickDebt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.application.exceptions.UserNotFound;
+import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class ConfirmDebtPaymentUseCase implements ConfirmDebtPayment {
+public class ConfirmDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
     private final DebtRepository debtRepository;
     private final UserRepository userRepository;
+    private final DomainEventBus domainEventBus;
 
-    public ConfirmDebtPaymentUseCase(DebtRepository debtRepository, UserRepository userRepository) {
+    public ConfirmDebtPaymentUseCase(DebtRepository debtRepository, UserRepository userRepository ,DomainEventBus domainEventBus) {
         this.debtRepository = debtRepository;
         this.userRepository = userRepository;
+        this.domainEventBus = domainEventBus;
     }
 
 @Override
-public Debt execute(ConfirmDebtPaymentCommand command) {
-    Debt debt = debtRepository.findById(command.debtId())
+public DebtBetweenUsersView execute(EditDebtStatusCommand command) {
+    DebtBetweenUsers debt = debtRepository.findDebtBetweenUsersById(command.debtId())
             .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 
-    User actor = userRepository.findById(command.actorId())
-            .orElseThrow(() -> new UserNotFound(command.actorId()));
+    boolean isActorTheCreditor = command.actorId().equals(debt.getCreditorId());
+    if (!isActorTheCreditor) {
+        throw new UnauthorizedActionException("You are not authorized to perform this action");
+    }
 
-    validateAuthorization(debt, actor.getUserId());
+    User debtor = userRepository.findById(debt.getDebtorId())
+            .orElseThrow(() -> new DebtorNotFound(debt.getDebtorId().getValue()));
+
+    User creditor = userRepository.findById(debt.getCreditorId())
+            .orElseThrow(() -> new DebtNotFound(debt.getCreditorId().getValue()));
+
+    Name debtorName = debtor.getName();
+    Name creditorName = creditor.getName();
+
+    UserSummaryView debtorSummary = new UserSummaryView(
+            debtor.getUserId().getValue(),
+            debtorName.getFirstName(),
+            debtorName.getLastName()
+    );
+
+    UserSummaryView creditorSummary = new UserSummaryView(
+            creditor.getUserId().getValue(),
+            creditorName.getFirstName(),
+            creditorName.getLastName()
+    );
 
     Result<Void, DomainError> result = debt.confirmPayment();
 
@@ -44,22 +68,18 @@ public Debt execute(ConfirmDebtPaymentCommand command) {
 
     debtRepository.save(debt);
 
-    return debt;
-}
+    domainEventBus.publishAll(debt.pullEvents());
 
-private void validateAuthorization(Debt debt, UserId actorId) {
-
-    if (debt instanceof DebtBetweenUsers) {
-        DebtBetweenUsers specificDebt = (DebtBetweenUsers) debt;
-        if (!specificDebt.getCreditorId().equals(actorId)) {
-            throw new UnauthorizedActionException("Solo el creditor puede editar esta deuda de usuario a usuario.");
-        }
-    } else if (debt instanceof QuickDebt) {
-        QuickDebt quickDebt = (QuickDebt) debt;
-        if (!quickDebt.getUserId().equals(actorId)) {
-            throw new UnauthorizedActionException("Solo el creador puede editar esta deuda rápida.");
-        }
-    }
+    return new DebtBetweenUsersView(
+            debt.getId().getValue(),
+            debt.getContext().getPurpose(),
+            debt.getContext().getDescription(),
+            debt.getDebtMoney().getAmount(),
+            debt.getDebtMoney().getCurrency(),
+            debt.getStatus().toString(),
+            debtorSummary,
+            creditorSummary
+    );
 }
 
 }

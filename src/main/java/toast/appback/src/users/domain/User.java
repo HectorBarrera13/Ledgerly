@@ -45,6 +45,8 @@ public class User {
         return createdAt;
     }
 
+
+
     public List<DomainEvent> pullEvents() {
         List<DomainEvent> events = new ArrayList<>(this.domainEvents);
         this.domainEvents.clear();

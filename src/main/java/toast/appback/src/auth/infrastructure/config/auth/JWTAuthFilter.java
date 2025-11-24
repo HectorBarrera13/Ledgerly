@@ -27,6 +27,19 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("request info:\n");
+        System.out.println(request.getMethod() + " " + request.getRequestURI() + "\n");
+        System.out.println("Headers:");
+        request.getHeaderNames().asIterator()
+                .forEachRemaining(headerName -> {
+                    System.out.println(headerName + ": " + request.getHeader(headerName));
+                });
+        System.out.println("\nEnd of request info\n");
+
+        if (request.getServletPath().contains("/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         final String authHeader = request.getHeader("Authorization");
 
@@ -36,11 +49,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         }
 
         final String token = authHeader.substring(7);
-
-        if (tokenService.isTokenExpired(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         TokenClaims tokenClaims;
 

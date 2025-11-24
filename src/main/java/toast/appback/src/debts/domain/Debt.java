@@ -7,6 +7,8 @@ import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -17,78 +19,27 @@ public abstract class Debt {
     private Context context;
     private DebtMoney debtMoney;
     protected Status status = Status.PENDING;
+    private final Instant createdAt;
     private List<DomainEvent> debtEvents = new ArrayList<>();
 
-    protected Debt(DebtId id, Context context, DebtMoney debtMoney){
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, Instant createdAt){
         this.id = id;
         this.context = context;
         this.debtMoney = debtMoney;
+        this.createdAt = createdAt;
     }
 
-    protected Debt(DebtId id, Context context, DebtMoney debtMoney, List<DomainEvent> debtEvents){
-        this(id, context, debtMoney);
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, Instant createdAt , List<DomainEvent> debtEvents){
+        this(id, context, debtMoney, createdAt);
         this.debtEvents = debtEvents;
     }
 
-    public DebtId getId() {return id;}
-
-    public Context getContext() {return context;}
-
-    public Status getStatus() {return status;}
-
-    public DebtMoney getDebtMoney() {return debtMoney;}
-
-    public List<DomainEvent> getDebtEvents() {return debtEvents;}
-
-    public Result<Void, DomainError> accept(){
-        boolean isDebtPending = status == Status.PENDING;
-        if(!isDebtPending){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
-        this.status = Status.ACCEPTED;
-        return Result.ok();
-    }
-
-    public Result<Void, DomainError> reject(){
-        boolean isDebtPending = status == Status.PENDING;
-        if(!isDebtPending){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
-        this.status = Status.REJECTED;
-        return Result.ok();
-    }
-
-    public Result<Void, DomainError> reportPayment(){
-        boolean isDebtAccepted = status == Status.ACCEPTED;
-        boolean isDebtPaymentRejected = status == Status.PAYMENT_CONFIRMATION_REJECTED;
-        if(!isDebtAccepted && !isDebtPaymentRejected){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
-        this.status = Status.PAYMENT_CONFIRMATION_PENDING;
-        return Result.ok();
-    }
-
-    public Result<Void, DomainError> rejectPayment(){
-        boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
-        if(!isDebtAccepted){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
-        this.status = Status.PAYMENT_CONFIRMATION_REJECTED;
-        return Result.ok();
-    }
-
-    public Result<Void, DomainError> confirmPayment(){
-        boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
-        if(!isDebtAccepted){
-            return Result.failure(DomainError.businessRule("A debt with "+ status.name()+" cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
-        this.status = Status.PAYMENT_CONFIRMED;
-        return Result.ok();
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, Status status, Instant createdAt){
+        this.id = id;
+        this.context = context;
+        this.debtMoney = debtMoney;
+        this.status = status;
+        this.createdAt = createdAt;
     }
 
     public Result< Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
@@ -124,5 +75,17 @@ public abstract class Debt {
         debtEvents.clear();
         return events;
     }
+
+    public DebtId getId() {return id;}
+
+    public Context getContext() {return context;}
+
+    public Status getStatus() {return status;}
+
+    public DebtMoney getDebtMoney() {return debtMoney;}
+
+    public List<DomainEvent> getDebtEvents() {return debtEvents;}
+
+    public Instant getCreatedAt() {return createdAt;}
 
 }

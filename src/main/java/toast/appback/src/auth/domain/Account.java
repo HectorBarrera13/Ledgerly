@@ -74,7 +74,9 @@ public class Account {
         }
         Session newSession = Session.create();
         this.sessions.add(newSession);
-        this.recordEvent(new SessionAdded(this.accountId, newSession.getSessionId()));
+        this.recordEvent(
+                new SessionAdded(this.accountId, newSession.getSessionId())
+        );
         return Result.ok(newSession);
     }
 

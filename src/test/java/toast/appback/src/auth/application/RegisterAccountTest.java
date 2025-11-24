@@ -59,7 +59,7 @@ public class RegisterAccountTest {
 
         when(createUser.execute(any())).thenReturn(user);
         when(createAccount.execute(any())).thenReturn(createAccountResult);
-        when(tokenService.generateTokens(any(), anyLong())).thenReturn(tokens);
+        when(tokenService.generateTokens(any())).thenReturn(tokens);
 
         AuthResult result = registerAccountUseCase.execute(command);
 
@@ -68,7 +68,7 @@ public class RegisterAccountTest {
 
         verify(createUser, times(1)).execute(any());
         verify(createAccount, times(1)).execute(any());
-        verify(tokenService, times(1)).generateTokens(any(), anyLong());
+        verify(tokenService, times(1)).generateTokens(any());
         verify(domainEventBus, times(2)).publishAll(any());
 
         verifyNoMoreInteractions(

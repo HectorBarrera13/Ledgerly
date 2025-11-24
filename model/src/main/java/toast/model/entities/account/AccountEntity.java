@@ -48,4 +48,14 @@ public class AccountEntity {
 
     @Column(nullable = false)
     private Instant lastUpdatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.lastUpdatedAt = this.createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.lastUpdatedAt = Instant.now();
+    }
 }

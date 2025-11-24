@@ -42,6 +42,7 @@ public class AccountRepositoryMySQL implements AccountRepository {
         accountEntity.setEmail(account.getEmail().getValue());
         accountEntity.setPasswordHash(account.getPassword().getHashed());
         accountEntity.setUser(userEntity);
+        accountEntity.setCreatedAt(account.getCreatedAt());
         AccountMapper.syncSessions(account.getSessions(), accountEntity);
         jpaAccountRepository.save(accountEntity);
     }

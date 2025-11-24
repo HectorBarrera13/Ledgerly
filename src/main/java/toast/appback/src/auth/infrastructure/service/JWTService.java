@@ -38,6 +38,9 @@ public class JWTService implements TokenService {
     @Value("${jwt.expiration.access.seconds}")
     private long accessExpirationInSeconds;
 
+    @Value("${jwt.expiration.refresh.seconds}")
+    private long refreshExpirationInSeconds;
+
     private SecretKey secretKey;
 
     private JwtParser jwtParser;
@@ -53,14 +56,14 @@ public class JWTService implements TokenService {
         return getJwt(tokenClaims, accessExpirationInSeconds, "access");
     }
 
-    private Jwt generateRefreshToken(TokenClaims tokenClaims, long sessionExpirationInSeconds) {
-        return getJwt(tokenClaims, sessionExpirationInSeconds, "refresh");
+    private Jwt generateRefreshToken(TokenClaims tokenClaims) {
+        return getJwt(tokenClaims, refreshExpirationInSeconds, "refresh");
     }
 
     @Override
-    public Tokens generateTokens(TokenClaims tokenClaims, long sessionDurationInSeconds) {
+    public Tokens generateTokens(TokenClaims tokenClaims) {
         Jwt accessToken = generateAccessToken(tokenClaims);
-        Jwt refreshToken = generateRefreshToken(tokenClaims, sessionDurationInSeconds);
+        Jwt refreshToken = generateRefreshToken(tokenClaims);
         return new Tokens(accessToken, refreshToken);
     }
 
@@ -134,8 +137,7 @@ public class JWTService implements TokenService {
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean safe) {
         try {
-            Claims claims = safe ? jwtParser.parseSignedClaims(token).getPayload()
-                    : jwtParser.parseUnsecuredClaims(token).getPayload();
+            Claims claims = jwtParser.parseSignedClaims(token).getPayload();
             return claimsResolver.apply(claims);
         } catch (SignatureException e) {
             logger.warn("JWT signature inválida: {}", e.getMessage());
@@ -144,8 +146,12 @@ public class JWTService implements TokenService {
             logger.warn("JWT value malformado: {}", e.getMessage());
             throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
-            logger.warn("JWT token expirado: {}", e.getMessage());
-            throw new TokenExpiredException();
+            if (safe) {
+                logger.warn("JWT token expirado: {}", e.getMessage());
+                throw new TokenExpiredException();
+            } else {
+                return claimsResolver.apply(e.getClaims());
+            }
         } catch (UnsupportedJwtException e) {
             logger.warn("JWT value no soportado: {}", e.getMessage());
             throw new TokenClaimsException("Unsupported JWT token", e);
