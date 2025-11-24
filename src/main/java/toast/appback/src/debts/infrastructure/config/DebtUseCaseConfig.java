@@ -11,29 +11,6 @@ import toast.appback.src.users.domain.repository.UserRepository;
 public class DebtUseCaseConfig {
 
     @Bean
-    public AcceptDebtUseCase acceptDebtUseCase(
-            DebtRepository debtRepository,
-            DomainEventBus domainEventBus
-    ) {
-        return new AcceptDebtUseCase(
-                debtRepository,
-                domainEventBus
-        );
-    }
-
-    @Bean
-    public ConfirmDebtPaymentUseCase confirmDebtPaymentUseCase(
-            DebtRepository debtRepository,
-            UserRepository userRepository,
-            DomainEventBus domainEventBus
-    ) {
-        return new ConfirmDebtPaymentUseCase(
-                debtRepository,
-                domainEventBus
-        );
-    }
-
-    @Bean
     public CreateDebtBetweenUsersUseCase createDebtBetweenUsersUseCase(
             UserRepository userRepository,
             DebtRepository debtRepository,
@@ -58,23 +35,54 @@ public class DebtUseCaseConfig {
     }
 
     @Bean
-    public EditDebtUseCase editDebtBetweenUsersUseCase(
+    public EditQuickDebtUseCase editDebtBetweenUsersUseCase(
             DebtRepository debtRepository,
+            DomainEventBus domainEventBus,
+            UserRepository userRepository
+    ) {
+        return new EditQuickDebtUseCase(
+                debtRepository,
+                domainEventBus,
+                userRepository
+        );
+    }
+
+
+    @Bean("acceptDebtUseCase")
+    public AcceptDebtUseCase acceptDebtUseCase(
+            DebtRepository debtRepository,
+            UserRepository userRepository,
             DomainEventBus domainEventBus
     ) {
-        return new EditDebtUseCase(
+        return new AcceptDebtUseCase(
                 debtRepository,
+                userRepository,
                 domainEventBus
         );
     }
 
-    @Bean
-    public RejectDebtUseCase rejectDebtUseCase(
+    @Bean("declineDebtUseCase")
+    public RejectDebtUseCase declineDebtUseCase(
             DebtRepository debtRepository,
+            UserRepository userRepository,
             DomainEventBus domainEventBus
     ) {
         return new RejectDebtUseCase(
                 debtRepository,
+                userRepository,
+                domainEventBus
+        );
+    }
+
+    @Bean("reportDebtPaymentUseCase")
+    public ReportDebtPaymentUseCase reportDebtPaymentUseCase(
+            DebtRepository debtRepository,
+            UserRepository userRepository,
+            DomainEventBus domainEventBus
+    ) {
+        return new ReportDebtPaymentUseCase(
+                debtRepository,
+                userRepository,
                 domainEventBus
         );
     }
@@ -82,21 +90,25 @@ public class DebtUseCaseConfig {
     @Bean("rejectDebtPaymentUseCase")
     public RejectDebtPaymentUseCase rejectDebtPaymentUseCase(
             DebtRepository debtRepository,
+            UserRepository userRepository,
             DomainEventBus domainEventBus
     ) {
         return new RejectDebtPaymentUseCase(
                 debtRepository,
+                userRepository,
                 domainEventBus
         );
     }
 
-    @Bean
-    public ReportDebtPaymentUseCase reportDebtPaymentUseCase(
+    @Bean("confirmDebtPaymentUseCase")
+    public ConfirmDebtPaymentUseCase confirmDebtPaymentUseCase(
             DebtRepository debtRepository,
+            UserRepository userRepository,
             DomainEventBus domainEventBus
     ) {
-        return new ReportDebtPaymentUseCase(
+        return new ConfirmDebtPaymentUseCase(
                 debtRepository,
+                userRepository,
                 domainEventBus
         );
     }

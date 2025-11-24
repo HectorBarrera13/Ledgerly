@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -16,10 +17,15 @@ import java.util.UUID;
         @Index(name = "idx_debt_uuid", columnList = "uuid", unique = true),
         @Index(name = "idx_debt_created_at", columnList = "createdAt")
 })
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "debt_type", discriminatorType = DiscriminatorType.STRING)
 public class DebtEntity {
 
-    @Id()
-    @Column(nullable = false, unique = true, updatable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="debt_id", nullable = false, unique = true, updatable = false)
     private UUID debtId;
 
     @Column(nullable = false)
@@ -29,16 +35,10 @@ public class DebtEntity {
     private String description;
 
     @Column(nullable = false)
-    private Long amount;
+    private BigDecimal amount;
 
     @Column(nullable = false)
     private String currency;
-
-    @Column(nullable = false)
-    private String debtorName;
-
-    @Column(nullable = false)
-    private String creditorName;
 
     @Column(nullable = false)
     private String status;

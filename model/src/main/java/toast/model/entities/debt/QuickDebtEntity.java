@@ -11,20 +11,20 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuickDebtEntity extends DebtEntity{
+@Table(name = "quick_debt", indexes =  {
+        @Index(name = "idx_quick_debt_uuid", columnList = "debtId", unique = true),
+        @Index(name = "idx_quick_debt_created_at", columnList = "createdAt")
+})
+@DiscriminatorValue("QUICK_DEBT")
+@PrimaryKeyJoinColumn(name = "id")
+public class QuickDebtEntity extends DebtEntity {
 
     @Column(nullable = false, updatable = false)
     private UUID userId;
 
-    @Column(nullable = false, updatable = false)
-    private String userName;
-
     @Column(nullable = false)
-    private String role;
+    private String myRole;
 
     @Column(nullable = false)
     private String targetUserName;
-
-    @Column(nullable = false, updatable = false)
-    private java.time.Instant createdAt;
 }

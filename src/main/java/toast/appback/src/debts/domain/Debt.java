@@ -7,6 +7,8 @@ import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -16,22 +18,28 @@ public abstract class Debt {
     private final DebtId id;
     private Context context;
     private DebtMoney debtMoney;
-    private String debtorName;
-    private String creditorName;
     protected Status status = Status.PENDING;
+    private final Instant createdAt;
     private List<DomainEvent> debtEvents = new ArrayList<>();
 
-    protected Debt(DebtId id, Context context, DebtMoney debtMoney, String debtorName, String creditorName) {
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, Instant createdAt){
         this.id = id;
         this.context = context;
         this.debtMoney = debtMoney;
-        this.debtorName = debtorName;
-        this.creditorName = creditorName;
+        this.createdAt = createdAt;
     }
 
-    protected Debt(DebtId id, Context context, DebtMoney debtMoney, String debtorName, String creditorName, List<DomainEvent> debtEvents){
-        this(id, context, debtMoney, debtorName, creditorName);
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, Instant createdAt , List<DomainEvent> debtEvents){
+        this(id, context, debtMoney, createdAt);
         this.debtEvents = debtEvents;
+    }
+
+    protected Debt(DebtId id, Context context, DebtMoney debtMoney, Status status, Instant createdAt){
+        this.id = id;
+        this.context = context;
+        this.debtMoney = debtMoney;
+        this.status = status;
+        this.createdAt = createdAt;
     }
 
     public Result< Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
@@ -78,8 +86,6 @@ public abstract class Debt {
 
     public List<DomainEvent> getDebtEvents() {return debtEvents;}
 
-    public String getDebtorName() {return debtorName;}
-
-    public String getCreditorName() {return creditorName;}
+    public Instant getCreatedAt() {return createdAt;}
 
 }

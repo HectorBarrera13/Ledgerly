@@ -11,6 +11,12 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "debt_between_users", indexes = {
+        @Index(name = "idx_between_debt_debt_id", columnList = "debt_id", unique = true),
+        @Index(name = "idx_between_debt_created_at", columnList = "created_at")
+})
+@DiscriminatorValue("DEBT_BETWEEN_USERS")
+@PrimaryKeyJoinColumn(name = "id")
 public class DebtBetweenUsersEntity extends DebtEntity {
 
     @Column(nullable = false)

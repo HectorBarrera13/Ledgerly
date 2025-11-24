@@ -3,10 +3,8 @@ package toast.appback.src.debts.infrastructure.persistence.jparepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import toast.appback.src.debts.infrastructure.persistence.jparepository.projection.DebtProjection;
+import toast.appback.src.debts.infrastructure.persistence.jparepository.projection.DebtBetweenUsersProjection;
 import toast.model.entities.debt.DebtBetweenUsersEntity;
-import toast.model.entities.debt.DebtEntity;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -17,37 +15,81 @@ public interface JpaDebtBetweenUsersRepository extends JpaRepository<DebtBetween
 
     Optional<DebtBetweenUsersEntity> findByDebtId(UUID debtId);
 
+
     @Query("""
-           SELECT dbu
-           From DebtBetweenUsersEntity dbu
-           Where dbu.debtorId = :userId
-           Order By dbu.createdAt Desc
+           SELECT 
+                d.debtId AS debtId,
+                d.purpose AS purpose, 
+                d.description AS description,
+                d.amount AS amount, 
+                d.currency AS currency,
+                d.debtorId AS debtorId,
+                debtor.firstName AS debtorFirstName,
+                debtor.lastName AS debtorLastName,
+                d.creditorId AS creditorId,
+                creditor.firstName AS creditorFirstName,
+                creditor.lastName AS creditorLastName,
+                d.status AS status
+            FROM DebtBetweenUsersEntity d
+            JOIN UserEntity debtor ON d.debtorId = debtor.userId
+            JOIN UserEntity creditor ON d.creditorId = creditor.userId
+            WHERE d.debtId = :debtId
            """)
-    List<DebtProjection> findDebtorDebtBetweenUsersProjection(@Param("userId") UUID userId, Pageable pageable);
+    Optional<DebtBetweenUsersProjection> findDebtBetweenUsersProjectionByDebtId(@Param("debtId") UUID debtId);
 
     @Query("""
-              SELECT dbu
-                From DebtBetweenUsersEntity dbu
-                Where dbu.debtorId = :userId
-                    And dbu.debtId < :cursor
-                Order By dbu.createdAt Desc
-            """)
-    List<DebtProjection> findDebtorDebtsBetweenUsersProjectionAfterCursor(@Param("userId") UUID userId, @Param("cursor") UUID cursor, Pageable pageable);
+           SELECT 
+                d.debtId AS debtId,
+                d.purpose AS purpose, 
+                d.description AS description,
+                d.amount AS amount, 
+                d.currency AS currency,
+                d.debtorId AS debtorId,
+                debtor.firstName AS debtorFirstName,
+                debtor.lastName AS debtorLastName,
+                d.creditorId AS creditorId,
+                creditor.firstName AS creditorFirstName,
+                creditor.lastName AS creditorLastName,
+                d.status AS status
+            FROM DebtBetweenUsersEntity d
+            JOIN UserEntity debtor ON d.debtorId = debtor.userId
+            JOIN UserEntity creditor ON d.creditorId = creditor.userId
+            WHERE 
+            (CASE WHEN :role = 'DEBTOR' THEN d.debtorId = :userId END) OR
+            (CASE WHEN :role = 'CREDITOR' THEN d.creditorId = :userId END)
+            ORDER BY d.createdAt DESC
+            LIMIT :limit
+           """)
+    List<DebtBetweenUsersProjection> getDebtsBetweenUsersProjectionByRole(@Param("userId") UUID userId,@Param("role") String role, @Param("limit") int limit);
 
     @Query("""
-              SELECT dbu
-                From DebtBetweenUsersEntity dbu
-                Where dbu.creditorId = :userId
-                Order By dbu.createdAt Desc
+              SELECT 
+                d.debtId AS debtId,
+                d.purpose AS purpose, 
+                d.description AS description,
+                d.amount AS amount, 
+                d.currency AS currency,
+                d.debtorId AS debtorId,
+                debtor.firstName AS debtorFirstName,
+                debtor.lastName AS debtorLastName,
+                d.creditorId AS creditorId,
+                creditor.firstName AS creditorFirstName,
+                creditor.lastName AS creditorLastName,
+                d.status AS status
+            FROM DebtBetweenUsersEntity d
+            JOIN UserEntity debtor ON d.debtorId = debtor.userId
+            JOIN UserEntity creditor ON d.creditorId = creditor.userId
+            WHERE
+            (CASE WHEN :role = 'DEBTOR' THEN d.debtorId = :userId END) OR
+            (CASE WHEN :role = 'CREDITOR' THEN d.creditorId = :userId END)
+            AND d.debtId < :cursor
+            ORDER BY d.createdAt DESC
+            LIMIT :limit
             """)
-    List<DebtProjection> findCreditorDebtBetweenUsersProjection(@Param("userId") UUID userId, Pageable pageable);
+    List<DebtBetweenUsersProjection> findDebtorDebtsBetweenUsersProjectionAfterCursor(
+            @Param("userId") UUID userId,
+            @Param("role") String role,
+            @Param("cursor") UUID cursor,
+            @Param("limit") int limit);
 
-    @Query("""
-              SELECT dbu
-                From DebtBetweenUsersEntity dbu
-                Where dbu.creditorId = :userId
-                    And dbu.debtId < :cursor
-                Order By dbu.createdAt Desc
-            """)
-    List<DebtProjection> findCreditorDebtsBetweenUsersProjectionAfterCursor(@Param("userId") UUID userId, @Param("cursor") UUID cursor, Pageable pageable);
 }

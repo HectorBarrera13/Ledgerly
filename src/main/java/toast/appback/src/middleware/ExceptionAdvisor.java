@@ -15,7 +15,6 @@ import java.util.List;
 @RestControllerAdvice
 public class ExceptionAdvisor {
 
-
     private static final Logger log = LoggerFactory.getLogger(ExceptionAdvisor.class);
 
     @ExceptionHandler(DomainException.class)

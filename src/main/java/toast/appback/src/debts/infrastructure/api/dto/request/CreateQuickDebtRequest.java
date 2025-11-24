@@ -11,13 +11,12 @@ public record CreateQuickDebtRequest (
         String description,
         String currency,
         Long amount,
-        @JsonProperty("user_id")
-        UserId userId,
+        @JsonProperty("my_role")
         String role,
-        @JsonProperty("target_user")
-        String targetUser
+        @JsonProperty("target_user_name")
+        String targetUserName
 ){
-    public CreateQuickDebtCommand toCreateQuickDebtCommand() {
+    public CreateQuickDebtCommand toCreateQuickDebtCommand(UserId userId) {
         return new CreateQuickDebtCommand(
                 purpose,
                 description,
@@ -25,7 +24,7 @@ public record CreateQuickDebtRequest (
                 amount,
                 userId,
                 role,
-                targetUser
+                targetUserName
         );
     }
 

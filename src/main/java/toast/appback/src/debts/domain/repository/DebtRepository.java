@@ -10,10 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DebtRepository {
-    void save(Debt debt);
     void save(DebtBetweenUsers debtBetweenUsers);
     void save(QuickDebt quickDebt);
-    Optional<Debt> findDebtById(DebtId id);
     Optional<DebtBetweenUsers> findDebtBetweenUsersById(DebtId debtId);
     Optional<QuickDebt> findQuickDebtById(DebtId debtId);
 

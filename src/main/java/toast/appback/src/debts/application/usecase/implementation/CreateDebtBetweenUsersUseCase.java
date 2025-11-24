@@ -2,7 +2,9 @@ package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.CreateDebtBetweenUsersCommand;
 
+import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
 import toast.appback.src.debts.application.communication.result.DebtView;
+import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.CreditorNotFound;
 import toast.appback.src.debts.application.exceptions.DebtorNotFound;
@@ -12,7 +14,9 @@ import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.shared.application.DomainEventBus;
+import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
+import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
 public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
@@ -27,31 +31,46 @@ public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
     }
 
     @Override
-    public DebtView execute(CreateDebtBetweenUsersCommand command) {
+    public DebtBetweenUsersView execute(CreateDebtBetweenUsersCommand command) {
         User debtor = userRepository.findById(command.debtorId())
                 .orElseThrow(() -> new DebtorNotFound(command.debtorId().getValue()));
 
         User creditor = userRepository.findById(command.creditorId())
                 .orElseThrow(() -> new CreditorNotFound(command.creditorId().getValue()));
 
+        Name debtorName = debtor.getName();
+        Name creditorName = creditor.getName();
+
+        UserSummaryView debtorSummary = new UserSummaryView(
+                debtor.getUserId().getValue(),
+                debtorName.getFirstName(),
+                debtorName.getLastName()
+        );
+
+        UserSummaryView creditorSummary = new UserSummaryView(
+                creditor.getUserId().getValue(),
+                creditorName.getFirstName(),
+                creditorName.getLastName()
+        );
+
         Context context = Context.create(command.purpose(), command.description()).orElseThrow(CreationDebtException::new);
         DebtMoney debtMoney = DebtMoney.create(command.currency(), command.amount()).orElseThrow(CreationDebtException::new);
 
-        DebtBetweenUsers debt = DebtBetweenUsers.create(context, debtMoney,command.debtorId(), command.creditorId(), debtor.getName().toString(), creditor.getName().toString());
+        DebtBetweenUsers debt = DebtBetweenUsers.create(context, debtMoney,command.debtorId(), command.creditorId());
 
         debtRepository.save(debt);
 
         domainEventBus.publishAll(debt.pullEvents());
 
-        return new DebtView(
+        return new DebtBetweenUsersView(
                 debt.getId().getValue(),
                 debt.getContext().getPurpose(),
                 debt.getContext().getDescription(),
-                debt.getDebtMoney().getAmount().longValue(),
+                debt.getDebtMoney().getAmount(),
                 debt.getDebtMoney().getCurrency(),
-                debt.getDebtorName(),
-                debt.getCreditorName(),
-                debt.getStatus().toString()
+                debt.getStatus().toString(),
+                debtorSummary,
+                creditorSummary
         );
     }
 }
