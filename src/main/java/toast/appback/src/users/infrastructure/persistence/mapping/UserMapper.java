@@ -7,7 +7,7 @@ public class UserMapper {
 
     public static User toDomain(UserEntity userEntity) {
         if (userEntity == null) return null;
-        return new User(
+        return User.load(
                 UserId.load(userEntity.getUserId()),
                 Name.load(userEntity.getFirstName(), userEntity.getLastName()),
                 Phone.load(userEntity.getPhone().getCountryCode(), userEntity.getPhone().getNumber()),

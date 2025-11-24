@@ -49,7 +49,7 @@ public class AccountTest {
     @DisplayName("Should be equal when having the same account id and user id")
     void testAccountEquality() {
         AccountId accountId = account.getAccountId();
-        Account anotherAccount = new Account(
+        Account anotherAccount = Account.load(
                 accountId,
                 account.getUserId(),
                 Email.load(EMAIL),

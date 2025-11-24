@@ -15,7 +15,7 @@ public class User {
     private final Instant createdAt;
     private final List<DomainEvent> domainEvents = new ArrayList<>();
 
-    public User(UserId userId, Name name, Phone phone, Instant createdAt) {
+    private User(UserId userId, Name name, Phone phone, Instant createdAt) {
         this.userId = userId;
         this.name = name;
         this.phone = phone;
@@ -27,6 +27,10 @@ public class User {
         User user = new User(userId, name, phone, Instant.now());
         user.recordEvent(new UserCreated(userId, name));
         return user;
+    }
+
+    public static User load(UserId userId, Name name, Phone phone, Instant createdAt) {
+        return new User(userId, name, phone, createdAt);
     }
 
     public UserId getUserId() {

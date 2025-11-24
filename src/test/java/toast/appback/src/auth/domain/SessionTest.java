@@ -10,9 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Session Domain Test")
 public class SessionTest {
-
-    private final SessionId sessionId = SessionId.generate();
-    private final Session session = Session.load(sessionId, SessionStatus.NORMAL, Instant.now());
+    private final Session session = Session.create();
+    private final SessionId sessionId = session.getSessionId();
 
     @Test
     @DisplayName("Should create session with NORMAL status")
@@ -39,7 +38,7 @@ public class SessionTest {
     @Test
     @DisplayName("Should be equal when having the same session id")
     void testSessionEquality() {
-        Session anotherSession = Session.load(session.getSessionId(), SessionStatus.NORMAL, Instant.now());
+        Session anotherSession = Session.load(session.getSessionId(), SessionStatus.NORMAL, Instant.now(), Instant.now().plusSeconds(1000));
         assertEquals(session, anotherSession);
     }
 

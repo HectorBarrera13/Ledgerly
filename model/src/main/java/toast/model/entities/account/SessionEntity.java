@@ -16,8 +16,7 @@ import java.util.UUID;
         @Index(name = "idx_session_session_id", columnList = "sessionId", unique = true),
         @Index(name = "idx_session_account_id", columnList = "account_id"),
         @Index(name = "idx_session_started_at", columnList = "startedAt"),
-        @Index(name = "idx_session_expiration", columnList = "expiration"),
-        @Index(name = "idx_session_last_login", columnList = "lastLogin")
+        @Index(name = "idx_session_expiration", columnList = "expiration")
 })
 public class SessionEntity {
     @Id

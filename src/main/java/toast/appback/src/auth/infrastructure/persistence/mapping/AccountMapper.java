@@ -15,7 +15,7 @@ public class AccountMapper {
                 .map(AccountMapper::toDomainSession)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        return new Account(
+        return Account.load(
                 AccountId.load(entity.getAccountId()),
                 UserId.load(entity.getUser().getUserId()),
                 Email.load(entity.getEmail()),
@@ -63,10 +63,11 @@ public class AccountMapper {
     }
 
     private static Session toDomainSession(SessionEntity entity) {
-        return new Session(
+        return Session.load(
                 SessionId.load(entity.getSessionId()),
                 SessionStatus.valueOf(entity.getSessionStatus().name()),
-                entity.getStartedAt()
+                entity.getStartedAt(),
+                entity.getExpiration()
         );
     }
 

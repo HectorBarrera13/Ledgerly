@@ -56,13 +56,11 @@ public class AccountMother {
 
     public static Account withMaxSessions() {
         Account account = validAccount();
-        Session session = account.startSession()
-                 .orElseThrow(result -> new IllegalStateException(
-                         "AccountMother failed to create max sessions\n" + result
-                 ));
-        long maxSessions = session.getMaxDurationSeconds();
-        for (int i = 1; i < maxSessions - 1; i++) {
-            account.startSession();
+        for (int i = 1; i <= MAX_SESSIONS; i++) {
+            account.startSession()
+                    .orElseThrow(result -> new IllegalStateException(
+                            "AccountMother failed to create max sessions\n" + result
+                    ));
         }
         return account;
     }
