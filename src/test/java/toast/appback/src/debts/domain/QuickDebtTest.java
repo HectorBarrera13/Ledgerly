@@ -34,7 +34,7 @@ public class QuickDebtTest {
     }
 
     private QuickDebt createPendingQuickDebt() {
-        return new QuickDebt(debtId, context, debtMoney, userId, role, targetUser);
+        return QuickDebt.load(debtId, context, debtMoney, userId, "john doe", role, targetUser);
     }
 
     // --- 1. Tests de Construcción y Getters ---
@@ -127,21 +127,19 @@ public class QuickDebtTest {
             Result<Void, DomainError> result = debt.pay();
 
             assertTrue(result.isOk(), "El pago debe ser exitoso.");
-            assertEquals(Status.PAID, debt.getStatus(), "El estado debe cambiar a PAID.");
+            assertEquals(Status.PAYMENT_CONFIRMED, debt.getStatus(), "El estado debe cambiar a PAID.");
         }
 
         @Test
         @DisplayName("Should fail to pay if status is already PAID")
         void shouldFailToPayIfPaid() {
             QuickDebt debt = createPendingQuickDebt();
-            debt.pay(); // Estado PAID
+            debt.pay();
 
             Result<Void, DomainError> result = debt.pay();
 
             assertTrue(result.isFailure(), "El segundo pago debe fallar.");
-            // Aquí se valida el código de error de negocio si estuviera disponible
-            // assertEquals(DebtBusinessCode.DEBT_NO_ACCEPTED, result.getFailure().getBusinessCode());
-            assertEquals(Status.PAID, debt.getStatus(), "El estado debe permanecer PAID.");
+            assertEquals(Status.PAYMENT_CONFIRMED, debt.getStatus(), "El estado debe permanecer PAID.");
         }
 
         @Test

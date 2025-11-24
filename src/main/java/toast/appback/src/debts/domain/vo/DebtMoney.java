@@ -46,9 +46,8 @@ public class DebtMoney {
         return Result.ok(new DebtMoney(amountTransformation(amount, SCALE), currency));
     }
 
-    public static DebtMoney load(Long amount, String currency) {
-        BigDecimal amountTransformed = amountTransformation(amount, SCALE);
-        return new DebtMoney(amountTransformed, currency);
+    public static DebtMoney load(BigDecimal amount, String currency) {
+        return new DebtMoney(amount, currency);
     }
 
     private static Result<String, DomainError> currencyValidation(String currency, String format, String field) {
