@@ -1,4 +1,4 @@
-package toast.appback.src.auth.infrastrcuture;
+package toast.appback.src.auth.infrastructure;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,8 @@ import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.infrastructure.exceptions.AuthenticationServiceException;
 import toast.appback.src.auth.infrastructure.service.SpringSecurityAuthService;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
         classes = {

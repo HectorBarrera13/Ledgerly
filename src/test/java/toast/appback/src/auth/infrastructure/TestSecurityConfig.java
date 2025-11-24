@@ -1,4 +1,4 @@
-package toast.appback.src.auth.infrastrcuture;
+package toast.appback.src.auth.infrastructure;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ public class TestSecurityConfig {
     public AuthenticationManager authenticationManager() {
         var provider = new DaoAuthenticationProvider(userDetailsService());
         provider.setPasswordEncoder(passwordEncoder());
-        return  new ProviderManager(provider);
+        return new ProviderManager(provider);
     }
 
     @Bean
