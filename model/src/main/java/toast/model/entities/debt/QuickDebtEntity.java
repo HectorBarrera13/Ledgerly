@@ -1,8 +1,10 @@
 package toast.model.entities.debt;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Entity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -11,12 +13,12 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "quick_debt", indexes =  {
-        @Index(name = "idx_quick_debt_uuid", columnList = "debtId", unique = true),
-        @Index(name = "idx_quick_debt_created_at", columnList = "createdAt")
-})
 @DiscriminatorValue("QUICK_DEBT")
 @PrimaryKeyJoinColumn(name = "id")
+@Table(name = "quick_debt", indexes = {
+        @Index(name = "idx_quick_debt_user_id", columnList = "userId"),
+        @Index(name = "idx_quick_debt_target_user_name", columnList = "targetUserName")
+})
 public class QuickDebtEntity extends DebtEntity {
 
     @Column(nullable = false, updatable = false)

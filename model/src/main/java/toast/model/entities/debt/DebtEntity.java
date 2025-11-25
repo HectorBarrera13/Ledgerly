@@ -1,6 +1,5 @@
 package toast.model.entities.debt;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,9 +12,10 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "debt", indexes =  {
-        @Index(name = "idx_debt_uuid", columnList = "uuid", unique = true),
-        @Index(name = "idx_debt_created_at", columnList = "createdAt")
+@Table(name = "debt", indexes = {
+        @Index(name = "idx_debt_created_at", columnList = "createdAt"),
+        @Index(name = "idx_debt_purpose", columnList = "purpose"),
+        @Index(name = "idx_debt_currency", columnList = "currency"),
 })
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "debt_type", discriminatorType = DiscriminatorType.STRING)
@@ -25,7 +25,7 @@ public class DebtEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="debt_id", nullable = false, unique = true, updatable = false)
+    @Column(name = "debt_id", nullable = false, unique = true, updatable = false)
     private UUID debtId;
 
     @Column(nullable = false)

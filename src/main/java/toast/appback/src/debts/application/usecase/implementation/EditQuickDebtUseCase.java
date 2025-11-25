@@ -1,20 +1,15 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.EditDebtCommand;
-import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.communication.result.QuickDebtView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
-import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.EditDebtException;
 import toast.appback.src.debts.application.usecase.contract.EditDebt;
-import toast.appback.src.debts.domain.Debt;
-import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.QuickDebt;
+import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtMoney;
-import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
@@ -22,7 +17,7 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class EditQuickDebtUseCase implements EditDebt{
+public class EditQuickDebtUseCase implements EditDebt {
     private final DebtRepository debtRepository;
     private final DomainEventBus domainEventBus;
     private final UserRepository userRepository;
@@ -40,15 +35,20 @@ public class EditQuickDebtUseCase implements EditDebt{
         QuickDebt debt = debtRepository.findQuickDebtById(command.debtId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 
-        DebtMoney newMoney = DebtMoney.create(command.newCurrency(), command.newAmount()).orElseThrow(CreationDebtException::new);
-        Context newContext = Context.create(command.newPurpose(), command.newDescription()).orElseThrow(CreationDebtException::new);
+        Result<DebtMoney, DomainError> moneyResult = DebtMoney.create(command.newCurrency(), command.newAmount());
+        Result<Context, DomainError> contextResult = Context.create(command.newPurpose(), command.newDescription());
 
-        Result<Void, DomainError> editMoneyResult = debt.editDebtMoney(newMoney);
-        Result<Void, DomainError> editContextResult = debt.editContext(newContext);
+        Result<Void, DomainError> validationResult = Result.empty();
+        validationResult.collect(moneyResult);
+        validationResult.collect(contextResult);
+        validationResult.ifFailureThrows(EditDebtException::new);
+        DebtMoney newMoney = moneyResult.get();
+        Context newContext = contextResult.get();
 
-        Result<Void, DomainError> updateResult = Result.empty();
-        updateResult.collect(editMoneyResult);
-        updateResult.collect(editContextResult);
+        debt.editDebtMoney(newMoney)
+                .orElseThrow(EditDebtException::new);
+        debt.editContext(newContext)
+                .orElseThrow(EditDebtException::new);
 
         User user = userRepository.findById(debt.getUserId())
                 .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
@@ -58,10 +58,6 @@ public class EditQuickDebtUseCase implements EditDebt{
                 userName.getFirstName(),
                 userName.getLastName()
         );
-
-        if(updateResult.isFailure()){
-            throw new EditDebtException(updateResult.getErrors());
-        }
 
         debtRepository.save(debt);
         domainEventBus.publishAll(debt.pullEvents());

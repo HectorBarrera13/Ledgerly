@@ -1,9 +1,7 @@
 package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.CreateDebtBetweenUsersCommand;
-
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.CreditorNotFound;
@@ -14,9 +12,10 @@ import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.shared.application.DomainEventBus;
+import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
 public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
@@ -24,7 +23,7 @@ public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
     private final DebtRepository debtRepository;
     private final DomainEventBus domainEventBus;
 
-    public CreateDebtBetweenUsersUseCase( UserRepository userRepository, DebtRepository debtRepository, DomainEventBus domainEventBus) {
+    public CreateDebtBetweenUsersUseCase(UserRepository userRepository, DebtRepository debtRepository, DomainEventBus domainEventBus) {
         this.userRepository = userRepository;
         this.debtRepository = debtRepository;
         this.domainEventBus = domainEventBus;
@@ -53,10 +52,16 @@ public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
                 creditorName.getLastName()
         );
 
-        Context context = Context.create(command.purpose(), command.description()).orElseThrow(CreationDebtException::new);
-        DebtMoney debtMoney = DebtMoney.create(command.currency(), command.amount()).orElseThrow(CreationDebtException::new);
+        Result<Void, DomainError> validationResult = Result.empty();
+        Result<Context, DomainError> contextResult = Context.create(command.purpose(), command.description());
+        Result<DebtMoney, DomainError> debtMoneyResult = DebtMoney.create(command.currency(), command.amount());
+        validationResult.collect(contextResult);
+        validationResult.collect(debtMoneyResult);
+        validationResult.ifFailureThrows(CreationDebtException::new);
 
-        DebtBetweenUsers debt = DebtBetweenUsers.create(context, debtMoney,command.debtorId(), command.creditorId());
+        Context context = contextResult.get();
+        DebtMoney debtMoney = debtMoneyResult.get();
+        DebtBetweenUsers debt = DebtBetweenUsers.create(context, debtMoney, command.debtorId(), command.creditorId());
 
         debtRepository.save(debt);
 

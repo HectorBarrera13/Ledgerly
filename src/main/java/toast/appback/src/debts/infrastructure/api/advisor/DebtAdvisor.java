@@ -4,28 +4,16 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import toast.appback.src.debts.application.exceptions.*;
+import toast.appback.src.debts.application.exceptions.CreditorNotFound;
+import toast.appback.src.debts.application.exceptions.DebtNotFound;
+import toast.appback.src.debts.application.exceptions.DebtorNotFound;
+import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
 import toast.appback.src.middleware.ErrorData;
 
 @Order(1)
 @RestControllerAdvice
 public class DebtAdvisor {
-
-    @ExceptionHandler(AcceptDebtException.class)
-    public ResponseEntity<ErrorData> handleAcceptDebtException(AcceptDebtException ex) {
-        String friendlyMessage = ex.getMessage();
-        ErrorData errorData = ErrorData.create(friendlyMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorData);
-    }
-
-    @ExceptionHandler(CreationDebtException.class)
-    public ResponseEntity<ErrorData> handleCreationDebtException(CreationDebtException ex) {
-        String friendlyMessage = ex.getMessage();
-        ErrorData errorData = ErrorData.create(friendlyMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorData);
-    }
 
     @ExceptionHandler(CreditorNotFound.class)
     public ResponseEntity<ErrorData> handleCreditorNotFoundException(CreditorNotFound ex) {
@@ -46,13 +34,6 @@ public class DebtAdvisor {
         String friendlyMessage = ex.getFriendlyMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorData);
-    }
-
-    @ExceptionHandler(EditDebtException.class)
-    public ResponseEntity<ErrorData> handleEditDebtException(EditDebtException ex) {
-        String friendlyMessage = ex.getMessage();
-        ErrorData errorData = ErrorData.create(friendlyMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorData);
     }
 
     @ExceptionHandler(UnauthorizedActionException.class)

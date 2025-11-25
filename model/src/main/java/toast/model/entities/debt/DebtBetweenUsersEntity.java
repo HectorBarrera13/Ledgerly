@@ -2,7 +2,10 @@ package toast.model.entities.debt;
 
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
@@ -12,8 +15,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "debt_between_users", indexes = {
-        @Index(name = "idx_between_debt_debt_id", columnList = "debt_id", unique = true),
-        @Index(name = "idx_between_debt_created_at", columnList = "created_at")
+        @Index(name = "idx_debt_between_users_debtor_id", columnList = "debtorId"),
+        @Index(name = "idx_debt_between_users_creditor_id", columnList = "creditorId")
 })
 @DiscriminatorValue("DEBT_BETWEEN_USERS")
 @PrimaryKeyJoinColumn(name = "id")
