@@ -13,7 +13,7 @@ public record CreateDebtBetweenUsersRequest(
     Long amount,
     @JsonProperty("my_role")
     String role,
-    @JsonProperty("creditor_id")
+    @JsonProperty("target_user_id")
     UUID targetId
 ) {
     public CreateDebtBetweenUsersCommand toCreateDebtBetweenUsersCommand(UserId actorId) {
@@ -21,7 +21,7 @@ public record CreateDebtBetweenUsersRequest(
         if(role == null){
             throw new IllegalArgumentException("Role must be provided");
         }
-        if(role.equalsIgnoreCase("creditor")){
+        if(role.equalsIgnoreCase("debtor")){
             return new CreateDebtBetweenUsersCommand(
                     purpose,
                     description,
@@ -30,7 +30,7 @@ public record CreateDebtBetweenUsersRequest(
                     actorId,
                     targetId
             );
-        } else if (role.equalsIgnoreCase("debtor")){
+        } else if (role.equalsIgnoreCase("creditor")) {
             return new CreateDebtBetweenUsersCommand(
                     purpose,
                     description,

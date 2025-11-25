@@ -77,8 +77,8 @@ public class CreateQuickDebtUseCase implements CreateQuickDebt {
                 debt.getDebtMoney().getCurrency(),
                 debt.getStatus().toString(),
                 userSummary,
-                debt.getRole().toString(),
-                debt.getTargetUser().toString()
+                debt.getRole().getRole(),
+                debt.getTargetUser().getName()
         );
     }
 }

@@ -5,7 +5,7 @@ import toast.appback.src.debts.application.communication.result.QuickDebtView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.EditDebtException;
-import toast.appback.src.debts.application.usecase.contract.EditDebt;
+import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.domain.QuickDebt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.Context;
@@ -17,7 +17,7 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class EditQuickDebtUseCase implements EditDebt {
+public class EditQuickDebtUseCase implements EditQuickDebt {
     private final DebtRepository debtRepository;
     private final DomainEventBus domainEventBus;
     private final UserRepository userRepository;

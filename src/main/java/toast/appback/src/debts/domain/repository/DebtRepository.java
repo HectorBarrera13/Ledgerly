@@ -14,5 +14,4 @@ public interface DebtRepository {
     void save(QuickDebt quickDebt);
     Optional<DebtBetweenUsers> findDebtBetweenUsersById(DebtId debtId);
     Optional<QuickDebt> findQuickDebtById(DebtId debtId);
-
 }

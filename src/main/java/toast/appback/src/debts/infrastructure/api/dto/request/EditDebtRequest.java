@@ -6,8 +6,6 @@ import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.users.domain.UserId;
 
 public record EditDebtRequest (
-        @JsonProperty("debt_id")
-        DebtId debtId,
         @JsonProperty("new_purpose")
         String newPurpose,
         @JsonProperty("new_description")
@@ -17,7 +15,7 @@ public record EditDebtRequest (
         @JsonProperty("new_amount")
         Long newAmount
 ){
-    public EditDebtCommand toEditDebtCommand(UserId userId) {
+    public EditDebtCommand toEditDebtCommand(UserId userId, DebtId debtId) {
         return new EditDebtCommand(
                 userId,
                 debtId,

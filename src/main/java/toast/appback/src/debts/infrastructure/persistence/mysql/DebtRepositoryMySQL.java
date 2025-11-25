@@ -11,6 +11,7 @@ import toast.appback.src.debts.infrastructure.persistence.jparepository.JpaDebtB
 import toast.appback.src.debts.infrastructure.persistence.jparepository.JpaQuickDebtRepository;
 import toast.appback.src.debts.infrastructure.persistence.jparepository.projection.DebtBetweenUsersProjection;
 import toast.appback.src.debts.infrastructure.persistence.mapping.DebtBetweenUsersMapper;
+import toast.appback.src.debts.infrastructure.persistence.mapping.QuickDebtMapper;
 import toast.model.entities.debt.DebtBetweenUsersEntity;
 import toast.model.entities.debt.QuickDebtEntity;
 
@@ -62,6 +63,6 @@ public class DebtRepositoryMySQL implements DebtRepository {
 
     @Override
     public Optional<QuickDebt> findQuickDebtById(DebtId debtId) {
-        return Optional.empty();
+        return jpaQuickDebtRepository.findByDebtId(debtId.getValue()).map(QuickDebtMapper::toDomain);
     }
 }

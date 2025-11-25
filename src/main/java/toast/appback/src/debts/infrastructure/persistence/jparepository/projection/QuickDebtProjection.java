@@ -8,6 +8,5 @@ public interface QuickDebtProjection extends DebtProjection {
     String getUserFirstName();
     String getUserLastName();
     String getRole();
-
     String getTargetUserName();
 }

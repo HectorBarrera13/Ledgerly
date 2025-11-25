@@ -2,15 +2,13 @@ package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.EditDebtCommand;
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.application.communication.result.DebtView;
-import toast.appback.src.debts.application.communication.result.QuickDebtView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.EditDebtException;
-import toast.appback.src.debts.application.usecase.contract.EditDebt;
+import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsers;
+import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
-import toast.appback.src.debts.domain.QuickDebt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtMoney;
@@ -21,7 +19,7 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-public class EditDebtBetweenUsersUseCase implements EditDebt {
+public class EditDebtBetweenUsersUseCase implements EditDebtBetweenUsers {
     private final DebtRepository debtRepository;
     private final DomainEventBus domainEventBus;
     private final UserRepository userRepository;

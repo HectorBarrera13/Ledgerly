@@ -6,20 +6,21 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.debts.application.communication.command.CreateDebtBetweenUsersCommand;
+import toast.appback.src.debts.application.communication.command.EditDebtCommand;
 import toast.appback.src.debts.application.communication.command.EditDebtStatusCommand;
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.port.DebtBetweenUsersReadRepository;
-import toast.appback.src.debts.application.port.DebtReadRepository;
 import toast.appback.src.debts.application.usecase.contract.CreateDebtBetweenUsers;
+import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsers;
+import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsersStatus;
-import toast.appback.src.debts.application.usecase.implementation.CreateDebtBetweenUsersUseCase;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.infrastructure.api.dto.DebtResponseMapper;
 import toast.appback.src.debts.infrastructure.api.dto.request.CreateDebtBetweenUsersRequest;
+import toast.appback.src.debts.infrastructure.api.dto.request.EditDebtRequest;
 import toast.appback.src.debts.infrastructure.api.dto.response.DebtBetweenUsersResponse;
-import toast.appback.src.debts.infrastructure.api.dto.response.DebtResponse;
+import toast.appback.src.debts.infrastructure.service.transactional.EditDebtBetweenUsersService;
 import toast.appback.src.shared.infrastructure.Pageable;
 import toast.appback.src.users.domain.UserId;
 
@@ -34,6 +35,7 @@ public class DebtBetweenUsersController {
     private final EditDebtBetweenUsersStatus confirmDebtPaymentUseCase;
     private final EditDebtBetweenUsersStatus rejectDebtPaymentUseCase;
     private final CreateDebtBetweenUsers createDebtBetweenUsersUseCase;
+    private final EditDebtBetweenUsersService editDebtBetweenUsersService;
     private final DebtRepository debtRepository;
     private final DebtBetweenUsersReadRepository debtBetweenUsersReadRepository;
 
@@ -43,6 +45,7 @@ public class DebtBetweenUsersController {
             @Qualifier("rejectDebtPaymentUseCase") EditDebtBetweenUsersStatus reject,
             @Qualifier("confirmDebtPaymentUseCase") EditDebtBetweenUsersStatus confirm,
             @Qualifier("reportDebtPaymentUseCase") EditDebtBetweenUsersStatus report,
+            EditDebtBetweenUsersService editDebt,
             CreateDebtBetweenUsers createDebtBetweenUsers,
             DebtRepository debtRepository,
             DebtBetweenUsersReadRepository debtBetweenUsersReadRepository
@@ -52,6 +55,7 @@ public class DebtBetweenUsersController {
         this.rejectDebtPaymentUseCase = reject;
         this.confirmDebtPaymentUseCase = confirm;
         this.reportDebtPaymentUseCase = report;
+        this.editDebtBetweenUsersService = editDebt;
         this.createDebtBetweenUsersUseCase = createDebtBetweenUsers;
         this.debtRepository = debtRepository;
         this.debtBetweenUsersReadRepository = debtBetweenUsersReadRepository;
@@ -111,12 +115,25 @@ public class DebtBetweenUsersController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{debtId}")
+    public ResponseEntity<DebtBetweenUsersResponse> editDebtBetweenUsers(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("debtId") UUID debtId,
+            @RequestBody EditDebtRequest request
+    ) {
+        UserId userId = customUserDetails.getUserId();
+        DebtId requiredDebtId = DebtId.load(debtId);
+        EditDebtCommand command = request.toEditDebtCommand(userId, requiredDebtId);
+        DebtBetweenUsersView debtView = editDebtBetweenUsersService.execute(command);
+        DebtBetweenUsersResponse debtResoponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        return ResponseEntity.ok(debtResoponse);
+    }
+
     @PostMapping("/{debtId}/accept-debt")
     public ResponseEntity<DebtBetweenUsersResponse> settleDebt(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("debtId") UUID debtId
     ) {
-        System.out.println("Accepting debt with ID: " + debtId);
         UserId userId = customUserDetails.getUserId();
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);

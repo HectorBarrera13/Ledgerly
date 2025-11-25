@@ -22,6 +22,14 @@ public class QuickDebt extends Debt {
         this.targetUser = targetUser;
     }
 
+    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser, Status status) {
+        super(debtId, context, debtMoney, Instant.now());
+        this.status = status;
+        this.userId = userId;
+        this.role = role;
+        this.targetUser = targetUser;
+    }
+
     private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser, List<DomainEvent> debtEvents) {
         super(debtId, context, debtMoney, Instant.now(), debtEvents);
         this.userId = userId;
@@ -36,8 +44,8 @@ public class QuickDebt extends Debt {
         return newQuickDebt;
     }
 
-    public static QuickDebt load(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser) {
-        QuickDebt newQuickDebt = new QuickDebt(debtId, context, debtMoney, userId, role, targetUser);
+    public static QuickDebt load(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser, Status status) {
+        QuickDebt newQuickDebt = new QuickDebt(debtId, context, debtMoney, userId, role, targetUser, status);
         return newQuickDebt;
     }
 

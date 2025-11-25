@@ -34,20 +34,6 @@ public class DebtUseCaseConfig {
         );
     }
 
-    @Bean
-    public EditQuickDebtUseCase editDebtBetweenUsersUseCase(
-            DebtRepository debtRepository,
-            DomainEventBus domainEventBus,
-            UserRepository userRepository
-    ) {
-        return new EditQuickDebtUseCase(
-                debtRepository,
-                domainEventBus,
-                userRepository
-        );
-    }
-
-
     @Bean("acceptDebtUseCase")
     public AcceptDebtUseCase acceptDebtUseCase(
             DebtRepository debtRepository,
@@ -113,4 +99,42 @@ public class DebtUseCaseConfig {
         );
     }
 
+    @Bean("settleQuickDebtUseCase")
+    public SettleQuickDebtUseCase settleQuickDebtUseCase(
+            DebtRepository debtRepository,
+            DomainEventBus domainEventBus,
+            UserRepository userRepository
+    ) {
+        return new SettleQuickDebtUseCase(
+                debtRepository,
+                userRepository,
+                domainEventBus
+        );
+    }
+
+    @Bean("editDebtBetweenUsersUseCase")
+    public EditDebtBetweenUsersUseCase editDebtBetweenUsersUseCase(
+            DebtRepository debtRepository,
+            DomainEventBus domainEventBus,
+            UserRepository userRepository
+    ) {
+        return new EditDebtBetweenUsersUseCase(
+                debtRepository,
+                domainEventBus,
+                userRepository
+        );
+    }
+
+    @Bean("editQuickDebtUseCase")
+    public EditQuickDebtUseCase editQuickDebtUseCase(
+            DebtRepository debtRepository,
+            DomainEventBus domainEventBus,
+            UserRepository userRepository
+    ) {
+        return new EditQuickDebtUseCase(
+                debtRepository,
+                domainEventBus,
+                userRepository
+        );
+    }
 }
