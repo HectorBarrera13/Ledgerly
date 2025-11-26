@@ -90,15 +90,16 @@ public class DebtBetweenUsersController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
             @RequestParam(value = "cursor", required = false) UUID cursor,
-            @RequestParam(value = "role", required = true) String role
+            @RequestParam(value = "role", required = true) String role,
+            @RequestParam(value = "status", required = true) String status
     ) {
         UserId userId = customUserDetails.getUserId();
         List<DebtBetweenUsersResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsers(userId, role,  limit + 1)
+            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsers(userId, role, status,  limit + 1)
                     .stream().map(DebtResponseMapper::toDebtBetweenUsersResponse).toList();
         } else {
-            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsersAfterCursor(userId,role, cursor, limit + 1)
+            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsersAfterCursor(userId,role,status, cursor, limit + 1)
                     .stream().map(DebtResponseMapper::toDebtBetweenUsersResponse).toList();
         }
         if (debtsContent.isEmpty()) {

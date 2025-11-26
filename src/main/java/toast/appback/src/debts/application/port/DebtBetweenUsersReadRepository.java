@@ -11,6 +11,6 @@ import java.util.UUID;
 
 public interface DebtBetweenUsersReadRepository {
     Optional<DebtBetweenUsersView> findById(DebtId debtId);
-    List<DebtBetweenUsersView> getDebtsBetweenUsers(UserId userId, String role, int limit);
-    List<DebtBetweenUsersView> getDebtsBetweenUsersAfterCursor(UserId userId,String role, UUID cursor, int limit);
+    List<DebtBetweenUsersView> getDebtsBetweenUsers(UserId userId, String role, String status, int limit);
+    List<DebtBetweenUsersView> getDebtsBetweenUsersAfterCursor(UserId userId,String role, String status, UUID cursor, int limit);
 }
