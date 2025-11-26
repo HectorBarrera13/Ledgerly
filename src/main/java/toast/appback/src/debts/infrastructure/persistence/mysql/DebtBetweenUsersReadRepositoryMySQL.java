@@ -48,12 +48,12 @@ public class DebtBetweenUsersReadRepositoryMySQL implements DebtBetweenUsersRead
     }
 
     @Override
-    public List<DebtBetweenUsersView> getDebtsBetweenUsers(UserId userId, String role, int limit) {
+    public List<DebtBetweenUsersView> getDebtsBetweenUsers(UserId userId, String role,String status, int limit) {
         UUID userDbId = jpaUserRepository.findByUserId(userId.getValue())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))
                 .getUserId();
 
-        return jpaDebtBetweenUsersRepository.getDebtsBetweenUsersProjectionByRole(userDbId,role, limit)
+        return jpaDebtBetweenUsersRepository.getDebtsBetweenUsersProjectionByRole(userDbId,role, status, limit)
                 .stream()
                 .map(projection -> new DebtBetweenUsersView(
                         projection.getDebtId(),
@@ -77,10 +77,10 @@ public class DebtBetweenUsersReadRepositoryMySQL implements DebtBetweenUsersRead
     }
 
     @Override
-    public List<DebtBetweenUsersView> getDebtsBetweenUsersAfterCursor(UserId userId,  String role, UUID cursor, int limit) {
+    public List<DebtBetweenUsersView> getDebtsBetweenUsersAfterCursor(UserId userId,  String role,String status, UUID cursor, int limit) {
 
         var projections = jpaDebtBetweenUsersRepository
-                .findDebtorDebtsBetweenUsersProjectionAfterCursor(userId.getValue(),role, cursor, limit);
+                .findDebtorDebtsBetweenUsersProjectionAfterCursor(userId.getValue(),role, status, cursor, limit);
 
         return projections.stream()
                 .map(projection -> new DebtBetweenUsersView(

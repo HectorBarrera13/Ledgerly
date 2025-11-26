@@ -30,7 +30,9 @@ public class Context {
 
     //Method use for quick creation, it does not validates
     public static Context load(String purpose, String description) {
-        return new Context(purpose, description);
+        return create(purpose, description).orElseThrow(
+                ()-> new IllegalArgumentException("invalid context data: " + purpose)
+                );
     }
 
     private static Result<String, DomainError> purposeValidation(String purpose, String fildName) {

@@ -38,29 +38,37 @@ public interface JpaDebtBetweenUsersRepository extends JpaRepository<DebtBetween
     Optional<DebtBetweenUsersProjection> findDebtBetweenUsersProjectionByDebtId(@Param("debtId") UUID debtId);
 
     @Query("""
-           SELECT 
-                d.debtId AS debtId,
-                d.purpose AS purpose, 
-                d.description AS description,
-                d.amount AS amount, 
-                d.currency AS currency,
-                d.debtorId AS debtorId,
-                debtor.firstName AS debtorFirstName,
-                debtor.lastName AS debtorLastName,
-                d.creditorId AS creditorId,
-                creditor.firstName AS creditorFirstName,
-                creditor.lastName AS creditorLastName,
-                d.status AS status
-            FROM DebtBetweenUsersEntity d
-            JOIN UserEntity debtor ON d.debtorId = debtor.userId
-            JOIN UserEntity creditor ON d.creditorId = creditor.userId
-            WHERE 
-            (CASE WHEN :role = 'DEBTOR' THEN d.debtorId = :userId END) OR
-            (CASE WHEN :role = 'CREDITOR' THEN d.creditorId = :userId END)
-            ORDER BY d.createdAt DESC
-            LIMIT :limit
-           """)
-    List<DebtBetweenUsersProjection> getDebtsBetweenUsersProjectionByRole(@Param("userId") UUID userId,@Param("role") String role, @Param("limit") int limit);
+       SELECT 
+            d.debtId AS debtId,
+            d.purpose AS purpose, 
+            d.description AS description,
+            d.amount AS amount, 
+            d.currency AS currency,
+            d.debtorId AS debtorId,
+            debtor.firstName AS debtorFirstName,
+            debtor.lastName AS debtorLastName,
+            d.creditorId AS creditorId,
+            creditor.firstName AS creditorFirstName,
+            creditor.lastName AS creditorLastName,
+            d.status AS status
+        FROM DebtBetweenUsersEntity d
+        JOIN UserEntity debtor ON d.debtorId = debtor.userId
+        JOIN UserEntity creditor ON d.creditorId = creditor.userId
+        WHERE
+            d.status = :status AND 
+            (
+                (:role = 'DEBTOR' AND d.debtorId = :userId) OR
+                (:role = 'CREDITOR' AND d.creditorId = :userId)
+            )
+        ORDER BY d.createdAt DESC
+        LIMIT :limit
+       """)
+    List<DebtBetweenUsersProjection> getDebtsBetweenUsersProjectionByRole(
+            @Param("userId") UUID userId,
+            @Param("role") String role,
+            @Param("status") String status,
+            @Param("limit") int limit
+    );
 
     @Query("""
               SELECT 
@@ -80,8 +88,11 @@ public interface JpaDebtBetweenUsersRepository extends JpaRepository<DebtBetween
             JOIN UserEntity debtor ON d.debtorId = debtor.userId
             JOIN UserEntity creditor ON d.creditorId = creditor.userId
             WHERE
-            (CASE WHEN :role = 'DEBTOR' THEN d.debtorId = :userId END) OR
-            (CASE WHEN :role = 'CREDITOR' THEN d.creditorId = :userId END)
+            d.status = :status AND 
+            (
+                (:role = 'DEBTOR' AND d.debtorId = :userId) OR
+                (:role = 'CREDITOR' AND d.creditorId = :userId)
+            )
             AND d.debtId < :cursor
             ORDER BY d.createdAt DESC
             LIMIT :limit
@@ -89,6 +100,7 @@ public interface JpaDebtBetweenUsersRepository extends JpaRepository<DebtBetween
     List<DebtBetweenUsersProjection> findDebtorDebtsBetweenUsersProjectionAfterCursor(
             @Param("userId") UUID userId,
             @Param("role") String role,
+            @Param("status") String status,
             @Param("cursor") UUID cursor,
             @Param("limit") int limit);
 
