@@ -2,6 +2,7 @@ package toast.appback.src.users.infrastructure.api.dto;
 
 import toast.appback.src.auth.application.communication.result.AccountView;
 import toast.appback.src.auth.infrastructure.api.dto.AuthMapper;
+import toast.appback.src.groups.application.communication.result.MemberView;
 import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.infrastructure.api.dto.response.FriendResponse;
@@ -36,5 +37,12 @@ public class UserResponseMapper {
         );
     }
 
-
+    public static UserResponse toUserResponse(MemberView memberView) {
+        return new UserResponse(
+                memberView.userId(),
+                memberView.firstName(),
+                memberView.lastName(),
+                memberView.phone()
+        );
+    }
 }
