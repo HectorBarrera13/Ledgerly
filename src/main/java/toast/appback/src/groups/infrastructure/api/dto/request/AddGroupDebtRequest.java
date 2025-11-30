@@ -16,9 +16,9 @@ public record AddGroupDebtRequest(
         String currency,
         List<GroupDebtorRequest> debtors
 ) {
-    public AddGroupDebtCommand toAddGroupDebtCommand(GroupId groupId, UserId creditorId) {
+    public AddGroupDebtCommand toAddGroupDebtCommand(UserId creditorId) {
         return new AddGroupDebtCommand(
-                groupId,
+                GroupId.load(groupId),
                 creditorId,
                 purpose,
                 description,

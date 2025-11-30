@@ -1,6 +1,7 @@
 package toast.appback.src.users.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 import toast.appback.src.shared.application.CursorRequest;

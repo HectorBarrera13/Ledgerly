@@ -10,5 +10,4 @@ public interface DebtProjection {
     BigDecimal getAmount();
     String getCurrency();
     String getStatus();
-    String getDebtType();
 }
