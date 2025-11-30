@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import toast.appback.src.debts.domain.event.DebtCreated;
+import toast.appback.src.debts.domain.event.DebtRejected;
 import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.domain.vo.DebtMoney;
@@ -19,204 +21,207 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Debt Aggregate Test")
-public class DebtBetweenUsersTest {
+class DebtBetweenUsersTest {
 
-    private DebtId debtId;
-    private Context context;
-    private DebtMoney debtMoney;
-    private UserId debtorId;
-    private UserId creditorId;
+    // ---------------------------
+    // Constantes compartidas
+    // ---------------------------
 
-    public class testDomainEvent implements DomainEvent{
+    private static final UserId DEBTOR = UserId.load(UUID.randomUUID());
+    private static final UserId CREDITOR = UserId.load(UUID.randomUUID());
 
-    }
+    private static final Context CONTEXT =
+            Context.load("Cena", "Pago de restaurante");
 
-    private static Long bigDecimalToLong(BigDecimal bigDecimal) {
-        return bigDecimal.longValue()*100;
-    }
-
-    @BeforeEach
-    void setUp() {
-        debtId = DebtId.load(UUID.randomUUID());
-        context = Context.load("Test Purpose", "Test Description");
-        debtMoney = DebtMoney.load(1000L, "USD");
-
-        UserId debtorId = UserId.load(UUID.randomUUID());
-        String debtorName = "Debtor Test Name";
-
-        UserId creditorId = UserId.load(UUID.randomUUID());
-        String creditorName = "Creditor Test Name";
-    }
-
-    private DebtBetweenUsers createPendingDebt() {
-        return DebtBetweenUsers.load(debtId, context, debtMoney, debtorId, creditorId, "John Doe", "Jane Smith");
-    }
+    private static final DebtMoney MONEY =
+            DebtMoney.load(new java.math.BigDecimal("10.00"), "MXN");
 
 
-    private void assertBusinessRuleError(Result<?, DomainError> result) {
-        assertTrue(result.isFailure(), "El resultado debe ser un fallo.");
-        // Aquí debería ir una aserción más específica si ErrorsHandler.combine funciona diferente
-        assertNotNull(result.getErrors(), "Debe haber un error de dominio.");
-    }
+    // ---------------------------
+    // create()
+    // ---------------------------
 
-    // --- 1. Tests de Construcción ---
+    @Test
+    void create_ShouldInitializePendingState_AndRecordCreationEvent() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
 
-    @Nested
-    @DisplayName("Constructor and Getters")
-    class ConstructorTests {
-        // ... Tests existentes del constructor ...
+        assertEquals(Status.PENDING, debt.getStatus());
+        assertEquals(DEBTOR, debt.getDebtorId());
+        assertEquals(CREDITOR, debt.getCreditorId());
 
-        @Test
-        @DisplayName("Should initialize Debt correctly using primary constructor")
-        void shouldInitializeDebtCorrectly() {
-            DebtBetweenUsers debt = createPendingDebt();
-
-            assertEquals(debtId, debt.getId());
-            assertEquals(context, debt.getContext());
-            assertEquals(debtMoney, debt.getDebtMoney()); // Asumo getDebtMoney() es el getter correcto
-            assertEquals(debtorId, debt.getDebtorId());
-            assertEquals(creditorId, debt.getCreditorId());
-            // El estado inicial debe ser PENDING por defecto
-            assertEquals(Status.PENDING, debt.getStatus());
-            // La lista de eventos debe estar vacía
-            assertNotNull(debt.getDebtEvents());
-            assertTrue(debt.getDebtEvents().isEmpty());
-        }
-
-        @Test
-        @DisplayName("Should initialize Debt correctly with existing events")
-        void shouldInitializeDebtWithEvents() {
-
-            DebtBetweenUsers debt = DebtBetweenUsers.create( context, debtMoney, debtorId, creditorId, "John Doe", "Jane Smith");
-
-            assertEquals(1, debt.getDebtEvents().size());
-        }
-    }
-
-    @Nested
-    @DisplayName("Creation Method (Create)")
-    class CreationMethodTests {
-
-        private Debt debtAggregate;
-
-        @BeforeEach
-        void setupCreationMethod() {
-            // NOTA: El método Create del archivo original no es estático, lo probaremos sobre una instancia.
-            debtAggregate = createPendingDebt();
-        }
-
-        @Test
-        @DisplayName("Should successfully create a new Debt with valid input")
-        void shouldCreateDebtSuccessfully() {
-            DebtId id = debtAggregate.getId();
-
-            String purpose = "Comida";
-            String description = "Cena de anoche";
-            String currency = "MXN";
-            Long amount = 5000L; // 50.00 MXN sin escalar
-
-            Context context = Context.load(purpose, description);
-            DebtMoney debtMoney = DebtMoney.load(amount, currency);
-
-            DebtBetweenUsers createdDebt = DebtBetweenUsers.load(id, context, debtMoney, debtorId,creditorId, "Debtor Name", "Creditor Name");
-
-            assertNotNull(createdDebt.getId(), "El ID debe ser generado.");
-
-            assertEquals(creditorId, createdDebt.getCreditorId(), "El deudor debe ser el CREDITOR (según la lógica de Create).");
-            assertEquals(debtorId, createdDebt.getDebtorId(), "El acreedor debe ser el DEBTOR (según la lógica de Create).");
-
-            assertEquals(purpose, createdDebt.getContext().getPurpose(), "El propósito debe coincidir.");
-            assertEquals(description, createdDebt.getContext().getDescription(), "La descripción debe coincidir.");
-        }
-
+        var events = debt.pullEvents();
+        assertEquals(1, events.size());
+        assertTrue(events.get(0) instanceof DebtRejected);
     }
 
 
+    // ---------------------------
+    // accept()
+    // ---------------------------
 
-    @Nested
-    @DisplayName("State Transition Methods")
-    class StateTransitionTests {
+    @Test
+    void accept_ShouldMoveToAccepted_WhenPending() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
 
+        var result = debt.accept();
+
+        assertTrue(result.isOk());
+        assertEquals(Status.ACCEPTED, debt.getStatus());
+
+        var events = debt.pullEvents();
+        assertTrue(events.get(0) instanceof DebtRejected);
+    }
+
+    @Test
+    void accept_ShouldFail_WhenNotPending() {
+        DebtBetweenUsers debt =
+                DebtBetweenUsers.load(DebtId.generate(), CONTEXT, MONEY, DEBTOR, CREDITOR, Status.REJECTED);
+
+        var result = debt.accept();
+
+        assertTrue(result.isFailure());
     }
 
 
-    @Nested
-    @DisplayName("Modification Methods") // Renombrado de (editDebtMoney) a solo Methods
-    class ModificationTests {
+    // ---------------------------
+    // reject()
+    // ---------------------------
 
-        // --- Tests para editDebtMoney (Existentes) ---
+    @Test
+    void reject_ShouldMoveToRejected_WhenPending() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
 
-        @Test
-        @DisplayName("Should successfully edit amount if status is PENDING")
-        void shouldEditAmountIfPending() {
-            Debt debt = createPendingDebt();
-            DebtMoney newAmount = DebtMoney.load(5000L, "USD");
+        var result = debt.reject();
 
-            Result<Void, DomainError> result = debt.editDebtMoney(newAmount);
+        assertTrue(result.isOk());
+        assertEquals(Status.REJECTED, debt.getStatus());
 
-            assertTrue(result.isOk());
-            assertEquals(newAmount, debt.getDebtMoney(), "El monto debe ser actualizado.");
-            assertEquals(Status.PENDING, debt.getStatus(), "El estado debe permanecer PENDING.");
-        }
+        var events = debt.pullEvents();
+        assertTrue(events.get(0) instanceof DebtRejected);
+    }
 
-        @Test
-        @DisplayName("Should fail to edit amount if status is ACCEPTED")
-        void shouldFailToEditAmountIfAccepted() {
-            DebtBetweenUsers debt = createPendingDebt();
-            debt.accept(); // Estado: ACCEPTED
+    @Test
+    void reject_ShouldFail_WhenNotPending() {
+        DebtBetweenUsers debt =
+                DebtBetweenUsers.load(DebtId.generate(), CONTEXT, MONEY, DEBTOR, CREDITOR, Status.ACCEPTED);
 
-            DebtMoney newAmount = DebtMoney.load(5000L, "USD");
+        var result = debt.reject();
 
-            Result<Void, DomainError> result = debt.editDebtMoney(newAmount);
+        assertTrue(result.isFailure());
+    }
 
-            // assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
-            assertEquals(debtMoney, debt.getDebtMoney(), "El monto no debe ser actualizado.");
-        }
 
-        // --- Tests para editContext (Nuevos) ---
+    // ---------------------------
+    // reportPayment()
+    // ---------------------------
 
-        @Test
-        @DisplayName("Should successfully edit context if status is PENDING")
-        void shouldEditContextIfPending() {
-            Debt debt = createPendingDebt();
-            Context newContext = Context.load("Nuevo Propósito", "Descripción Editada");
+    @Test
+    void reportPayment_ShouldMoveToPendingConfirmation_WhenAccepted() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+        debt.accept();
 
-            Result<Void, DomainError> result = debt.editContext(newContext);
+        var result = debt.reportPayment();
 
-            assertTrue(result.isOk(), "La edición del contexto debe ser exitosa.");
-            assertEquals(newContext, debt.getContext(), "El contexto debe ser actualizado.");
-            assertEquals(Status.PENDING, debt.getStatus(), "El estado debe permanecer PENDING.");
-        }
+        assertTrue(result.isOk());
+        assertEquals(Status.PAYMENT_CONFIRMATION_PENDING, debt.getStatus());
+    }
 
-        @Test
-        @DisplayName("Should fail to edit context if status is ACCEPTED")
-        void shouldFailToEditContextIfAccepted() {
-            DebtBetweenUsers debt = createPendingDebt();
-            debt.accept(); // Estado: ACCEPTED
-            Context newContext = Context.load("Nuevo Propósito", "Descripción Editada");
-            Context originalContext = debt.getContext();
+    @Test
+    void reportPayment_ShouldMoveToPendingConfirmation_WhenPaymentRejectedPreviously() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+        debt.accept();
+        debt.reportPayment();
+        debt.rejectPayment();
 
-            Result<Void, DomainError> result = debt.editContext(newContext);
+        var result = debt.reportPayment();
 
-            assertTrue(result.isFailure(), "La edición debe fallar si no está PENDING.");
-            // assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
-            assertEquals(originalContext, debt.getContext(), "El contexto no debe ser actualizado.");
-        }
+        assertTrue(result.isOk());
+        assertEquals(Status.PAYMENT_CONFIRMATION_PENDING, debt.getStatus());
+    }
 
-        @Test
-        @DisplayName("Should fail to edit context if status is PAID")
-        void shouldFailToEditContextIfPaid() {
-            DebtBetweenUsers debt = createPendingDebt();
-            debt.accept();
-            debt.pay(); // Estado: PAID
-            Context newContext = Context.load("Nuevo Propósito", "Descripción Editada");
-            Context originalContext = debt.getContext();
+    @Test
+    void reportPayment_ShouldFail_WhenNotAccepted() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
 
-            Result<Void, DomainError> result = debt.editContext(newContext);
+        var result = debt.reportPayment();
 
-            assertTrue(result.isFailure(), "La edición debe fallar si no está PENDING.");
-            // assertBusinessRuleErrorExists(result.getErrors(), DebtBusinessCode.STATUS_NOT_PENDING);
-            assertEquals(originalContext, debt.getContext(), "El contexto no debe ser actualizado.");
-        }
+        assertTrue(result.isFailure());
+    }
+
+
+    // ---------------------------
+    // confirmPayment()
+    // ---------------------------
+
+    @Test
+    void confirmPayment_ShouldSetConfirmed_WhenPendingConfirmation() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+        debt.accept();
+        debt.reportPayment();
+
+        var result = debt.confirmPayment();
+
+        assertTrue(result.isOk());
+        assertEquals(Status.PAYMENT_CONFIRMED, debt.getStatus());
+    }
+
+    @Test
+    void confirmPayment_ShouldFail_WhenNotPendingConfirmation() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+
+        var result = debt.confirmPayment();
+
+        assertTrue(result.isFailure());
+    }
+
+
+    // ---------------------------
+    // rejectPayment()
+    // ---------------------------
+
+    @Test
+    void rejectPayment_ShouldSetRejected_WhenPendingConfirmation() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+        debt.accept();
+        debt.reportPayment();
+
+        var result = debt.rejectPayment();
+
+        assertTrue(result.isOk());
+        assertEquals(Status.PAYMENT_CONFIRMATION_REJECTED, debt.getStatus());
+    }
+
+    @Test
+    void rejectPayment_ShouldFail_WhenNotPendingConfirmation() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+
+        var result = debt.rejectPayment();
+
+        assertTrue(result.isFailure());
+    }
+
+
+    // ---------------------------
+    // pay()
+    // ---------------------------
+
+    @Test
+    void pay_ShouldBehaveLikeReportPayment_WhenAccepted() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+        debt.accept();
+
+        var result = debt.pay();
+
+        assertTrue(result.isOk());
+        assertEquals(Status.PAYMENT_CONFIRMATION_PENDING, debt.getStatus());
+    }
+
+    @Test
+    void pay_ShouldFail_WhenNotAccepted() {
+        DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
+
+        var result = debt.pay();
+
+        assertTrue(result.isFailure());
     }
 }

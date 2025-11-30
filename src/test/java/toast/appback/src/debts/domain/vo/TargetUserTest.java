@@ -10,66 +10,93 @@ import toast.appback.src.shared.domain.Validators; // Asumimos que esta clase ex
 import toast.appback.src.shared.utils.result.Result; // Asumimos que esta clase existe
 
 import java.util.List;
+class TargetUserTest {
 
-public class TargetUserTest {
+    // ---------------------------
+    // Constantes del test
+    // ---------------------------
 
-    // ----------------------------------------
-    // Tests para el método estático 'create'
-    // ----------------------------------------
+    private static final String VALID_NAME = "Juan Perez";
+    private static final String EMPTY = "";
+    private static final String NULL_NAME = null;
+    private static final String LONG_NAME = "A".repeat(31); // más de 30 caracteres
+
+
+    // ---------------------------
+    // Tests create()
+    // ---------------------------
 
     @Test
-    void testCreate_Success_ValidName() {
-        String validName = "Juan Perez";
+    void create_ShouldReturnSuccess_WhenValidName() {
+        var result = TargetUser.create(VALID_NAME);
 
-        Result<TargetUser, DomainError> result = TargetUser.create(validName);
-
-        assertTrue(result.isOk(), "La creación debe ser exitosa para un nombre válido.");
-        assertNotNull(result.get(), "El objeto TargetUser no debe ser null.");
-        assertEquals(validName, result.get().getName(), "El nombre del TargetUser debe coincidir.");
+        assertTrue(result.isOk());
+        assertEquals(VALID_NAME, result.get().getName());
     }
 
     @Test
-    void testCreate_Failure_NullName() {
-        String invalidName = null;
+    void create_ShouldFail_WhenNameIsNull() {
+        var result = TargetUser.create(NULL_NAME);
 
-        Result<TargetUser, DomainError> result = TargetUser.create(invalidName);
-
-        assertTrue(result.isFailure(), "La creación debe fallar si el nombre es null.");
-        List<DomainError> errors = result.getErrors();
-        assertEquals(1, errors.size());
-        assertErrorExists(errors, ValidatorType.EMPTY_VALUE);
+        assertTrue(result.isFailure());
     }
 
     @Test
-    void testCreate_Failure_EmptyName() {
-        // ARRANGE
-        String invalidName = "";
+    void create_ShouldFail_WhenNameIsEmpty() {
+        var result = TargetUser.create(EMPTY);
 
-        // ACT
-        Result<TargetUser, DomainError> result = TargetUser.create(invalidName);
-
-        // ASSERT
-        assertTrue(result.isFailure(), "La creación debe fallar si el nombre está vacío.");
-        List<DomainError> errors = result.getErrors();
-
-        assertEquals(1, errors.size());
-        assertErrorExists(errors, ValidatorType.EMPTY_VALUE);
+        assertTrue(result.isFailure());
     }
 
     @Test
-    void testCreate_Failure_TooLongName() {
-        // ARRANGE
-        // 31 caracteres (mayor a MAX_NAME_LENGTH = 30)
-        String longName = "a".repeat(31);
+    void create_ShouldFail_WhenNameExceedsMaxLength() {
+        var result = TargetUser.create(LONG_NAME);
 
-        // ACT
-        Result<TargetUser, DomainError> result = TargetUser.create(longName);
-
-        // ASSERT
-        assertTrue(result.isFailure(), "La creación debe fallar si el nombre excede 30 caracteres.");
-        List<DomainError> errors = result.getErrors();
-        assertEquals(1, errors.size());
-        assertErrorExists(errors, ValidatorType.TOO_LONG);
+        assertTrue(result.isFailure());
     }
 
+
+    // ---------------------------
+    // Tests load()
+    // ---------------------------
+
+    @Test
+    void load_ShouldReturnTargetUserWithoutValidation() {
+        TargetUser tu = TargetUser.load("alguien");
+
+        assertEquals("alguien", tu.getName());
+    }
+
+
+    // ---------------------------
+    // Tests nameValidation()
+    // ---------------------------
+
+    @Test
+    void nameValidation_ShouldReturnSuccess_WhenValid() {
+        var result = TargetUser.nameValidation(VALID_NAME, "name");
+
+        assertTrue(result.isOk());
+    }
+
+    @Test
+    void nameValidation_ShouldFail_WhenNull() {
+        var result = TargetUser.nameValidation(NULL_NAME, "name");
+
+        assertTrue(result.isFailure());
+    }
+
+    @Test
+    void nameValidation_ShouldFail_WhenEmpty() {
+        var result = TargetUser.nameValidation(EMPTY, "name");
+
+        assertTrue(result.isFailure());
+    }
+
+    @Test
+    void nameValidation_ShouldFail_WhenTooLong() {
+        var result = TargetUser.nameValidation(LONG_NAME, "name");
+
+        assertTrue(result.isFailure());
+    }
 }

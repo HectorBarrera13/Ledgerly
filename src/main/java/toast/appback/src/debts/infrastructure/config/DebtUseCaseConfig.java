@@ -60,6 +60,19 @@ public class DebtUseCaseConfig {
         );
     }
 
+    @Bean("resendDebtUseCase")
+    public ResendDebtUseCase resendDebtUseCase(
+            DebtRepository debtRepository,
+            UserRepository userRepository,
+            DomainEventBus domainEventBus
+    ) {
+        return new ResendDebtUseCase(
+                debtRepository,
+                userRepository,
+                domainEventBus
+        );
+    }
+
     @Bean("reportDebtPaymentUseCase")
     public ReportDebtPaymentUseCase reportDebtPaymentUseCase(
             DebtRepository debtRepository,

@@ -9,80 +9,71 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("DebtId Value Object Test")
-public class DebtIdTest {
+class DebtIdTest {
 
-    // --- 1. Casos de Generación ---
-    @Nested
-    @DisplayName("Generation Cases (generate())")
-    class GenerationCases {
+    // ---------------------------
+    // Constantes del test
+    // ---------------------------
 
-        @Test
-        @DisplayName("Should generate a non-null ID")
-        void shouldGenerateNonNullId() {
-            DebtId id = DebtId.generate();
-            assertNotNull(id, "El ID generado no debe ser nulo.");
-        }
+    private static final UUID RAW_UUID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private static final UUID OTHER_UUID = UUID.fromString("123e4567-e89b-12d3-a456-426614174111");
 
-        @Test
-        @DisplayName("Should generate unique IDs for different calls")
-        void shouldGenerateUniqueIds() {
-            DebtId id1 = DebtId.generate();
-            DebtId id2 = DebtId.generate();
 
-            // Un UUID aleatorio tiene una probabilidad extremadamente baja de ser igual.
-            assertNotEquals(id1, id2, "Dos llamadas a generate() deben producir IDs diferentes.");
-        }
+    // ---------------------------
+    // Tests
+    // ---------------------------
+
+    @Test
+    void generate_ShouldCreateDifferentIds() {
+        DebtId id1 = DebtId.generate();
+        DebtId id2 = DebtId.generate();
+
+        assertNotEquals(id1, id2);
+        assertNotEquals(id1.getValue(), id2.getValue());
     }
 
-    // --- 2. Casos de Carga ---
-    @Nested
-    @DisplayName("Loading Cases (load())")
-    class LoadingCases {
+    @Test
+    void load_ShouldReturnDebtIdWithSameUUID() {
+        DebtId id = DebtId.load(RAW_UUID);
 
-        @Test
-        @DisplayName("Should successfully load a valid UUID")
-        void shouldLoadValidUuid() {
-            UUID testUuid = UUID.fromString("a1b2c3d4-e5f6-7890-1234-567890abcdef");
-            DebtId id = DebtId.load(testUuid);
-
-            assertNotNull(id, "El ID cargado no debe ser nulo.");
-        }
+        assertEquals(RAW_UUID, id.getValue());
     }
 
-    // --- 3. Casos de Integración (Igualdad y Hash) ---
-    @Nested
-    @DisplayName("Integration Cases (Equality and HashCode)")
-    class IntegrationCases {
+    @Test
+    void equals_ShouldReturnTrue_WhenSameUUID() {
+        DebtId id1 = DebtId.load(RAW_UUID);
+        DebtId id2 = DebtId.load(RAW_UUID);
 
-        private final UUID SAME_UUID = UUID.fromString("11111111-2222-3333-4444-555555555555");
-        private final UUID DIFF_UUID = UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
-
-        @Test
-        @DisplayName("Should be equal for DebtIds encapsulating the same UUID")
-        void shouldBeEqualForSameUuid() {
-            DebtId id1 = DebtId.load(SAME_UUID);
-            DebtId id2 = DebtId.load(SAME_UUID);
-
-            // La igualdad de VO es el test más importante.
-            assertEquals(id1, id2, "Dos IDs que encapsulan el mismo UUID deben ser iguales.");
-        }
-
-        @Test
-        @DisplayName("Should not be equal for DebtIds encapsulating different UUIDs")
-        void shouldNotBeEqualForDifferentUuid() {
-            DebtId id1 = DebtId.load(SAME_UUID);
-            DebtId id2 = DebtId.load(DIFF_UUID);
-
-            assertNotEquals(id1, id2, "Dos IDs que encapsulan diferentes UUIDs no deben ser iguales.");
-        }
-
-        @Test
-        @DisplayName("Should have the same hash code for equal objects")
-        void shouldHaveSameHashCodeForEqualObjects() {
-            DebtId id1 = DebtId.load(SAME_UUID);
-            DebtId id2 = DebtId.load(SAME_UUID);
-
-            assertEquals(id1.hashCode(), id2.hashCode(), "Hash codes deben ser iguales para objetos iguales.");
-        }
+        assertEquals(id1, id2);
+        assertEquals(id1.hashCode(), id2.hashCode());
     }
-}
+
+    @Test
+    void equals_ShouldReturnFalse_WhenDifferentUUID() {
+        DebtId id1 = DebtId.load(RAW_UUID);
+        DebtId id2 = DebtId.load(OTHER_UUID);
+
+        assertNotEquals(id1, id2);
+    }
+
+    @Test
+    void equals_ShouldReturnFalse_WhenObjectIsNull() {
+        DebtId id = DebtId.load(RAW_UUID);
+
+        assertNotEquals(id, null);
+    }
+
+    @Test
+    void equals_ShouldReturnFalse_WhenClassIsDifferent() {
+        DebtId id = DebtId.load(RAW_UUID);
+
+        assertNotEquals(id, RAW_UUID); // comparando contra otro tipo
+    }
+
+    @Test
+    void getValue_ShouldReturnUUID() {
+        DebtId id = DebtId.load(RAW_UUID);
+
+        assertEquals(RAW_UUID, id.getValue());
+    }
+ }

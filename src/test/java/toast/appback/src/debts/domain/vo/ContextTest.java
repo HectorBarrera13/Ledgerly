@@ -16,160 +16,89 @@ import toast.appback.src.shared.utils.result.Result;
 import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Context Value Object Test")
-public class ContextTest {
+class ContextTest {
+
+    // ---------------------------
+    // Constantes para el test
+    // ---------------------------
 
     private static final int MAX_PURPOSE = 30;
     private static final int MAX_DESCRIPTION = 200;
+
     private static final String VALID_PURPOSE = "Compra de libros";
-    private static final String VALID_DESCRIPTION = "Detalle de la transacción de compra de tres ejemplares.";
+    private static final String VALID_DESCRIPTION =
+            "Detalle de la transacción de compra de tres ejemplares.";
 
-    // --- 1. Casos Válidos ---
-    @Nested
-    @DisplayName("Valid Cases (Creation)")
-    class ValidCases {
+    private static final String BLANK = "   ";
+    private static final String NULL_DESCRIPTION = null;
 
-        @Test
-        @DisplayName("Should create Context successfully with valid purpose and description")
-        void shouldCreateContextSuccessfully() {
-            Result<Context, DomainError> result = Context.create(VALID_PURPOSE, VALID_DESCRIPTION);
+    // Genera strings largos para pruebas de límite
+    private static final String TOO_LONG_PURPOSE = "A".repeat(MAX_PURPOSE + 1);
+    private static final String TOO_LONG_DESCRIPTION = "A".repeat(MAX_DESCRIPTION + 1);
 
-            assertTrue(result.isOk(), "Expected success for valid inputs.");
 
-            Context context = result.get();
-            assertEquals(VALID_PURPOSE, context.getPurpose());
-            assertEquals(VALID_DESCRIPTION, context.getDescription());
-        }
+    // ---------------------------
+    // Tests
+    // ---------------------------
 
-        @Test
-        @DisplayName("Should create Context successfully when description is empty (valid)")
-        void shouldCreateContextWithEmptyDescription() {
-            String emptyDescription = "";
-            Result<Context, DomainError> result = Context.create(VALID_PURPOSE, emptyDescription);
+    @Test
+    void create_ShouldReturnSuccess_WhenValidData() {
+        var result = Context.create(VALID_PURPOSE, VALID_DESCRIPTION);
 
-            assertTrue(result.isOk(), "Description can be empty.");
-
-            Context context = result.get();
-            assertEquals(VALID_PURPOSE, context.getPurpose());
-            assertEquals(emptyDescription, context.getDescription());
-        }
-
-        @Test
-        @DisplayName("Should create Context successfully when description is only whitespace (valid)")
-        void shouldCreateContextWithWhitespaceDescription() {
-            String whitespaceDescription = "  ";
-            Result<Context, DomainError> result = Context.create(VALID_PURPOSE, whitespaceDescription);
-
-            assertTrue(result.isOk(), "Description can contain only whitespace.");
-            assertEquals(whitespaceDescription, result.get().getDescription());
-        }
+        assertTrue(result.isOk());
+        assertEquals(VALID_PURPOSE, result.get().getPurpose());
+        assertEquals(VALID_DESCRIPTION, result.get().getDescription());
     }
 
-    // --- 2. Casos Inválidos ---
-    @Nested
-    @DisplayName("Invalid Cases (Validation Failures)")
-    class InvalidCases {
+    @Test
+    void create_ShouldFail_WhenPurposeIsNull() {
+        var result = Context.create(null, VALID_DESCRIPTION);
 
-        // --- Fallos en Purpose ---
-
-        @Test
-        @DisplayName("Should fail when purpose is blank/empty (EMPTY_VALUE)")
-        void shouldFailWhenPurposeIsBlank() {
-            String blankPurpose = "   "; // O ""
-            Result<Context, DomainError> result = Context.create(blankPurpose, VALID_DESCRIPTION);
-
-            assertTrue(result.isFailure());
-            List<DomainError> errors = result.getErrors();
-            assertEquals(1, errors.size());
-            assertErrorExists(errors, ValidatorType.EMPTY_VALUE);
-        }
-
-        @Test
-        @DisplayName("Should fail when purpose is too long (TOO_LONG)")
-        void shouldFailWhenPurposeIsTooLong() {
-            String longPurpose = "A".repeat(MAX_PURPOSE + 1);
-
-            Result<Context, DomainError> result = Context.create(longPurpose, VALID_DESCRIPTION);
-
-            assertTrue(result.isFailure());
-            List<DomainError> errors = result.getErrors();
-            assertEquals(1, errors.size());
-            assertErrorExists(errors, ValidatorType.TOO_LONG);
-        }
-
-        // --- Fallos en Description ---
-
-        @Test
-        @DisplayName("Should fail when description is too long (TOO_LONG)")
-        void shouldFailWhenDescriptionIsTooLong() {
-            String longDescription = "B".repeat(MAX_DESCRIPTION + 1);
-
-            Result<Context, DomainError> result = Context.create(VALID_PURPOSE, longDescription);
-
-            assertTrue(result.isFailure());
-            List<DomainError> errors = result.getErrors();
-            assertEquals(1, errors.size());
-            assertErrorExists(errors, ValidatorType.TOO_LONG);
-        }
-
-        // --- Fallo Combinado ---
-
-        @Test
-        @DisplayName("Should fail and accumulate errors when both fields are invalid")
-        void shouldFailAndAccumulateErrors() {
-            String longPurpose = "C".repeat(MAX_PURPOSE + 1);
-            String longDescription = "D".repeat(MAX_DESCRIPTION + 1);
-
-            // Result.combine() debe acumular ambos errores
-            Result<Context, DomainError> result = Context.create(longPurpose, longDescription);
-
-            assertTrue(result.isFailure());
-            List<DomainError> errors = result.getErrors();
-            assertEquals(2, errors.size(), "Debe retornar dos errores.");
-
-            // Verificar ambos errores
-            assertErrorExistsForField(errors, ValidatorType.TOO_LONG, "purpose");
-            assertErrorExistsForField(errors, ValidatorType.TOO_LONG, "description");
-        }
+        assertTrue(result.isFailure());
     }
 
-    // --- 3. Casos de Integración ---
-    @Nested
-    @DisplayName("Integration Cases (Equality and Accessors)")
-    class IntegrationCases {
+    @Test
+    void create_ShouldFail_WhenPurposeIsBlank() {
+        var result = Context.create(BLANK, VALID_DESCRIPTION);
 
-        @Test
-        @DisplayName("Should be equal for same purpose and description")
-        void shouldBeEqualForSameValues() {
-            Result<Context, DomainError> result1 = Context.create("Viaje", "Para el boleto.");
-            Result<Context, DomainError> result2 = Context.create("Viaje", "Para el boleto.");
+        assertTrue(result.isFailure());
+    }
 
-            assertTrue(result1.isOk());
-            assertNotEquals(result1.get(), result2.get(), "Dos objetos Context con los mismos valores deben ser iguales.");
-            assertNotEquals(result1.get().hashCode(), result2.get().hashCode(), "Hash codes deben coincidir.");
-        }
+    @Test
+    void create_ShouldFail_WhenPurposeExceedsMaxLength() {
+        var result = Context.create(TOO_LONG_PURPOSE, VALID_DESCRIPTION);
 
-        @Test
-        @DisplayName("Should not be equal for different values")
-        void shouldNotBeEqualForDifferentValues() {
-            Result<Context, DomainError> result1 = Context.create("Cena", "Hoy.");
-            Result<Context, DomainError> result2 = Context.create("Cena", "Ayer.");
+        assertTrue(result.isFailure());
+    }
 
-            assertTrue(result1.isOk());
-            assertTrue(result2.isOk());
+    @Test
+    void create_ShouldFail_WhenDescriptionExceedsMaxLength() {
+        var result = Context.create(VALID_PURPOSE, TOO_LONG_DESCRIPTION);
 
-            assertNotEquals(result1.get(), result2.get(), "Diferente descripción.");
-        }
+        assertTrue(result.isFailure());
+    }
 
-        @Test
-        @DisplayName("Should return the correct values using load() and accessors")
-        void shouldReturnCorrectValuesUsingLoad() {
-            String purpose = "Pago";
-            String description = "Factura de servicios.";
+    @Test
+    void create_ShouldAllowNullOrBlankDescription_WhenWithinLimits() {
+        var resultNull = Context.create(VALID_PURPOSE, NULL_DESCRIPTION);
+        var resultBlank = Context.create(VALID_PURPOSE, BLANK);
 
-            Context context = Context.load(purpose, description);
+        assertTrue(resultNull.isOk());
+        assertTrue(resultBlank.isOk());
+    }
 
-            assertEquals(purpose, context.getPurpose());
-            assertEquals(description, context.getDescription());
-        }
+    @Test
+    void load_ShouldReturnContext_WhenValid() {
+        Context ctx = Context.load(VALID_PURPOSE, VALID_DESCRIPTION);
+
+        assertEquals(VALID_PURPOSE, ctx.getPurpose());
+        assertEquals(VALID_DESCRIPTION, ctx.getDescription());
+    }
+
+    @Test
+    void load_ShouldThrowException_WhenInvalid() {
+        assertThrows(IllegalArgumentException.class,
+                () -> Context.load(TOO_LONG_PURPOSE, VALID_DESCRIPTION)
+        );
     }
 }

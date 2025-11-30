@@ -14,6 +14,7 @@ import toast.appback.src.debts.application.usecase.contract.CreateDebtBetweenUse
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsers;
 import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsersStatus;
+import toast.appback.src.debts.application.usecase.implementation.ResendDebtUseCase;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.infrastructure.api.dto.DebtResponseMapper;
@@ -36,7 +37,7 @@ public class DebtBetweenUsersController {
     private final EditDebtBetweenUsersStatus rejectDebtPaymentUseCase;
     private final CreateDebtBetweenUsers createDebtBetweenUsersUseCase;
     private final EditDebtBetweenUsersService editDebtBetweenUsersService;
-    private final DebtRepository debtRepository;
+    private final EditDebtBetweenUsersStatus resendDebtUseCase;
     private final DebtBetweenUsersReadRepository debtBetweenUsersReadRepository;
 
     public DebtBetweenUsersController(
@@ -45,9 +46,9 @@ public class DebtBetweenUsersController {
             @Qualifier("rejectDebtPaymentUseCase") EditDebtBetweenUsersStatus reject,
             @Qualifier("confirmDebtPaymentUseCase") EditDebtBetweenUsersStatus confirm,
             @Qualifier("reportDebtPaymentUseCase") EditDebtBetweenUsersStatus report,
+            @Qualifier("resendDebtUseCase") EditDebtBetweenUsersStatus resendDebtUseCase,
             EditDebtBetweenUsersService editDebt,
             CreateDebtBetweenUsers createDebtBetweenUsers,
-            DebtRepository debtRepository,
             DebtBetweenUsersReadRepository debtBetweenUsersReadRepository
     ) {
         this.acceptDebtUseCase = acceptDebtUseCase;
@@ -55,9 +56,9 @@ public class DebtBetweenUsersController {
         this.rejectDebtPaymentUseCase = reject;
         this.confirmDebtPaymentUseCase = confirm;
         this.reportDebtPaymentUseCase = report;
+        this.resendDebtUseCase = resendDebtUseCase;
         this.editDebtBetweenUsersService = editDebt;
         this.createDebtBetweenUsersUseCase = createDebtBetweenUsers;
-        this.debtRepository = debtRepository;
         this.debtBetweenUsersReadRepository = debtBetweenUsersReadRepository;
     }
 
@@ -152,6 +153,19 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = declineDebtUseCase.execute(command);
+        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        return ResponseEntity.ok(debtResponse);
+    }
+
+    @PostMapping("/{debtId}/resend-debt")
+    public ResponseEntity<DebtBetweenUsersResponse> resendDebt(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable("debtId") UUID debtId
+    ) {
+        UserId userId = customUserDetails.getUserId();
+        DebtId requiredDebtId = DebtId.load(debtId);
+        EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
+        DebtBetweenUsersView debtView = resendDebtUseCase.execute(command);
         DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }

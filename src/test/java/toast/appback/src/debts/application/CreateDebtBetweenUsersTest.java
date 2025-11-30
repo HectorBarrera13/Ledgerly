@@ -12,6 +12,7 @@ import toast.appback.src.debts.application.usecase.implementation.CreateDebtBetw
 import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.repository.DebtRepository;
+import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.Phone;
 import toast.appback.src.users.domain.User;
@@ -29,6 +30,7 @@ public class CreateDebtBetweenUsersTest {
     private CreateDebtBetweenUsersUseCase createDebtBetweenUsersUseCase;
     private final DebtRepository debtRepository = mock(DebtRepository.class);
     private final UserRepository userRepository = mock(UserRepository.class);
+    private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
 
     private UserId debtorId;
     private UserId creditorId;
@@ -40,7 +42,8 @@ public class CreateDebtBetweenUsersTest {
     void setUp() {
         this.createDebtBetweenUsersUseCase = new CreateDebtBetweenUsersUseCase(
                 userRepository,
-                debtRepository
+                debtRepository,
+                domainEventBus
         );
         Name name = mock(Name.class);
         Phone phone = mock(Phone.class);
@@ -51,7 +54,7 @@ public class CreateDebtBetweenUsersTest {
         debtor = User.create(name, phone);
         creditor = User.create(name,phone);
 
-        doNothing().when(debtRepository).save(any(Debt.class));
+        doNothing().when(debtRepository).;
 
         command = new CreateDebtBetweenUsersCommand(
                 "Cena",
