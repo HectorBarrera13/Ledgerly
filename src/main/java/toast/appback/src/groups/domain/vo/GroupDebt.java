@@ -14,7 +14,7 @@ public class GroupDebt {
     private final Instant createdAt;
     private final List<DomainEvent> groupDebtEvents = new ArrayList<>();
 
-    public GroupDebt(GroupId groupId, DebtId debtId, Instant createdAt) {
+    private GroupDebt(GroupId groupId, DebtId debtId, Instant createdAt) {
         this.groupId = groupId;
         this.debtId = debtId;
         this.createdAt = createdAt;

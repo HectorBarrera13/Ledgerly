@@ -1,7 +1,9 @@
 package toast.appback.src.debts.infrastructure.api.dto;
 
 import toast.appback.src.debts.application.communication.result.*;
+import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.infrastructure.api.dto.response.*;
+import toast.appback.src.groups.application.communication.result.GroupDebtView;
 
 public class DebtResponseMapper {
 
@@ -61,6 +63,17 @@ public class DebtResponseMapper {
                 userSummaryView.userId(),
                 userSummaryView.userFirstName(),
                 userSummaryView.userLastName()
+        );
+    }
+
+    public static DebtResponse toGroupDebtResponse(GroupDebtView groupDebtView) {
+        return new DebtResponse(
+                groupDebtView.DebtId(),
+                groupDebtView.purpose(),
+                groupDebtView.description(),
+                groupDebtView.amount().longValue(),
+                groupDebtView.currency(),
+                groupDebtView.status()
         );
     }
 }
