@@ -10,19 +10,48 @@ import toast.appback.src.users.domain.UserId;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Entidad concreta del agregado Debt.
+ *
+ * QuickDebt representa una deuda rápida creada por un solo usuario,
+ * normalmente para registrar gastos propios o de interacción simple.
+ *
+ * Reglas del dominio:
+ *  - Se crea con estado PENDING
+ *  - Puede modificar su TargetUser sin restricciones de estado
+ *  - Puede cambiarse a una DebtBetweenUsers (convirtiéndola en deuda entre 2 usuarios)
+ *  - Solo puede pagarse si está en estado PENDING
+ *  - Al pagar, el estado pasa directamente a PAYMENT_CONFIRMED
+ *
+ * También puede emitir eventos de dominio como DebtCreated.
+ */
 public class QuickDebt extends Debt {
+
+    /** Usuario propietario de la deuda (quien la crea). */
     private final UserId userId;
+
+    /** Rol del usuario dentro de la deuda (DEBTOR o CREDITOR). */
     private final Role role;
+
+    /** Nombre del "otro usuario" involucrado. */
     private TargetUser targetUser;
 
-    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser) {
+    /**
+     * Constructor base para creación desde dominio (estado inicial PENDING).
+     */
+    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney,
+                      UserId userId, Role role, TargetUser targetUser) {
         super(debtId, context, debtMoney, Instant.now());
         this.userId = userId;
         this.role = role;
         this.targetUser = targetUser;
     }
 
-    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser, Status status) {
+    /**
+     * Constructor para reconstrucción desde persistencia con estado definido.
+     */
+    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney,
+                      UserId userId, Role role, TargetUser targetUser, Status status) {
         super(debtId, context, debtMoney, Instant.now());
         this.status = status;
         this.userId = userId;
@@ -30,13 +59,22 @@ public class QuickDebt extends Debt {
         this.targetUser = targetUser;
     }
 
-    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser, List<DomainEvent> debtEvents) {
+    /**
+     * Constructor para reconstrucción incluyendo eventos previos.
+     */
+    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney,
+                      UserId userId, Role role, TargetUser targetUser, List<DomainEvent> debtEvents) {
         super(debtId, context, debtMoney, Instant.now(), debtEvents);
         this.userId = userId;
         this.role = role;
         this.targetUser = targetUser;
     }
 
+    /**
+     * Factory method principal.
+     * Genera un nuevo DebtId, crea la deuda en estado PENDING
+     * y registra el evento DebtCreated.
+     */
     public static QuickDebt create(Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser) {
         DebtId debtId = DebtId.generate();
         QuickDebt newQuickDebt = new QuickDebt(debtId, context, debtMoney, userId, role, targetUser);
@@ -44,41 +82,53 @@ public class QuickDebt extends Debt {
         return newQuickDebt;
     }
 
-    public static QuickDebt load(DebtId debtId, Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser, Status status) {
-        QuickDebt newQuickDebt = new QuickDebt(debtId, context, debtMoney, userId, role, targetUser, status);
-        return newQuickDebt;
+    /**
+     * Reconstrucción desde persistencia.
+     */
+    public static QuickDebt load(DebtId debtId, Context context, DebtMoney debtMoney,
+                                 UserId userId, Role role, TargetUser targetUser, Status status) {
+        return new QuickDebt(debtId, context, debtMoney, userId, role, targetUser, status);
     }
 
-    public void editTargetUser(TargetUser targetUser) {
-        this.targetUser = targetUser;
-    }
-
+    /**
+     * Convierte una QuickDebt en una DebtBetweenUsers.
+     * Conserva:
+     *  - id
+     *  - context
+     *  - debtMoney
+     *  - status actual
+     *
+     */
     public DebtBetweenUsers changeToDebtBetweeenUsers(UserId newUserId) {
-        DebtBetweenUsers changedDebt = DebtBetweenUsers.load(super.getId(), super.getContext(), super.getDebtMoney(), this.userId, newUserId, this.status);
+        DebtBetweenUsers changedDebt = DebtBetweenUsers.load(
+                super.getId(), super.getContext(), super.getDebtMoney(), this.userId, newUserId, this.status
+        );
         return changedDebt;
     }
 
+    /**
+     * Implementación del método abstracto pay() para QuickDebt.
+     *
+     * Solo puede pagarse si está en estado PENDING.
+     * El pago se confirma inmediatamente → PAYMENT_CONFIRMED.
+     */
     @Override
     public Result<Void, DomainError> pay() {
         boolean isDebtPending = status == Status.PENDING;
         if (!isDebtPending) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
+            return Result.failure(
+                    DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+                            .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED)
+            );
         }
         this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
 
-    public UserId getUserId() {
-        return this.userId;
-    }
+    public UserId getUserId() { return this.userId; }
 
-    public Role getRole() {
-        return this.role;
-    }
+    public Role getRole() { return this.role; }
 
-    public TargetUser getTargetUser() {
-        return this.targetUser;
-    }
+    public TargetUser getTargetUser() { return this.targetUser; }
 
 }

@@ -10,6 +10,7 @@ import toast.appback.src.users.domain.UserId;
 import java.util.UUID;
 
 public interface GroupDebtReadRepository {
-    PageResult<GroupDebtView, UUID> findDebtsDebtByGroupId(GroupId groupId, PageRequest pageRequest);
-    PageResult<GroupDebtView, UUID> findDebtsDebtByGroupIdAfterCursor(GroupId groupId, CursorRequest<UUID> cursorRequest);
+    PageResult<GroupDebtView, UUID> findUserDebtsByGroupId(GroupId groupId, UserId userId , PageRequest pageRequest);
+    PageResult<GroupDebtView, UUID> findUserDebtsByGroupIdAfterCursor(GroupId groupId, UserId userId, CursorRequest<UUID> cursorRequest);
+
 }
