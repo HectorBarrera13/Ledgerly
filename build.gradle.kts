@@ -46,11 +46,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-sonarqube {
-    properties {
-        property("sonar.projectKey", "HectorBarrera13_Ledgerly")
-        property("sonar.organization", "hectorbarrera13")
-        property("sonar.host.url", "https://sonarcloud.io")
-    }
+sonar {
+  properties {
+    property "sonar.projectKey", "HectorBarrera13_Ledgerly"
+    property "sonar.organization", "hectorbarrera13"
+  }
 }
 
