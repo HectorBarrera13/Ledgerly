@@ -48,9 +48,9 @@ tasks.withType<Test> {
 
 sonarqube {
     properties {
-        set("sonar.projectKey", "HectorBarrera13_Ledgerly")
-        set("sonar.organization", "hectorbarrera13")
-        set("sonar.host.url", "https://sonarcloud.io") 
+        property("sonar.projectKey", "HectorBarrera13_Ledgerly")
+        property("sonar.organization", "hectorbarrera13")
+        property("sonar.host.url", "https://sonarcloud.io")
     }
 }
 
