@@ -58,7 +58,6 @@ Thumbs.db
 # ⚙️ Archivos generados por compiladores
 # ------------------------------------
 *.class
-*.jar
 *.war
 *.ear
 
