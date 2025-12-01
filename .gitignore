@@ -36,11 +36,6 @@ out/
 .vscode/
 
 # ------------------------------------
-# 🧱 Archivos y carpetas de Gradle
-# ------------------------------------
-.gradle/
-
-# ------------------------------------
 # 🧰 Archivos del IDE (IntelliJ, Eclipse, VS Code, etc.)
 # ------------------------------------
 # IntelliJ IDEA / Android Studio
@@ -63,7 +58,6 @@ Thumbs.db
 # ⚙️ Archivos generados por compiladores
 # ------------------------------------
 *.class
-*.jar
 *.war
 *.ear
 

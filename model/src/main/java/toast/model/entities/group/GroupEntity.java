@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(
-        name = "groups"
+        name = "group_table"
 )
 public class GroupEntity {
 

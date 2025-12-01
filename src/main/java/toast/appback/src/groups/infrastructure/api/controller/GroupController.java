@@ -123,13 +123,15 @@ public class GroupController {
         UserId userId = customUserDetails.getUserId();
         PageResult<GroupDebtView, UUID> pageResult;
         if(cursor==null) {
-            pageResult = groupDebtReadRepository.findDebtsDebtByGroupId(
+            pageResult = groupDebtReadRepository.findUserDebtsByGroupId(
                     GroupId.load(groupId),
+                    userId,
                     PageRequest.of(0, limit)
             );
         } else {
-            pageResult = groupDebtReadRepository.findDebtsDebtByGroupIdAfterCursor(
+            pageResult = groupDebtReadRepository.findUserDebtsByGroupIdAfterCursor(
                     GroupId.load(groupId),
+                    userId,
                     CursorRequest.of(limit, cursor)
             );
         }
@@ -198,7 +200,6 @@ public class GroupController {
         UserId userId = customUserDetails.getUserId();
        AddGroupDebtCommand command =
                 request.toAddGroupDebtCommand(
-                        GroupId.load(request.groupId()),
                         userId
                 );
         addGroupDebt.execute(command);
