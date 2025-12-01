@@ -36,11 +36,6 @@ out/
 .vscode/
 
 # ------------------------------------
-# 🧱 Archivos y carpetas de Gradle
-# ------------------------------------
-.gradle/
-
-# ------------------------------------
 # 🧰 Archivos del IDE (IntelliJ, Eclipse, VS Code, etc.)
 # ------------------------------------
 # IntelliJ IDEA / Android Studio
