@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.sonarqube") version "7.1.0.6387"
+    id("org.sonarqube") version "4.4.1.3414"
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -47,9 +47,9 @@ tasks.withType<Test> {
 }
 
 sonar {
-  properties {
-    property("sonar.projectKey", "HectorBarrera13_Ledgerly");
-    property("sonar.organization", "hectorbarrera13");
-  }
+    properties {
+        property("sonar.projectKey", "HectorBarrera13_Ledgerly")
+        property("sonar.organization", "hectorbarrera13")
+        property("sonar.host.url", "https://sonarcloud.io") 
+    }
 }
-
