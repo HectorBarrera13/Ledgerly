@@ -1,5 +1,6 @@
 plugins {
     java
+    id("org.sonarqube") version "7.1.0.6387"
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -30,7 +31,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    "developmentOnly"("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.mysql:mysql-connector-j")
     implementation("io.jsonwebtoken:jjwt:0.12.6")
     runtimeOnly("com.h2database:h2")

@@ -39,7 +39,7 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
 
         List<DebtBetweenUsersView> debts = new ArrayList<>();
 
-        for(var debtorCommand : command.debtors()) {
+        for (var debtorCommand : command.debtors()) {
             User debtor = userRepository.findById(debtorCommand.debtorId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + debtorCommand.debtorId()));
 
@@ -48,8 +48,8 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
                     command.description(),
                     command.currency(),
                     debtorCommand.amount(),
-                    command.creditorId(),
-                    debtorCommand.debtorId()
+                    debtorCommand.debtorId(),
+                    command.creditorId()
             );
 
             DebtBetweenUsersView newDebt = createDebtBetweenUsers.execute(debtCommand);

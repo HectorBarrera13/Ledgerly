@@ -27,14 +27,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("request info:\n");
-        System.out.println(request.getMethod() + " " + request.getRequestURI() + "\n");
-        System.out.println("Headers:");
-        request.getHeaderNames().asIterator()
-                .forEachRemaining(headerName -> {
-                    System.out.println(headerName + ": " + request.getHeader(headerName));
-                });
-        System.out.println("\nEnd of request info\n");
+        System.out.println(request.getMethod() + " " + request.getRequestURI());
 
         if (request.getServletPath().contains("/auth/")) {
             filterChain.doFilter(request, response);
@@ -59,7 +52,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if(SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             CustomUserDetails userDetails = new CustomUserDetails(
                     tokenClaims.accountId(),
                     tokenClaims.userId(),
