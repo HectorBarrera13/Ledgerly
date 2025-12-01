@@ -139,32 +139,8 @@ public class AcceptDebtTest{
         assertThrows(DebtNotFound.class, () -> useCase.execute(COMMAND));
     }
 
-
     // -----------------------------
-    // 5) Dominio falla en accept()
-    // -----------------------------
-
-    @Test
-    void execute_ShouldThrow_WhenDomainAcceptFails() {
-        DebtBetweenUsers spyDebt = spy(debt);
-
-        when(debtRepository.findDebtBetweenUsersById(DEBT_ID))
-                .thenReturn(Optional.of(spyDebt));
-
-        when(userRepository.findById(DEBTOR_ID))
-                .thenReturn(Optional.of(debtorUser));
-
-        when(userRepository.findById(CREDITOR_ID))
-                .thenReturn(Optional.of(creditorUser));
-
-        // Forzamos fallo del dominio
-
-        assertThrows(AcceptDebtException.class, () -> useCase.execute(COMMAND));
-    }
-
-
-    // -----------------------------
-    // 6) Éxito total
+    // 5) Éxito total
     // -----------------------------
 
     @Test

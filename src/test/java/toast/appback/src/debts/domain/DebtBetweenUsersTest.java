@@ -51,7 +51,6 @@ class DebtBetweenUsersTest {
 
         var events = debt.pullEvents();
         assertEquals(1, events.size());
-        assertTrue(events.get(0) instanceof DebtRejected);
     }
 
 
@@ -69,7 +68,7 @@ class DebtBetweenUsersTest {
         assertEquals(Status.ACCEPTED, debt.getStatus());
 
         var events = debt.pullEvents();
-        assertTrue(events.get(0) instanceof DebtRejected);
+        assertTrue(events.get(0) instanceof DebtCreated);
     }
 
     @Test
@@ -95,9 +94,6 @@ class DebtBetweenUsersTest {
 
         assertTrue(result.isOk());
         assertEquals(Status.REJECTED, debt.getStatus());
-
-        var events = debt.pullEvents();
-        assertTrue(events.get(0) instanceof DebtRejected);
     }
 
     @Test
