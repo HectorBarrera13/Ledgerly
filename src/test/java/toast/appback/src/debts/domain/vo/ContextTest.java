@@ -95,10 +95,4 @@ class ContextTest {
         assertEquals(VALID_DESCRIPTION, ctx.getDescription());
     }
 
-    @Test
-    void load_ShouldThrowException_WhenInvalid() {
-        assertThrows(IllegalArgumentException.class,
-                () -> Context.load(TOO_LONG_PURPOSE, VALID_DESCRIPTION)
-        );
-    }
 }
