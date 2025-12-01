@@ -1,0 +1,40 @@
+package toast.appback.src.shared.utils.result.chains;
+import toast.appback.src.shared.errors.IError;
+import toast.appback.src.shared.utils.result.Result;
+import toast.appback.src.shared.utils.result.functions.TriFunction;
+
+import java.util.function.Supplier;
+
+public final class Chain3<A, B, C, E extends IError> {
+
+    private final Result<ResultTuples.Tuple3<A, B, C>, E> current;
+
+    Chain3(Result<ResultTuples.Tuple3<A, B, C>, E> r) {
+        this.current = r;
+    }
+
+    public <D> Chain4<A, B, C, D, E> and(Supplier<Result<D, E>> fn) {
+        Result<D, E> r4 = fn.get();
+        if (current.isOk() && r4.isOk()) {
+            var t = current.get();
+            return new Chain4<>(Result.ok(new ResultTuples.Tuple4<>(t._1(), t._2(), t._3(), r4.get())));
+        } else {
+            Result<Void, E> emptyResult = Result.empty();
+            if (current.isFailure()) {
+                emptyResult.collect(current);
+            }
+            if (r4.isFailure()) {
+                emptyResult.collect(r4);
+            }
+            return new Chain4<>(Result.failure(emptyResult.getErrors()));
+        }
+    }
+
+    public <R> Result<R, E> result(TriFunction<A, B, C, R> fn) {
+        if (current.isOk()) {
+            var t = current.get();
+            return Result.ok(fn.apply(t._1(), t._2(), t._3()));
+        }
+        return Result.failure(current.getErrors());
+    }
+}

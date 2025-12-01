@@ -1,0 +1,86 @@
+HELP.md
+.gradle
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# ------------------------------------
+# 🧰 Archivos del IDE (IntelliJ, Eclipse, VS Code, etc.)
+# ------------------------------------
+# IntelliJ IDEA / Android Studio
+.idea/
+
+# Eclipse
+.settings/
+
+# ------------------------------------
+# 🪣 Archivos de sistema o temporales
+# ------------------------------------
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ------------------------------------
+# ⚙️ Archivos generados por compiladores
+# ------------------------------------
+*.class
+*.war
+*.ear
+
+# ------------------------------------
+# 🧪 Archivos de pruebas temporales o locales
+# ------------------------------------
+test-output/
+dist/
+target/
+
+# ------------------------------------
+# 🔐 Credenciales o configuraciones privadas
+# ------------------------------------
+local.properties
+.env
+*.keystore
+*.pem
+
+# ------------------------------------
+# 🧩 Otros (opcional según tu entorno)
+# ------------------------------------
+# Logs de Gradle
+gradle-app.setting
+# Dependencias cacheadas de Gradle
+.gradle-cache/
+

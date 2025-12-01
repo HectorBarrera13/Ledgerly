@@ -1,0 +1,73 @@
+package toast.appback.src.users.infrastructure.persistence.jparepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import toast.appback.src.users.infrastructure.persistence.jparepository.projection.FriendProjection;
+import toast.model.entities.users.FriendShipEntity;
+import toast.model.entities.users.FriendShipId;
+
+public interface JpaFriendShipRepository extends JpaRepository<FriendShipEntity, FriendShipId> {
+
+    @Query("""
+            SELECT u.userId AS userId,
+                   u.firstName AS firstName,
+                   u.lastName AS lastName,
+                   CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone,
+                   f.createdAt AS addedAt
+            FROM FriendShipEntity f
+            JOIN UserEntity u
+                ON (u.id = CASE WHEN f.id.userOneId = :me THEN f.id.userTwoId ELSE f.id.userOneId END)
+            WHERE f.id.userOneId = :me OR f.id.userTwoId = :me
+    """)
+    Page<FriendProjection> findAllUserFriendsByUserId(@Param("me") Long userId, Pageable pageable);
+
+
+    @Query("""
+            SELECT u.userId AS userId,
+                   u.firstName AS firstName,
+                   u.lastName AS lastName,
+                   CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone,
+                   f.createdAt AS addedAt
+            FROM FriendShipEntity f
+            JOIN UserEntity u
+                ON (u.id = CASE WHEN f.id.userOneId = :userId THEN f.id.userTwoId ELSE f.id.userOneId END)
+            WHERE (f.id.userOneId = :userId OR f.id.userTwoId = :userId)
+              AND u.id < :cursor
+    """)
+    Page<FriendProjection> findAllUserFriendsByUserIdAfterCursor(
+            @Param("userId") Long userId,
+            @Param("cursor") Long cursor,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT u.userId AS userId,
+                   u.firstName AS firstName,
+                   u.lastName AS lastName,
+                   CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone,
+                   f.createdAt AS addedAt
+            FROM FriendShipEntity f
+            JOIN UserEntity u
+                ON (u.id = CASE WHEN f.id.userOneId = :me THEN f.id.userTwoId ELSE f.id.userOneId END)
+            WHERE (f.id.userOneId = :me OR f.id.userTwoId = :me)
+              AND (LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :name, '%')))
+    """)
+    Page<FriendProjection> searchFriendsByName(@Param("me") Long userId, @Param("name") String name, Pageable pageable);
+
+    @Query("""
+            SELECT u.userId AS userId,
+                   u.firstName AS firstName,
+                   u.lastName AS lastName,
+                   CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone,
+                   f.createdAt AS addedAt
+            FROM FriendShipEntity f
+            JOIN UserEntity u
+                ON (u.id = CASE WHEN f.id.userOneId = :me THEN f.id.userTwoId ELSE f.id.userOneId END)
+            WHERE (f.id.userOneId = :me OR f.id.userTwoId = :me)
+              AND CONCAT('+', u.phone.countryCode,'-',u.phone.number) LIKE CONCAT('%', :phone, '%')
+    """)
+    Page<FriendProjection> searchFriendsByPhone(@Param("me") Long userId, @Param("phone") String phone, Pageable pageable);
+}
