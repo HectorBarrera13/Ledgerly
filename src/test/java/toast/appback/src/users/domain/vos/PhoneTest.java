@@ -16,11 +16,10 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("Phone Value Object Test")
-public class PhoneTest {
+class PhoneTest {
 
     @Nested
     @DisplayName("Valid Cases")

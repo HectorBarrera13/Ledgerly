@@ -22,7 +22,7 @@ public class ExceptionAdvisor {
     public ResponseEntity<ErrorData> handleDomainException(DomainException ex) {
         System.out.println(ex.getMessage());
         List<DomainError> errors = ex.getErrors();
-        log.error("Domain errors: {}", errors);
+        log.error("Domain exception occurred: {} - Errors: {}", ex.getMessage(), errors, ex);
         if (errors.isEmpty()) {
             ErrorData errorData = ErrorsHandler.unknownError();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorData);
@@ -38,10 +38,8 @@ public class ExceptionAdvisor {
     @ExceptionHandler(Exception.class)
     @Order(10)
     public ResponseEntity<ErrorData> handleAllExceptions(Exception ex) {
-        System.out.println(ex.getMessage());
-        // Log the exception or perform other actions as needed
-        System.err.println("An unexpected error occurred: " + ex.getMessage());
-        ex.printStackTrace();
+        log.error("Unhandled exception occurred: {}", ex.getMessage(), ex);
+
         ErrorData errorData = ErrorsHandler.unknownError();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorData);
     }

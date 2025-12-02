@@ -16,18 +16,18 @@ import toast.appback.src.users.domain.UserId;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Create account use case tests")
-public class CreateAccountTest {
-    private CreateAccountUseCase createAccountUseCase;
+class CreateAccountTest {
     private final AccountRepository accountRepository = mock(AccountRepository.class);
     private final PasswordHasher passwordHasher = new AccountMother.FakePasswordHasher();
     private final String email = "johndoe@gmail.com";
+    private CreateAccountUseCase createAccountUseCase;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.createAccountUseCase = new CreateAccountUseCase(
                 accountRepository,
                 passwordHasher
@@ -36,9 +36,7 @@ public class CreateAccountTest {
 
     @Test
     @DisplayName("Should create an account successfully")
-    public void testCreateAccountSuccess() {
-        Account account = AccountMother.withEmail(email);
-
+    void testCreateAccountSuccess() {
         when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         CreateAccountCommand command = new CreateAccountCommand(
@@ -63,7 +61,7 @@ public class CreateAccountTest {
 
     @Test
     @DisplayName("Should throw AccountExistsException when account with email already exists")
-    public void testCreateAccountAccountExists() {
+    void testCreateAccountAccountExists() {
         Account existingAccount = AccountMother.withEmail(email);
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.of(existingAccount));
@@ -74,9 +72,7 @@ public class CreateAccountTest {
                 "securePassword123"
         );
 
-        AccountExistsException exception = assertThrows(AccountExistsException.class, () -> {
-            createAccountUseCase.execute(command);
-        });
+        AccountExistsException exception = assertThrows(AccountExistsException.class, () -> createAccountUseCase.execute(command));
 
         assertEquals(exception.getEmail(), email);
 
@@ -89,7 +85,7 @@ public class CreateAccountTest {
 
     @Test
     @DisplayName("Should throw CreationAccountException when account creation fails")
-    public void testCreateAccountCreationFails() {
+    void testCreateAccountCreationFails() {
         when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         CreateAccountCommand command = new CreateAccountCommand(

@@ -78,7 +78,6 @@ public class AuthController {
             @RequestHeader(name = "Authorization", required = false) String authHeader,
             HttpServletRequest request
     ) {
-        System.out.println("Received refresh request");
         String refreshToken = refreshCookiesService.getRefreshTokenFromCookie(request);
         if (refreshToken == null) {
             refreshToken = refreshCookiesService.extractTokenFromAuthorizationHeader(authHeader);

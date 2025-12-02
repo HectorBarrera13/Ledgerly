@@ -18,18 +18,18 @@ import toast.appback.src.shared.application.DomainEventBus;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Terminate session use case tests")
-public class TerminateSessionTest {
-    private TerminateSessionUseCase terminateSessionUseCase;
+class TerminateSessionTest {
     private final TokenService tokenService = mock(TokenService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
     private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
+    private TerminateSessionUseCase terminateSessionUseCase;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.terminateSessionUseCase = new TerminateSessionUseCase(
                 tokenService,
                 accountRepository,
@@ -39,7 +39,7 @@ public class TerminateSessionTest {
 
     @Test
     @DisplayName("Should terminate session successfully")
-    public void shouldTerminateSessionSuccessfully() {
+    void shouldTerminateSessionSuccessfully() {
         String accessToken = "validAccess";
         Account account = AccountMother.validAccount();
         Session session = account.startSession().get();
@@ -69,7 +69,7 @@ public class TerminateSessionTest {
 
     @Test
     @DisplayName("Should throw exception when account not found")
-    public void shouldThrowExceptionWhenAccountNotFound() {
+    void shouldThrowExceptionWhenAccountNotFound() {
         String accessToken = "validAccess";
         TokenClaims tokenClaims = TokenMother.createClaims();
 
@@ -97,7 +97,7 @@ public class TerminateSessionTest {
 
     @Test
     @DisplayName("Should throw exception RevokeSessionException when session not found")
-    public void shouldThrowExceptionWhenSessionRevocationFails() {
+    void shouldThrowExceptionWhenSessionRevocationFails() {
         String accessToken = "validAccess";
         Account account = AccountMother.validAccount();
         TokenClaims tokenClaims = new TokenClaims(
@@ -130,7 +130,7 @@ public class TerminateSessionTest {
 
     @Test
     @DisplayName("Should throw exception RevokeSessionException when session already revoked")
-    public void shouldThrowExceptionWhenSessionAlreadyRevoked() {
+    void shouldThrowExceptionWhenSessionAlreadyRevoked() {
         String accessToken = "validAccess";
         Account account = AccountMother.validAccount();
         Session session = account.startSession().get();

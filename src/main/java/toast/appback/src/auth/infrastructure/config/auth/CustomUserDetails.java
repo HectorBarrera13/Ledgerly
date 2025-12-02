@@ -8,17 +8,18 @@ import toast.appback.src.users.domain.UserId;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class CustomUserDetails implements UserDetails {
-    private final AccountId accountId;
-    private final UserId userId;
+    private final UUID accountId;
+    private final UUID userId;
     private final String hashedPassword;
     private final Collection<? extends GrantedAuthority> authorities;
-    private SessionId sessionId;
+    private UUID sessionId;
 
     public CustomUserDetails(AccountId accountId, UserId userId, String hashedPassword) {
-        this.accountId = accountId;
-        this.userId = userId;
+        this.accountId = accountId.getValue();
+        this.userId = userId.getValue();
         this.hashedPassword = hashedPassword;
         this.authorities = List.of();
     }
@@ -29,19 +30,19 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public AccountId getAccountId() {
-        return accountId;
+        return AccountId.load(accountId);
     }
 
     public UserId getUserId() {
-        return userId;
+        return UserId.load(userId);
     }
 
     public SessionId getSessionId() {
-        return sessionId;
+        return SessionId.load(sessionId);
     }
 
     public void setSessionId(SessionId sessionId) {
-        this.sessionId = sessionId;
+        this.sessionId = sessionId.getValue();
     }
 
     @Override
@@ -51,6 +52,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return accountId.getValue().toString();
+        return accountId.toString();
     }
 }

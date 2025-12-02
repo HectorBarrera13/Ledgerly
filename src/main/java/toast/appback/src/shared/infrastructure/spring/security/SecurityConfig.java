@@ -22,7 +22,6 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-// TODO: Verify always latest security best practices
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
@@ -44,11 +43,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .maximumSessions(5))
-                .exceptionHandling(ex -> {
-                    ex.authenticationEntryPoint(
-                            (req, rsp, e) -> rsp.sendError(401)
-                    );
-                })
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (req, rsp, e) -> rsp.sendError(401)
+                ))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

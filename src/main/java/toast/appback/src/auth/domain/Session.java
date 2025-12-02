@@ -5,17 +5,25 @@ import java.util.Objects;
 
 public class Session {
 
+    private static final long MAX_DURATION_SECONDS = 60 * 60 * 24 * 20L; // 20 days
     private final SessionId sessionId;
-    private SessionStatus status;
     private final Instant expiration;
     private final Instant createdAt;
-    private static final long MAX_DURATION_SECONDS = 60 * 60 * 24 * 20; // 20 days
+    private SessionStatus status;
 
     private Session(SessionId sessionId, SessionStatus status, Instant createdAt, Instant expiration) {
         this.sessionId = sessionId;
         this.status = status;
         this.createdAt = createdAt;
         this.expiration = expiration;
+    }
+
+    public static Session create() {
+        return new Session(SessionId.generate(), SessionStatus.NORMAL, Instant.now(), Instant.now().plusSeconds(MAX_DURATION_SECONDS));
+    }
+
+    public static Session load(SessionId sessionId, SessionStatus status, Instant createdAt, Instant expiration) {
+        return new Session(sessionId, status, createdAt, expiration);
     }
 
     public SessionId getSessionId() {
@@ -32,14 +40,6 @@ public class Session {
 
     public Instant getCreatedAt() {
         return createdAt;
-    }
-
-    public static Session create() {
-        return new Session(SessionId.generate(), SessionStatus.NORMAL, Instant.now(), Instant.now().plusSeconds(MAX_DURATION_SECONDS));
-    }
-
-    public static Session load(SessionId sessionId, SessionStatus status, Instant createdAt, Instant expiration) {
-        return new Session(sessionId, status, createdAt, expiration);
     }
 
     public void revoke() {

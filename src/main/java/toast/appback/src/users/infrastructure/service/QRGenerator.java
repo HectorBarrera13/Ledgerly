@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class QRGenerator {
+    private QRGenerator() {
+    }
 
     public static byte[] generate(String content, int width, int height) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();

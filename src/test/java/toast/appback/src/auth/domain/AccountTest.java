@@ -14,21 +14,21 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static toast.appback.src.shared.ValueObjectsUtils.*;
-import static toast.appback.src.shared.DomainEventsUtils.*;
+import static toast.appback.src.shared.DomainEventsUtils.assertContainsEventOfType;
+import static toast.appback.src.shared.ValueObjectsUtils.assertBusinessRuleErrorExists;
 
 @DisplayName("Account Domain Test")
-public class AccountTest {
+class AccountTest {
 
+    private static final String EMAIL = "example@gmail.com";
+    private static final String PASSWORD_HASH = "hashedPassword123";
+    private static final UserId USER_ID = UserId.generate();
     private Account account;
-    private final UserId userId = UserId.generate();
-    private final String EMAIL = "example@gmail.com";
-    private final String PASSWORD_HASH = "hashedPassword123";
 
     @BeforeEach
     void setUp() {
         account = Account.create(
-                userId,
+                USER_ID,
                 Email.load(EMAIL),
                 Password.fromHashed(PASSWORD_HASH)
         );
@@ -37,7 +37,7 @@ public class AccountTest {
     @Test
     @DisplayName("Should return all account data correctly")
     void testAccountData() {
-        assertEquals(account.getUserId(), userId);
+        assertEquals(USER_ID, account.getUserId());
         assertEquals(EMAIL, account.getEmail().getValue());
         assertEquals(PASSWORD_HASH, account.getPassword().getHashed());
         List<DomainEvent> events = account.pullEvents();
@@ -64,7 +64,7 @@ public class AccountTest {
     @DisplayName("Should not be equal when having different account ids")
     void testAccountInequality() {
         Account anotherAccount = Account.create(
-                userId,
+                USER_ID,
                 Email.load(EMAIL),
                 Password.fromHashed(PASSWORD_HASH)
         );
@@ -148,7 +148,7 @@ public class AccountTest {
 
     @Test
     @DisplayName("Should return correct errors when verifying session status")
-    public void testVerifyValidSession() {
+    void testVerifyValidSession() {
         Result<Session, DomainError> startedSession = account.startSession();
         Session session = startedSession.get();
 

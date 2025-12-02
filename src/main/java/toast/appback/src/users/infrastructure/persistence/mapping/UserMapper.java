@@ -1,10 +1,15 @@
 package toast.appback.src.users.infrastructure.persistence.mapping;
 
 import toast.appback.src.users.application.communication.result.UserView;
-import toast.appback.src.users.domain.*;
+import toast.appback.src.users.domain.Name;
+import toast.appback.src.users.domain.Phone;
+import toast.appback.src.users.domain.User;
+import toast.appback.src.users.domain.UserId;
 import toast.model.entities.users.UserEntity;
 
 public class UserMapper {
+    private UserMapper() {
+    }
 
     public static User toDomain(UserEntity userEntity) {
         if (userEntity == null) return null;

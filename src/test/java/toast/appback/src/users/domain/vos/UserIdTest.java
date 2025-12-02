@@ -9,7 +9,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("UserId Value Object Test")
-public class UserIdTest {
+class UserIdTest {
 
     @Test
     @DisplayName("Should create UserId from UUID")

@@ -11,21 +11,22 @@ import toast.appback.src.users.application.exceptions.ReceiverNotFound;
 import toast.appback.src.users.application.exceptions.RequesterNotFound;
 import toast.appback.src.users.application.mother.UserMother;
 import toast.appback.src.users.application.usecase.implementation.AddFriendUseCase;
-import toast.appback.src.users.domain.*;
+import toast.appback.src.users.domain.FriendShip;
+import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Add friend use case tests")
-public class AddFriendTest {
-    private AddFriendUseCase addFriendUseCase;
+class AddFriendTest {
     private final FriendShipRepository friendShipRepository = mock(FriendShipRepository.class);
     private final UserRepository userRepository = mock(UserRepository.class);
     private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
+    private AddFriendUseCase addFriendUseCase;
 
     @BeforeEach
     void setUp() {

@@ -13,13 +13,13 @@ import toast.appback.src.users.domain.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Edit User Use Case Tests")
-public class EditUserTest {
-    private EditUserUseCase editUserUseCase;
+class EditUserTest {
     private final UserRepository userRepository = mock(UserRepository.class);
+    private EditUserUseCase editUserUseCase;
 
     @BeforeEach
     public void setUp() {
@@ -68,9 +68,7 @@ public class EditUserTest {
         when(userRepository.findById(user.getUserId()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(UserNotFound.class, () -> {
-            editUserUseCase.execute(command);
-        });
+        assertThrows(UserNotFound.class, () -> editUserUseCase.execute(command));
 
         verify(userRepository, times(1)).findById(user.getUserId());
 
@@ -92,9 +90,7 @@ public class EditUserTest {
         when(userRepository.findById(user.getUserId()))
                 .thenReturn(Optional.of(user));
 
-        assertThrows(UserEditionException.class, () -> {
-            editUserUseCase.execute(command);
-        });
+        assertThrows(UserEditionException.class, () -> editUserUseCase.execute(command));
 
         verify(userRepository, times(1)).findById(user.getUserId());
 

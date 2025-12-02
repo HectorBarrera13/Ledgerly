@@ -17,6 +17,9 @@ import toast.appback.src.shared.utils.result.Result;
  */
 
 public class Validators {
+    private static final String VALUE_PREFIX = "value: '";
+    private static final String VALUE_SUFFIX = "'";
+
     public static <T> Result<T, DomainError> EMPTY_VALUE(String field) {
         return Result.failure(DomainError.validation(field, "value cannot be null or empty")
                 .withValidatorType(ValidatorType.EMPTY_VALUE)
@@ -25,42 +28,42 @@ public class Validators {
 
     public static <T> Result<T, DomainError> EMPTY_COLLECTION(String field, Iterable<?> value) {
         return Result.failure(DomainError.validation(field, "collection cannot be null or empty")
-                .withDetails("value: '" + value + "'")
+                .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.EMPTY_COLLECTION)
         );
     }
 
-    public static <T> Result<T, DomainError> INVAlID_STATE(String field, String desiredValue, String actualValue) {
+    public static <T> Result<T, DomainError> INVALID_STATE(String field, String desiredValue, String actualValue) {
         return Result.failure(DomainError.validation(field, "State" + actualValue + " cannot be converted to" + desiredValue)
-                .withDetails("actual value: '" + actualValue + "'")
+                .withDetails("actual " + VALUE_PREFIX + actualValue + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.INVALID_STATE)
         );
     }
 
     public static <T> Result<T, DomainError> TOO_LONG(String field, String value, int max) {
         return Result.failure(DomainError.validation(field, "value cannot be longer than " + max + " characters")
-                .withDetails("value: '" + value + "'")
+                .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.TOO_LONG)
         );
     }
 
     public static <T> Result<T, DomainError> TOO_SHORT(String field, String value, int min) {
         return Result.failure(DomainError.validation(field, "value cannot be shorter than " + min + " characters")
-                .withDetails("value: '" + value + "'")
+                .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.TOO_SHORT)
         );
     }
 
     public static <T> Result<T, DomainError> INVALID_FORMAT(String field, String value, String message) {
         return Result.failure(DomainError.validation(field, message)
-                .withDetails("value: '" + value + "'")
+                .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.INVALID_FORMAT)
         );
     }
 
     public static <T> Result<T, DomainError> MUST_BE_POSITIVE(String field, Double value, String message) {
         return Result.failure(DomainError.validation(field, message)
-                .withDetails("Value: '" + value + "'")
+                .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.MUST_BE_POSITIVE)
         );
     }
@@ -81,7 +84,7 @@ public class Validators {
         CharName charName = CharName.fromString(prefix); // Check if the prefix is a known special character
         return Result.failure(DomainError.validation(field, message + (charName != null ? " " + charName.getName() + " '" + charName.getCharacter() + "'" // Use the character name if it's a known special character
                 : " '" + prefix + "'") // Otherwise, use the prefix as is
-        ).withDetails("value: '" + value + "'").withValidatorType(validatorType));
+        ).withDetails(VALUE_PREFIX + value + VALUE_SUFFIX).withValidatorType(validatorType));
     }
 
 
