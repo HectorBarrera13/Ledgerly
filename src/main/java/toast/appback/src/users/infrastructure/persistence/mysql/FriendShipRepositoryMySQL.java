@@ -15,6 +15,8 @@ import toast.model.entities.users.FriendShipId;
 @RequiredArgsConstructor
 public class FriendShipRepositoryMySQL implements FriendShipRepository {
 
+    private static final String USER_NOT_FOUND_ERROR = "User not found";
+
     private final JpaFriendShipRepository jpaFriendShipRepository;
     private final JpaUserRepository jpaUserRepository;
     private final FriendMapper friendMapper;
@@ -28,10 +30,10 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
     @Override
     public boolean existsFriendShip(UserId userId, UserId friendId) {
         Long userIdA = jpaUserRepository.findByUserId(userId.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_ERROR))
                 .getId();
         Long userIdB = jpaUserRepository.findByUserId(friendId.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_ERROR))
                 .getId();
         FriendShipId friendShipId = friendMapper.normalizeAndGetId(userIdA, userIdB);
         return jpaFriendShipRepository.existsById(friendShipId);
@@ -41,10 +43,10 @@ public class FriendShipRepositoryMySQL implements FriendShipRepository {
     @Override
     public void delete(UserId userIdA, UserId userIdB) {
         Long idA = jpaUserRepository.findByUserId(userIdA.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_ERROR))
                 .getId();
         Long idB = jpaUserRepository.findByUserId(userIdB.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"))
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_ERROR))
                 .getId();
         FriendShipId friendShipId = friendMapper.normalizeAndGetId(idA, idB);
         jpaFriendShipRepository.deleteById(friendShipId);

@@ -14,7 +14,7 @@ import toast.appback.src.auth.application.mother.TokenMother;
 import toast.appback.src.auth.application.port.AuthService;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.AuthenticateAccountUseCase;
-import toast.appback.src.auth.domain.*;
+import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.application.communication.result.UserView;
@@ -26,22 +26,21 @@ import toast.appback.src.users.domain.User;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Authenticate account use case tests")
-public class AuthenticateAccountTest {
-    private AuthenticateAccountUseCase authenticateAccountUseCase;
+class AuthenticateAccountTest {
     private final TokenService tokenService = mock(TokenService.class);
     private final AuthService authService = mock(AuthService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
     private final UserReadRepository userReadRepository = mock(UserReadRepository.class);
     private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
-
     private final String email = "johndoe@gmail.com";
+    private AuthenticateAccountUseCase authenticateAccountUseCase;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.authenticateAccountUseCase = new AuthenticateAccountUseCase(
                 tokenService,
                 authService,
@@ -53,7 +52,7 @@ public class AuthenticateAccountTest {
 
     @Test
     @DisplayName("Should authenticate account successfully")
-    public void testAuthenticateAccountSuccessfully() {
+    void testAuthenticateAccountSuccessfully() {
         Account account = AccountMother.withEmail(email);
         User user = UserMother.validUser();
         UserView userView = UserViewMother.create(user);
@@ -94,7 +93,7 @@ public class AuthenticateAccountTest {
 
     @Test
     @DisplayName("Should throw AccountNotFoundException when account does not exist")
-    public void testAuthenticateAccountAccountNotFound() {
+    void testAuthenticateAccountAccountNotFound() {
         when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         AuthenticateAccountCommand authenticateAccountCommand = new AuthenticateAccountCommand(
@@ -124,7 +123,7 @@ public class AuthenticateAccountTest {
 
     @Test
     @DisplayName("Should throw SessionStartException when session limit is reached")
-    public void testAuthenticateAccountSessionStartException() {
+    void testAuthenticateAccountSessionStartException() {
         Account account = AccountMother.withMaxSessions(email);
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
@@ -156,7 +155,7 @@ public class AuthenticateAccountTest {
 
     @Test
     @DisplayName("Should throws UserNotFound when user view does not exist")
-    public void testAuthenticateAccountUserNotFound() {
+    void testAuthenticateAccountUserNotFound() {
         Account account = AccountMother.withEmail(email);
         Tokens tokens = TokenMother.create();
 

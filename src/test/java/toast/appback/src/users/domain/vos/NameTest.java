@@ -16,10 +16,11 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static toast.appback.src.shared.ValueObjectsUtils.*;
+import static toast.appback.src.shared.ValueObjectsUtils.assertErrorExistsForField;
+import static toast.appback.src.shared.ValueObjectsUtils.assertOnlyErrorExistsForField;
 
 @DisplayName("Name Value Object Test")
-public class NameTest {
+class NameTest {
 
     @Nested
     @DisplayName("Valid Cases")
@@ -141,6 +142,38 @@ public class NameTest {
             assertEquals(2, resultWithBothNamesTooShort.getErrors().size());
             assertErrorExistsForField(resultWithBothNamesTooShort.getErrors(), ValidatorType.TOO_SHORT, "firstName");
             assertErrorExistsForField(resultWithBothNamesTooShort.getErrors(), ValidatorType.TOO_SHORT, "lastName");
+        }
+
+        @Test
+        @DisplayName("Should fail when name contains multiple consecutive spaces")
+        void shouldFailWhenNameContainsMultipleSpaces() {
+            String nameWithMultipleSpaces = "John  Doe";
+            Result<Name, DomainError> resultWithFirstNameMultipleSpaces = Name.create(nameWithMultipleSpaces, "ValidLastName");
+            assertTrue(resultWithFirstNameMultipleSpaces.isFailure(), "Should fail for firstName with multiple spaces");
+            assertOnlyErrorExistsForField(resultWithFirstNameMultipleSpaces.getErrors(), ValidatorType.INVALID_FORMAT, "firstName");
+
+            Result<Name, DomainError> resultWithLastNameMultipleSpaces = Name.create("ValidFirstName", nameWithMultipleSpaces);
+            assertTrue(resultWithLastNameMultipleSpaces.isFailure(), "Should fail for lastName with multiple spaces");
+            assertOnlyErrorExistsForField(resultWithLastNameMultipleSpaces.getErrors(), ValidatorType.INVALID_FORMAT, "lastName");
+
+            String nameWithManySpaces = "multiple     spaces";
+            Result<Name, DomainError> resultWithManySpaces = Name.create(nameWithManySpaces, "Test");
+            assertTrue(resultWithManySpaces.isFailure(), "Should fail for firstName with many consecutive spaces");
+            assertOnlyErrorExistsForField(resultWithManySpaces.getErrors(), ValidatorType.INVALID_FORMAT, "firstName");
+        }
+
+        @Test
+        @DisplayName("Should fail when name contains multiple consecutive hyphens or apostrophes")
+        void shouldFailWhenNameContainsMultipleConsecutiveCharacters() {
+            String nameWithDoubleHyphen = "Mary--Anne";
+            Result<Name, DomainError> resultDoubleHyphen = Name.create(nameWithDoubleHyphen, "Smith");
+            assertTrue(resultDoubleHyphen.isFailure(), "Should fail for double hyphen");
+            assertOnlyErrorExistsForField(resultDoubleHyphen.getErrors(), ValidatorType.INVALID_FORMAT, "firstName");
+
+            String nameWithDoubleApostrophe = "O''Connor";
+            Result<Name, DomainError> resultDoubleApostrophe = Name.create("John", nameWithDoubleApostrophe);
+            assertTrue(resultDoubleApostrophe.isFailure(), "Should fail for double apostrophe");
+            assertOnlyErrorExistsForField(resultDoubleApostrophe.getErrors(), ValidatorType.INVALID_FORMAT, "lastName");
         }
     }
 

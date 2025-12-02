@@ -11,22 +11,24 @@ import toast.appback.src.auth.application.mother.AccountMother;
 import toast.appback.src.auth.application.mother.TokenMother;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.implementation.RefreshSessionUseCase;
-import toast.appback.src.auth.domain.*;
+import toast.appback.src.auth.domain.Account;
+import toast.appback.src.auth.domain.Session;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Refresh session use case tests")
-public class RefreshSessionTest {
-    private RefreshSessionUseCase refreshSessionUseCase;
+class RefreshSessionTest {
     private final TokenService tokenService = mock(TokenService.class);
     private final AccountRepository accountRepository = mock(AccountRepository.class);
+    private RefreshSessionUseCase refreshSessionUseCase;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.refreshSessionUseCase = new RefreshSessionUseCase(
                 tokenService,
                 accountRepository
@@ -35,7 +37,7 @@ public class RefreshSessionTest {
 
     @Test
     @DisplayName("Should refresh session successfully")
-    public void testRefreshSessionSuccessfully() {
+    void testRefreshSessionSuccessfully() {
         String refreshToken = "validRefreshToken";
         Account account = AccountMother.validAccount();
         Session session = account.startSession().get();
@@ -67,7 +69,7 @@ public class RefreshSessionTest {
 
     @Test
     @DisplayName("Should throw exception when account not found")
-    public void testRefreshSessionAccountNotFound() {
+    void testRefreshSessionAccountNotFound() {
         String refreshToken = "validRefreshToken";
         TokenClaims claims = TokenMother.createClaims();
 
@@ -75,9 +77,7 @@ public class RefreshSessionTest {
 
         when(accountRepository.findById(claims.accountId())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidClaimsException.class, () -> {
-            refreshSessionUseCase.execute(refreshToken);
-        });
+        assertThrows(InvalidClaimsException.class, () -> refreshSessionUseCase.execute(refreshToken));
 
         verify(tokenService, times(1)).extractClaimsFromRefreshToken(refreshToken);
         verify(accountRepository, times(1)).findById(claims.accountId());
@@ -90,7 +90,7 @@ public class RefreshSessionTest {
 
     @Test
     @DisplayName("Should throw exception when session is invalid")
-    public void testRefreshSessionInvalidSession() {
+    void testRefreshSessionInvalidSession() {
         String refreshToken = "validRefreshToken";
         Account account = AccountMother.validAccount();
         Session session = account.startSession().get();
@@ -105,9 +105,7 @@ public class RefreshSessionTest {
 
         when(accountRepository.findById(claims.accountId())).thenReturn(Optional.of(account));
 
-        assertThrows(InvalidSessionException.class, () -> {
-            refreshSessionUseCase.execute(refreshToken);
-        });
+        assertThrows(InvalidSessionException.class, () -> refreshSessionUseCase.execute(refreshToken));
 
         verify(tokenService, times(1)).extractClaimsFromRefreshToken(refreshToken);
         verify(accountRepository, times(1)).findById(claims.accountId());

@@ -4,9 +4,9 @@ import toast.appback.src.auth.domain.event.AccountCreated;
 import toast.appback.src.auth.domain.event.AllSessionsRevoked;
 import toast.appback.src.auth.domain.event.SessionAdded;
 import toast.appback.src.auth.domain.event.SessionRevoked;
+import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.users.domain.UserId;
 
 import java.time.Instant;
@@ -14,6 +14,7 @@ import java.util.*;
 
 public class Account {
     private static final int MAX_SESSIONS = 5;
+    private static final String SESSION_MESSAGE = "session with id: ";
     private final AccountId accountId;
     private final UserId userId;
     private final Email email;
@@ -88,14 +89,14 @@ public class Account {
         Optional<Session> foundSession = this.findSession(sessionId);
         if (foundSession.isEmpty()) {
             return Result.failure(DomainError.businessRule("session not found")
-                    .withDetails(String.format("session with id %s not found", sessionId))
+                    .withDetails(String.format("%s%s not found for account %s", SESSION_MESSAGE, sessionId, accountId))
                     .withBusinessCode(AccountBusinessCode.SESSION_NOT_FOUND));
         }
         Session session = foundSession.get();
         if (session.isRevoked()) {
             return Result.failure(DomainError.businessRule("session already revoked")
                     .withBusinessCode(AccountBusinessCode.SESSION_ALREADY_REVOKED)
-                    .withDetails("session with id: " + sessionId + " is already revoked for account " + accountId));
+                    .withDetails(String.format("%s%s is already revoked for account %s", SESSION_MESSAGE, sessionId, accountId)));
         }
         session.revoke();
         this.recordEvent(new SessionRevoked(this.accountId, sessionId));
@@ -112,13 +113,13 @@ public class Account {
         Optional<Session> foundSession = this.findSession(sessionId);
         if (foundSession.isEmpty()) {
             return Result.failure(DomainError.businessRule("session not found")
-                    .withDetails("session with id: " + sessionId + " not found for account " + accountId)
+                    .withDetails(String.format("%s%s not found for account %s", SESSION_MESSAGE, sessionId, accountId))
                     .withBusinessCode(AccountBusinessCode.SESSION_NOT_FOUND)
             );
         }
         if (foundSession.get().isRevoked()) {
             return Result.failure(DomainError.businessRule("session revoked")
-                    .withDetails("session with id: " + sessionId + " is revoked for account " + accountId)
+                    .withDetails(String.format("%s%s is revoked for account %s", SESSION_MESSAGE, sessionId, accountId))
                     .withBusinessCode(AccountBusinessCode.SESSION_REVOKED)
             );
         }

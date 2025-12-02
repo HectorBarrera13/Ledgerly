@@ -10,13 +10,13 @@ import toast.appback.src.users.application.usecase.implementation.CreateUserUseC
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Create user use case tests")
-public class CreateUserTest {
-    private CreateUserUseCase createUserUseCase;
+class CreateUserTest {
     private final UserRepository userRepository = mock(UserRepository.class);
+    private CreateUserUseCase createUserUseCase;
 
     @BeforeEach
     public void setUp() {

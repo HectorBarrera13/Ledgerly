@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.communication.result.Tokens;
+import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
-import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.users.domain.UserId;
 
 import javax.crypto.SecretKey;
@@ -31,6 +31,8 @@ import java.util.function.Function;
 public class JWTService implements TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(JWTService.class);
+    private static final String TOKEN_TYPE_ACCESS = "access";
+    private static final String TOKEN_TYPE_CLAIM = "tokenType";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -53,7 +55,7 @@ public class JWTService implements TokenService {
 
     @Override
     public Jwt generateAccessToken(TokenClaims tokenClaims) {
-        return getJwt(tokenClaims, accessExpirationInSeconds, "access");
+        return getJwt(tokenClaims, accessExpirationInSeconds, TOKEN_TYPE_ACCESS);
     }
 
     private Jwt generateRefreshToken(TokenClaims tokenClaims) {
@@ -81,7 +83,7 @@ public class JWTService implements TokenService {
     @Override
     public TokenClaims extractClaimsFromRefreshToken(String refreshToken) {
         String type = extractClaim(refreshToken,
-                claims -> claims.get("tokenType", String.class), true);
+                claims -> claims.get(TOKEN_TYPE_CLAIM, String.class), true);
         if (!"refresh".equals(type)) {
             throw new TokenClaimsException("invalid token type");
         }
@@ -91,8 +93,8 @@ public class JWTService implements TokenService {
     @Override
     public TokenClaims extractClaimsFromAccessToken(String accessToken) {
         String type = extractClaim(accessToken,
-                claims -> claims.get("tokenType", String.class), true);
-        if (!"access".equals(type)) {
+                claims -> claims.get(TOKEN_TYPE_CLAIM, String.class), true);
+        if (!TOKEN_TYPE_ACCESS.equals(type)) {
             throw new TokenClaimsException("invalid token type");
         }
         return getTokenClaims(accessToken, true);
@@ -101,8 +103,8 @@ public class JWTService implements TokenService {
     @Override
     public TokenClaims extractClaimsFromAccessTokenUnsafe(String refreshToken) {
         String type = extractClaim(refreshToken,
-                claims -> claims.get("tokenType", String.class), false);
-        if (!"access".equals(type)) {
+                claims -> claims.get(TOKEN_TYPE_CLAIM, String.class), false);
+        if (!TOKEN_TYPE_ACCESS.equals(type)) {
             throw new TokenClaimsException("invalid token type");
         }
         return getTokenClaims(refreshToken, false);
@@ -128,7 +130,7 @@ public class JWTService implements TokenService {
                 .id(accountId)
                 .subject(userId)
                 .claim("session", sessionId)
-                .claim("tokenType", type)
+                .claim(TOKEN_TYPE_CLAIM, type)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expirationTimeInSeconds * 1000))
                 .signWith(secretKey)
@@ -147,6 +149,7 @@ public class JWTService implements TokenService {
             throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
             if (safe) {
+                System.out.println("Token expirado");
                 logger.warn("JWT token expirado: {}", e.getMessage());
                 throw new TokenExpiredException();
             } else {
@@ -159,15 +162,13 @@ public class JWTService implements TokenService {
             logger.warn("JWT claims string vacío o nulo: {}", e.getMessage());
             throw new TokenClaimsException("JWT claims string is empty or null", e);
         } catch (Exception e) {
-            logger.error("Error al extraer claims del JWT: {}", e.getMessage());
-            throw new TokenClaimsException("Error extracting JWT claims", e);
+            logger.error("Error inesperado al extraer claims del JWT - Token: {}, Safe mode: {}, Error: {}",
+                    token != null ? token.substring(0, Math.min(token.length(), 20)) + "..." : "null",
+                    safe,
+                    e.getMessage(),
+                    e);
+            throw new TokenClaimsException("Error extracting JWT claims: " + e.getMessage(), e);
         }
-    }
-
-
-    public boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration, false)
-                .before(new Date());
     }
 
     public void setJwtSecret(String jwtSecret) {

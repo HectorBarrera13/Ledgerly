@@ -9,11 +9,12 @@ import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.ValidatorType;
 import toast.appback.src.shared.utils.result.Result;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static toast.appback.src.shared.ValueObjectsUtils.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static toast.appback.src.shared.ValueObjectsUtils.assertErrorExists;
+import static toast.appback.src.shared.ValueObjectsUtils.assertOnlyErrorExists;
 
 @DisplayName("Password Value Object Test")
-public class PasswordTest {
+class PasswordTest {
 
     private final PasswordHasher passwordHasher = new PasswordHasher() {
         @Override

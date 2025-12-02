@@ -12,25 +12,27 @@ import toast.appback.src.auth.application.mother.TokenMother;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.implementation.RegisterAccountUseCase;
-import toast.appback.src.auth.domain.*;
+import toast.appback.src.auth.domain.Account;
+import toast.appback.src.auth.domain.Session;
 import toast.appback.src.shared.application.DomainEventBus;
 import toast.appback.src.users.application.mother.UserMother;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Register account use case tests")
-public class RegisterAccountTest {
-    private RegisterAccountUseCase registerAccountUseCase;
+class RegisterAccountTest {
     private final CreateUser createUser = mock(CreateUser.class);
     private final CreateAccount createAccount = mock(CreateAccount.class);
     private final TokenService tokenService = mock(TokenService.class);
     private final DomainEventBus domainEventBus = mock(DomainEventBus.class);
+    private RegisterAccountUseCase registerAccountUseCase;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.registerAccountUseCase = new RegisterAccountUseCase(
                 createUser,
                 createAccount,
@@ -41,7 +43,7 @@ public class RegisterAccountTest {
 
     @Test
     @DisplayName("Should register account successfully")
-    public void testRegisterAccountSuccessfully() {
+    void testRegisterAccountSuccessfully() {
         User user = UserMother.validUser();
         Account account = AccountMother.withUserId(user.getUserId());
         Session session = account.startSession().get();

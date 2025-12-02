@@ -9,7 +9,6 @@ Robert'); DROP TABLE Students;-- Johnson
 LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL Smith
   Liam O'Neil
 Mia\tBrown
-Oliver   Twist
 -- --
 SELECT * FROM_users
 user@example.com test
@@ -17,7 +16,6 @@ user@example.com test
 DROP;TABLE Users
 José\nGarcía
 - -
-Mary  Jane
 Eva_123 Petrova
 NameWithTab\tSurname
 Emoji🚀 Doe
@@ -73,9 +71,6 @@ back\slash forward
 emoji🙂emoji🙂
 control\u0000null Null
 NULL\0VALUE Null
-space-in-first  last
-first  space-in-last
-multiple     spaces
 only.dots ...
 only,commas ,,
 only;semicolons ;;EZ

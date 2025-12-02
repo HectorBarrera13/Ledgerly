@@ -2,6 +2,8 @@ package toast.appback.src.shared.domain;
 
 import toast.appback.src.shared.errors.IError;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
 public record DomainError(
@@ -11,7 +13,10 @@ public record DomainError(
         String field,
         ValidatorType validatorType,
         BusinessCode businessCode // optional
-) implements IError {
+) implements IError, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public static DomainError validation(String field, String message) {
         return new DomainError(message, null, DomainErrType.VALIDATION_ERROR, field, ValidatorType.UNEXPECTED_ERROR, null);

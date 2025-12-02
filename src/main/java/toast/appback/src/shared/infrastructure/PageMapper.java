@@ -8,6 +8,8 @@ import toast.appback.src.shared.application.PageResult;
 import toast.model.entities.CursorIdentifiable;
 
 public class PageMapper {
+    private PageMapper() {
+    }
 
     public static Pageable toPageable(PageRequest pageRequest) {
         return org.springframework.data.domain.PageRequest.of(

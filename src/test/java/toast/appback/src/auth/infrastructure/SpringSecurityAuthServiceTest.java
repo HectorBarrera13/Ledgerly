@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         })
 @ActiveProfiles("test")
 @DisplayName("AuthService integration tests")
-public class SpringSecurityAuthServiceTest {
+class SpringSecurityAuthServiceTest {
 
     @Autowired
     private AuthService authService;

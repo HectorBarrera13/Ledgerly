@@ -16,22 +16,26 @@ import java.util.List;
 
 /**
  * Entidad concreta del agregado "Debt". Representa una deuda de usuario a usuario.
- *
+ * <p>
  * Reglas principales:
- *  - Solo puede crearse en estado PENDING
- *  - Puede aceptarse o rechazarse por el acreedor
- *  - El pagador puede reportar un pago solo si fue aceptada previamente
- *  - El acreedor debe confirmar o rechazar el pago reportado
- *  - Cada transición de estado genera eventos de dominio relevantes
- *
+ * - Solo puede crearse en estado PENDING
+ * - Puede aceptarse o rechazarse por el acreedor
+ * - El pagador puede reportar un pago solo si fue aceptada previamente
+ * - El acreedor debe confirmar o rechazar el pago reportado
+ * - Cada transición de estado genera eventos de dominio relevantes
+ * <p>
  * Esta clase extiende el comportamiento común definido en la clase abstracta Debt.
  */
 public class DebtBetweenUsers extends Debt {
 
-    /** Usuario que debe pagar (deudor). */
+    /**
+     * Usuario que debe pagar (deudor).
+     */
     private UserId idDebtor;
 
-    /** Usuario que recibe el pago (acreedor). */
+    /**
+     * Usuario que recibe el pago (acreedor).
+     */
     private UserId idCreditor;
 
     /**
@@ -67,9 +71,9 @@ public class DebtBetweenUsers extends Debt {
 
     /**
      * Factory method para creación de una deuda entre usuarios.
-     *  - Genera un nuevo ID
-     *  - Estado inicial: PENDING
-     *  - Registra el evento de creación
+     * - Genera un nuevo ID
+     * - Estado inicial: PENDING
+     * - Registra el evento de creación
      */
     public static DebtBetweenUsers create(Context context, DebtMoney debtMoney, UserId idDebtor, UserId idCreditor) {
         DebtId debtId = DebtId.generate();
@@ -90,9 +94,9 @@ public class DebtBetweenUsers extends Debt {
 
     /**
      * Aceptar una deuda enviada.
-     *  Solo es válido si está PENDING.
-     *  Estado → ACCEPTED
-     *  Genera evento DebtAccepted
+     * Solo es válido si está PENDING.
+     * Estado → ACCEPTED
+     * Genera evento DebtAccepted
      */
     public Result<Void, DomainError> accept() {
         boolean isSent = super.getStatus() == Status.PENDING;
@@ -107,8 +111,8 @@ public class DebtBetweenUsers extends Debt {
 
     /**
      * Rechazar una deuda enviada (PENDING).
-     *  Estado → REJECTED
-     *  Genera evento DebtRejected
+     * Estado → REJECTED
+     * Genera evento DebtRejected
      */
     public Result<Void, DomainError> reject() {
         boolean isDebtSent = status == Status.PENDING;
@@ -133,10 +137,10 @@ public class DebtBetweenUsers extends Debt {
 
     /**
      * Reportar un pago. Solo válido si:
-     *  - Estado = ACCEPTED, o
-     *  - Estado = PAYMENT_CONFIRMATION_REJECTED (reporte previo rechazado)
-     *
-     *  Estado → PAYMENT_CONFIRMATION_PENDING
+     * - Estado = ACCEPTED, o
+     * - Estado = PAYMENT_CONFIRMATION_REJECTED (reporte previo rechazado)
+     * <p>
+     * Estado → PAYMENT_CONFIRMATION_PENDING
      */
     public Result<Void, DomainError> reportPayment() {
         boolean isDebtAccepted = status == Status.ACCEPTED;
@@ -152,20 +156,24 @@ public class DebtBetweenUsers extends Debt {
 
     /**
      * Confirmar un pago previamente reportado.
-     *  Solo válido si estado = PAYMENT_CONFIRMATION_PENDING
-     *
-     *  Estado → PAYMENT_CONFIRMED
+     * Solo válido si estado = PAYMENT_CONFIRMATION_PENDING
+     * <p>
+     * Estado → PAYMENT_CONFIRMED
      */
     public Result<Void, DomainError> confirmPayment() {
+        if (status != Status.PAYMENT_CONFIRMATION_PENDING) {
+            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
+        }
         this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
 
     /**
      * Rechazar un pago reportado.
-     *  Solo válido si estado = PAYMENT_CONFIRMATION_PENDING
-     *
-     *  Estado → PAYMENT_CONFIRMATION_REJECTED
+     * Solo válido si estado = PAYMENT_CONFIRMATION_PENDING
+     * <p>
+     * Estado → PAYMENT_CONFIRMATION_REJECTED
      */
     public Result<Void, DomainError> rejectPayment() {
         boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
@@ -179,9 +187,9 @@ public class DebtBetweenUsers extends Debt {
 
     /**
      * Implementación del método abstracto pay() definido en Debt.
-     *  Solo se puede pagar una deuda ACCEPTED.
-     *
-     *  Estado → PAYMENT_CONFIRMATION_PENDING
+     * Solo se puede pagar una deuda ACCEPTED.
+     * <p>
+     * Estado → PAYMENT_CONFIRMATION_PENDING
      */
     @Override
     public Result<Void, DomainError> pay() {
@@ -220,8 +228,14 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
-    /** Getters específicos del agregado concreto. */
-    public UserId getCreditorId() { return idCreditor; }
+    /**
+     * Getters específicos del agregado concreto.
+     */
+    public UserId getCreditorId() {
+        return idCreditor;
+    }
 
-    public UserId getDebtorId() { return idDebtor; }
+    public UserId getDebtorId() {
+        return idDebtor;
+    }
 }
