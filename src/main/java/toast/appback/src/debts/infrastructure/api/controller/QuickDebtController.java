@@ -2,7 +2,6 @@ package toast.appback.src.debts.infrastructure.api.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -10,12 +9,9 @@ import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
 import toast.appback.src.debts.application.communication.command.CreateQuickDebtCommand;
 import toast.appback.src.debts.application.communication.command.EditDebtCommand;
 import toast.appback.src.debts.application.communication.command.EditDebtStatusCommand;
-import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.communication.result.QuickDebtView;
 import toast.appback.src.debts.application.port.QuickDebtReadRepository;
 import toast.appback.src.debts.application.usecase.contract.CreateQuickDebt;
-import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.application.usecase.contract.EditQuickDebtStatus;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.infrastructure.api.dto.DebtResponseMapper;

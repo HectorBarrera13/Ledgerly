@@ -11,11 +11,7 @@ import toast.appback.src.debts.application.communication.command.EditDebtStatusC
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
 import toast.appback.src.debts.application.port.DebtBetweenUsersReadRepository;
 import toast.appback.src.debts.application.usecase.contract.CreateDebtBetweenUsers;
-import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsers;
-import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsersStatus;
-import toast.appback.src.debts.application.usecase.implementation.ResendDebtUseCase;
-import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.infrastructure.api.dto.DebtResponseMapper;
 import toast.appback.src.debts.infrastructure.api.dto.request.CreateDebtBetweenUsersRequest;
@@ -208,6 +204,4 @@ public class DebtBetweenUsersController {
         DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
-
-
 }

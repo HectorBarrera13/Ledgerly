@@ -9,7 +9,6 @@ import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 
 import java.time.Instant;
@@ -158,11 +157,6 @@ public class DebtBetweenUsers extends Debt {
      *  Estado → PAYMENT_CONFIRMED
      */
     public Result<Void, DomainError> confirmPayment() {
-        boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
-        if (!isDebtAccepted) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
         this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
@@ -197,6 +191,32 @@ public class DebtBetweenUsers extends Debt {
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAYMENT_CONFIRMATION_PENDING;
+        return Result.ok();
+    }
+
+    @Override
+    public Result<Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
+        boolean isDebtEditable = status == Status.REJECTED || status == Status.PENDING;
+        if (!isDebtEditable) {
+            return Result.failure(
+                    DomainError.businessRule("A debt can only be edited if the status is 'Pending' and 'Rejected'")
+                            .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
+            );
+        }
+        super.debtMoney = debtMoney;
+        return Result.ok();
+    }
+
+    @Override
+    public Result<Void, DomainError> editContext(Context context) {
+        boolean isDebtEditable = status == Status.REJECTED || status == Status.PENDING;
+        if (!isDebtEditable) {
+            return Result.failure(
+                    DomainError.businessRule("A debt can only be edited if the status is 'Pending' and 'Rejected'")
+                            .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
+            );
+        }
+        super.context = context;
         return Result.ok();
     }
 

@@ -1,16 +1,12 @@
 package toast.appback.src.debts.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.port.DebtBetweenUsersReadRepository;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.infrastructure.persistence.jparepository.JpaDebtBetweenUsersRepository;
-import toast.appback.src.debts.infrastructure.persistence.jparepository.projection.DebtBetweenUsersProjection;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.infrastructure.persistence.jparepository.JpaUserRepository;
 

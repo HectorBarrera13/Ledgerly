@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import toast.model.entities.users.UserEntity;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Data

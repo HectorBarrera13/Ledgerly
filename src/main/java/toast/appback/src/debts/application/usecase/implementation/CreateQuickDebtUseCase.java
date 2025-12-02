@@ -22,8 +22,6 @@ import toast.appback.src.users.domain.repository.UserRepository;
 public class CreateQuickDebtUseCase implements CreateQuickDebt {
     private final UserRepository userRepository;
     private final DebtRepository debtRepository;
-    private final String CREDITOR = "CREDITOR";
-    private final String DEBTOR = "DEBTOR";
 
     public CreateQuickDebtUseCase(UserRepository userRepository, DebtRepository debtRepository) {
         this.userRepository = userRepository;

@@ -32,8 +32,8 @@ public abstract class Debt {
      * Solo debe ser modificado por reglas del dominio.
      */
     protected Status status = Status.PENDING;
-    private Context context;
-    private DebtMoney debtMoney;
+    protected Context context;
+    protected DebtMoney debtMoney;
     /**
      * Lista interna de Domain Events.
      * El agregado registra eventos y luego son publicados mediante pullEvents().
