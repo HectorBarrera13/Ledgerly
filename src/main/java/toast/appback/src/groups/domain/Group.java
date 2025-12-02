@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Group {
-    private GroupId id;
-    private GroupInformation groupInformation;
-    private UserId creatorId;
-    private Instant createdAt;
-    private List<DomainEvent> groupEvents = new ArrayList<>();
+    private GroupId id;                                   // Identificador del grupo
+    private GroupInformation groupInformation;            // Nombre y descripción validados del grupo
+    private UserId creatorId;                             // Usuario que creó el grupo
+    private Instant createdAt;                            // Fecha de creación
+    private List<DomainEvent> groupEvents = new ArrayList<>(); // Eventos de dominio pendientes
 
     private Group(GroupId id, GroupInformation groupInformation, UserId creatorId, Instant createdAt) {
         this.id = id;
@@ -28,14 +28,16 @@ public class Group {
 
     private Group(GroupId id, GroupInformation groupInformation, UserId creatorId, Instant createdAt, List<DomainEvent> groupEvents) {
         this(id, groupInformation, creatorId, createdAt);
-        this.groupEvents = groupEvents;
+        this.groupEvents = groupEvents; // Carga con eventos ya persistidos
     }
 
     public static Group create(GroupInformation groupInformation,UserId creatorId) {
         GroupId groupId = GroupId.generate();
         Instant createdAt = Instant.now();
         Group group = new Group(groupId, groupInformation, creatorId, createdAt);
-        group.recordEvent(new GroupCreated(groupId, groupInformation));
+
+        group.recordEvent(new GroupCreated(groupId, groupInformation)); // Evento de creación
+
         return group;
     }
 
@@ -45,21 +47,21 @@ public class Group {
             UserId creatorId,
             Instant createdAt
     ) {
-        return new Group(id, groupInformation, creatorId, createdAt);
+        return new Group(id, groupInformation, creatorId, createdAt); // Carga sin eventos nuevos
     }
 
     public Result<Void, DomainError> editGroupInformation(GroupInformation groupInformation) {
-        this.groupInformation = groupInformation;
+        this.groupInformation = groupInformation; // Actualiza información del grupo
         return Result.ok();
     }
 
     public void recordEvent(DomainEvent domainEvent) {
-        this.groupEvents.add(domainEvent);
+        this.groupEvents.add(domainEvent); // Acumula evento
     }
 
     public List<DomainEvent> pullEvents() {
-        List<DomainEvent> events = new ArrayList<>(this.groupEvents);
-        this.groupEvents.clear();
+        List<DomainEvent> events = new ArrayList<>(this.groupEvents); // Copia eventos
+        this.groupEvents.clear(); // Limpia cola de eventos
         return events;
     }
 
@@ -83,3 +85,4 @@ public class Group {
         return groupEvents;
     }
 }
+

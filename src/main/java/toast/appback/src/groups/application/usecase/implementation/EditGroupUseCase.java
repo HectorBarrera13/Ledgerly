@@ -18,20 +18,22 @@ public class EditGroupUseCase implements EditGroup {
     @Override
     public GroupView execute(EditGroupCommand command) {
         Group group = groupRepository.findById(command.groupId())
-                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + command.groupId()));
+                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + command.groupId())); // Valida que el grupo exista
 
         GroupInformation newInfo = GroupInformation.create(
                 command.name(),
                 command.description()
-        ).orElseThrow(GroupEditionException::new);
+        ).orElseThrow(GroupEditionException::new); // Valida nueva información del grupo
 
-        groupRepository.save(group);
+        group.editGroupInformation(newInfo);
+
+        groupRepository.save(group); // Persiste cambios
 
         return new GroupView(
                 group.getId().getValue(),
-                group.getGroupInformation().getName(),
+                group.getGroupInformation().getName(),       // Usa la info del grupo
                 group.getGroupInformation().getDescription(),
                 group.getCreatedAt()
-        );
+        ); // Devuelve representación del grupo
     }
 }
