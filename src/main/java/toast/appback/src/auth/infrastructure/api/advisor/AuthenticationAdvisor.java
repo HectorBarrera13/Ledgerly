@@ -20,7 +20,6 @@ public class AuthenticationAdvisor {
     @Order(1)
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ErrorData> handleTokenExpiredException(TokenExpiredException ex) {
-        System.out.println(ex.getMessage());
         String friendlyMessage = ex.getMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorData);

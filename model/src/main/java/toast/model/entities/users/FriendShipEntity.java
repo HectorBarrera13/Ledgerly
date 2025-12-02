@@ -1,10 +1,11 @@
 package toast.model.entities.users;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import toast.model.entities.CursorIdentifiable;
 
 import java.time.Instant;
 

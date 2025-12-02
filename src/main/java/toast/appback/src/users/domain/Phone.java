@@ -1,8 +1,8 @@
 package toast.appback.src.users.domain;
 
-import toast.appback.src.shared.utils.result.Result;
-import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.domain.DomainError;
+import toast.appback.src.shared.domain.Validators;
+import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Objects;
 
@@ -15,19 +15,6 @@ public class Phone {
         this.countryCode = countryCode;
         this.number = number;
     }
-
-    public String getCountryCode() {
-        return countryCode;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public String getValue() {
-        return countryCode + "-" + number;
-    }
-
 
     public static Result<Phone, DomainError> create(String countryCode, String number) {
         Result<Void, DomainError> result = Result.empty();
@@ -46,22 +33,34 @@ public class Phone {
 
     private static Result<Void, DomainError> isValidPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.isBlank()) {
-            return Validators.EMPTY_VALUE("number");
+            return Validators.emptyValue("number");
         }
         if (!phoneNumber.matches("\\d{4,15}")) {
-            return Validators.INVALID_FORMAT("number", phoneNumber, "must contain only digits and be between 4 and 15 characters long");
+            return Validators.invalidFormat("number", phoneNumber, "must contain only digits and be between 4 and 15 characters long");
         }
         return Result.ok();
     }
 
     private static Result<Void, DomainError> isValidCode(String code) {
         if (code == null || code.isBlank()) {
-            return Validators.EMPTY_VALUE("phoneCountryCode");
+            return Validators.emptyValue("phoneCountryCode");
         }
         if (!code.matches("\\+\\d{1,4}")) {
-            return Validators.INVALID_FORMAT("phoneCountryCode", code, "must start with '+' followed by 1 to 4 digits");
+            return Validators.invalidFormat("phoneCountryCode", code, "must start with '+' followed by 1 to 4 digits");
         }
         return Result.ok();
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public String getValue() {
+        return countryCode + "-" + number;
     }
 
     @Override
