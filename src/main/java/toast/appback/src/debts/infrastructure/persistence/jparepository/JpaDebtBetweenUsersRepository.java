@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import toast.appback.src.debts.infrastructure.persistence.jparepository.projection.DebtBetweenUsersProjection;
 import toast.model.entities.debt.DebtBetweenUsersEntity;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;

@@ -26,7 +26,7 @@ public record CreateGroupRequest(
     public AddMemberCommand toAddMemberCommand(GroupId groupId, UserId actorId) {
         List<UUID> finalMembers = new ArrayList<>(members);
         System.out.println("Initial members: " + finalMembers);
-        if (!finalMembers.contains(actorId)) {
+        if (!finalMembers.contains(actorId.getValue())) {
             finalMembers.add(actorId.getValue());
         }
 

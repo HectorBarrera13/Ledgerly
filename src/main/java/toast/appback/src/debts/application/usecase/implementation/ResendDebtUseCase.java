@@ -6,6 +6,7 @@ import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.DebtorNotFound;
+import toast.appback.src.debts.application.exceptions.UnauthorizedActionException;
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsersStatus;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.repository.DebtRepository;
@@ -34,7 +35,7 @@ public class ResendDebtUseCase implements EditDebtBetweenUsersStatus {
 
         boolean isActorTheCreditor = command.actorId().equals(debt.getCreditorId());
         if (!isActorTheCreditor) {
-            throw new RuntimeException("You are not authorized to perform this action");
+            throw new UnauthorizedActionException("User is not the creditor");
         }
 
         User debtor = userRepository.findById(debt.getDebtorId())

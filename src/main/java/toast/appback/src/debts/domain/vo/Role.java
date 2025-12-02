@@ -1,13 +1,9 @@
 package toast.appback.src.debts.domain.vo;
 
-import toast.appback.src.debts.application.communication.command.CreateQuickDebtCommand;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.utils.result.Result;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 /**
  * Value Object que representa el rol dentro de una deuda:
  *  - "DEBTOR"

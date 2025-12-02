@@ -1,7 +1,6 @@
 package toast.appback.src.debts.infrastructure.api.dto;
 
 import toast.appback.src.debts.application.communication.result.*;
-import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.infrastructure.api.dto.response.*;
 import toast.appback.src.groups.application.communication.result.GroupDebtView;
 

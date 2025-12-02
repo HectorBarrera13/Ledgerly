@@ -7,7 +7,6 @@ import toast.appback.src.debts.application.exceptions.CreationDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;
 import toast.appback.src.debts.application.exceptions.EditDebtException;
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsers;
-import toast.appback.src.debts.application.usecase.contract.EditQuickDebt;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.Context;
@@ -23,8 +22,6 @@ public class EditDebtBetweenUsersUseCase implements EditDebtBetweenUsers {
     private final DebtRepository debtRepository;
     private final DomainEventBus domainEventBus;
     private final UserRepository userRepository;
-    private final String DEBTOR = "DEBTOR";
-    private final String CREDITOR = "CREDITOR";
 
     public EditDebtBetweenUsersUseCase(DebtRepository debtRepository, DomainEventBus domainEventBus, UserRepository userRepository) {
         this.debtRepository = debtRepository;
