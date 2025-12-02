@@ -9,17 +9,18 @@ import toast.appback.src.users.domain.event.UserCreated;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static toast.appback.src.shared.DomainEventsUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static toast.appback.src.shared.DomainEventsUtils.assertContainsEventOfType;
 
 @DisplayName("User Domain Tests")
-public class UserTest {
+class UserTest {
 
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Doe";
+    private static final String PHONE_COUNTRY_CODE = "+52";
+    private static final String PHONE_NUMBER = "9341341";
     private User user;
-    private final String FIRST_NAME = "John";
-    private final String LAST_NAME = "Doe";
-    private final String PHONE_COUNTRY_CODE = "+52";
-    private final String PHONE_NUMBER = "9341341";
 
     @BeforeEach
     void setUp() {

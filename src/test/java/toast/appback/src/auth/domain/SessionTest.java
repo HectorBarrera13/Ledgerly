@@ -4,12 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Session Domain Test")
-public class SessionTest {
+class SessionTest {
     private final Session session = Session.create();
     private final SessionId sessionId = session.getSessionId();
 

@@ -6,12 +6,11 @@ import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.users.domain.event.FriendAdded;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("FriendShip Domain Tests")
-public class FriendShipTest {
+class FriendShipTest {
 
     @Test
     @DisplayName("Should create a friendship between two users")

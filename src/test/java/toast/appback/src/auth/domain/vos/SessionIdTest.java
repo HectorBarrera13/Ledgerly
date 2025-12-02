@@ -9,7 +9,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("SessionId Value Object Test")
-public class SessionIdTest {
+class SessionIdTest {
 
     @Test
     @DisplayName("Should create SessionId from UUID")

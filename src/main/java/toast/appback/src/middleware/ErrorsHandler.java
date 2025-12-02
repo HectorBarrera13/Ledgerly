@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ErrorsHandler {
+    private ErrorsHandler() {
+    }
 
     public static ErrorData handleSingleError(IError error) {
         return ErrorData.create(

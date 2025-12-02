@@ -16,10 +16,11 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static toast.appback.src.shared.ValueObjectsUtils.*;
+import static toast.appback.src.shared.ValueObjectsUtils.assertErrorExistsForField;
+import static toast.appback.src.shared.ValueObjectsUtils.assertOnlyErrorExistsForField;
 
 @DisplayName("Name Value Object Test")
-public class NameTest {
+class NameTest {
 
     @Nested
     @DisplayName("Valid Cases")

@@ -12,14 +12,14 @@ import toast.appback.src.users.application.usecase.implementation.RemoveFriendUs
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Remove friend use case tests")
-public class RemoveFriendTest {
-    private RemoveFriendUseCase removeFriendUseCase;
+class RemoveFriendTest {
     private final FriendShipRepository friendShipRepository = mock(FriendShipRepository.class);
     private final ApplicationEventBus applicationEventBus = mock(ApplicationEventBus.class);
+    private RemoveFriendUseCase removeFriendUseCase;
 
     @BeforeEach
     void setUp() {
@@ -69,9 +69,7 @@ public class RemoveFriendTest {
                 userA.getUserId()
         );
 
-        assertThrows(RemoveMySelfFromFriendsException.class, () -> {
-            removeFriendUseCase.execute(command);
-        });
+        assertThrows(RemoveMySelfFromFriendsException.class, () -> removeFriendUseCase.execute(command));
 
         verifyNoMoreInteractions(
                 friendShipRepository,
@@ -94,9 +92,7 @@ public class RemoveFriendTest {
                 command.friendId()
         )).thenReturn(false);
 
-        assertThrows(FriendShipNotFound.class, () -> {
-            removeFriendUseCase.execute(command);
-        });
+        assertThrows(FriendShipNotFound.class, () -> removeFriendUseCase.execute(command));
 
         verify(friendShipRepository, times(1)).existsFriendShip(
                 command.requesterId(),

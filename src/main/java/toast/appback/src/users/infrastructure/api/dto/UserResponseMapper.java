@@ -10,6 +10,8 @@ import toast.appback.src.users.infrastructure.api.dto.response.ProfileResponse;
 import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
 
 public class UserResponseMapper {
+    private UserResponseMapper() {
+    }
 
     public static UserResponse toUserResponse(UserView userView) {
         return new UserResponse(
