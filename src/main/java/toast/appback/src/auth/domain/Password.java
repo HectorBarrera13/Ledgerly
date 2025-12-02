@@ -42,11 +42,33 @@ public class Password {
     private static Result<Void, DomainError> validateStrength(String password) {
         if (password.length() < 8)
             return Validators.TOO_SHORT(FIELD_NAME, password, 8);
-        if (!password.matches(".*[A-Z].*"))
+
+        // Usar búsqueda directa en lugar de regex vulnerable
+        if (!containsUppercase(password))
             return Validators.INVALID_FORMAT(FIELD_NAME, password, "must contain at least one uppercase letter");
-        if (!password.matches(".*\\d.*"))
+
+        if (!containsDigit(password))
             return Validators.INVALID_FORMAT(FIELD_NAME, password, "must contain at least one digit");
+
         return Result.ok();
+    }
+
+    private static boolean containsUppercase(String password) {
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isUpperCase(password.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsDigit(String password) {
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isDigit(password.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getHashed() {
