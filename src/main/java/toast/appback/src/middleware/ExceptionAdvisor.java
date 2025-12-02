@@ -20,6 +20,7 @@ public class ExceptionAdvisor {
     @ExceptionHandler(DomainException.class)
     @Order(1)
     public ResponseEntity<ErrorData> handleDomainException(DomainException ex) {
+        System.out.println(ex.getMessage());
         List<DomainError> errors = ex.getErrors();
         log.error("Domain errors: {}", errors);
         if (errors.isEmpty()) {
@@ -37,6 +38,7 @@ public class ExceptionAdvisor {
     @ExceptionHandler(Exception.class)
     @Order(10)
     public ResponseEntity<ErrorData> handleAllExceptions(Exception ex) {
+        System.out.println(ex.getMessage());
         // Log the exception or perform other actions as needed
         System.err.println("An unexpected error occurred: " + ex.getMessage());
         ex.printStackTrace();

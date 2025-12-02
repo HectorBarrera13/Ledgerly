@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
 import toast.appback.src.auth.application.communication.result.Jwt;
 import toast.appback.src.auth.application.communication.result.Tokens;
+import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.domain.AccountId;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
-import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.users.domain.UserId;
 
 import javax.crypto.SecretKey;
@@ -147,6 +147,7 @@ public class JWTService implements TokenService {
             throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
             if (safe) {
+                System.out.println("Token expirado");
                 logger.warn("JWT token expirado: {}", e.getMessage());
                 throw new TokenExpiredException();
             } else {
@@ -162,12 +163,6 @@ public class JWTService implements TokenService {
             logger.error("Error al extraer claims del JWT: {}", e.getMessage());
             throw new TokenClaimsException("Error extracting JWT claims", e);
         }
-    }
-
-
-    public boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration, false)
-                .before(new Date());
     }
 
     public void setJwtSecret(String jwtSecret) {

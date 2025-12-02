@@ -44,6 +44,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .maximumSessions(5))
+                .exceptionHandling(ex -> {
+                    ex.authenticationEntryPoint(
+                            (req, rsp, e) -> rsp.sendError(401)
+                    );
+                })
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

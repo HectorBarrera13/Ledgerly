@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import toast.appback.src.auth.application.exceptions.*;
+import toast.appback.src.auth.application.exceptions.AccountExistsException;
+import toast.appback.src.auth.application.exceptions.AccountNotFoundException;
+import toast.appback.src.auth.application.exceptions.InvalidClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.AuthenticationServiceException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenClaimsException;
 import toast.appback.src.auth.infrastructure.exceptions.TokenExpiredException;
@@ -15,8 +17,10 @@ import toast.appback.src.middleware.ErrorData;
 @RestControllerAdvice
 public class AuthenticationAdvisor {
 
+    @Order(1)
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ErrorData> handleTokenExpiredException(TokenExpiredException ex) {
+        System.out.println(ex.getMessage());
         String friendlyMessage = ex.getMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorData);
