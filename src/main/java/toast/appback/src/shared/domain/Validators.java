@@ -20,63 +20,63 @@ public class Validators {
     private static final String VALUE_PREFIX = "value: '";
     private static final String VALUE_SUFFIX = "'";
 
-    public static <T> Result<T, DomainError> EMPTY_VALUE(String field) {
+    public static <T> Result<T, DomainError> emptyValue(String field) {
         return Result.failure(DomainError.validation(field, "value cannot be null or empty")
                 .withValidatorType(ValidatorType.EMPTY_VALUE)
         );
     }
 
-    public static <T> Result<T, DomainError> EMPTY_COLLECTION(String field, Iterable<?> value) {
+    public static <T> Result<T, DomainError> emptyCollection(String field, Iterable<?> value) {
         return Result.failure(DomainError.validation(field, "collection cannot be null or empty")
                 .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.EMPTY_COLLECTION)
         );
     }
 
-    public static <T> Result<T, DomainError> INVALID_STATE(String field, String desiredValue, String actualValue) {
+    public static <T> Result<T, DomainError> invalidState(String field, String desiredValue, String actualValue) {
         return Result.failure(DomainError.validation(field, "State" + actualValue + " cannot be converted to" + desiredValue)
                 .withDetails("actual " + VALUE_PREFIX + actualValue + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.INVALID_STATE)
         );
     }
 
-    public static <T> Result<T, DomainError> TOO_LONG(String field, String value, int max) {
+    public static <T> Result<T, DomainError> tooLong(String field, String value, int max) {
         return Result.failure(DomainError.validation(field, "value cannot be longer than " + max + " characters")
                 .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.TOO_LONG)
         );
     }
 
-    public static <T> Result<T, DomainError> TOO_SHORT(String field, String value, int min) {
+    public static <T> Result<T, DomainError> tooShort(String field, String value, int min) {
         return Result.failure(DomainError.validation(field, "value cannot be shorter than " + min + " characters")
                 .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.TOO_SHORT)
         );
     }
 
-    public static <T> Result<T, DomainError> INVALID_FORMAT(String field, String value, String message) {
+    public static <T> Result<T, DomainError> invalidFormat(String field, String value, String message) {
         return Result.failure(DomainError.validation(field, message)
                 .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.INVALID_FORMAT)
         );
     }
 
-    public static <T> Result<T, DomainError> MUST_BE_POSITIVE(String field, Double value, String message) {
+    public static <T> Result<T, DomainError> mustBePositive(String field, Double value, String message) {
         return Result.failure(DomainError.validation(field, message)
                 .withDetails(VALUE_PREFIX + value + VALUE_SUFFIX)
                 .withValidatorType(ValidatorType.MUST_BE_POSITIVE)
         );
     }
 
-    public static <T> Result<T, DomainError> MUST_NOT_CONTAIN(String field, String value, String substring) {
+    public static <T> Result<T, DomainError> mustNotContain(String field, String value, String substring) {
         return buildCharValidationMessage(field, value, substring, "value must not contain", ValidatorType.MUST_NOT_CONTAIN);
     }
 
-    public static <T> Result<T, DomainError> MUST_NOT_START_WITH(String field, String value, String prefix) {
+    public static <T> Result<T, DomainError> mustNotStartWith(String field, String value, String prefix) {
         return buildCharValidationMessage(field, value, prefix, "value must not start with", ValidatorType.MUST_NOT_START_WITH);
     }
 
-    public static <T> Result<T, DomainError> MUST_NOT_END_WITH(String field, String value, String suffix) {
+    public static <T> Result<T, DomainError> mustNotEndWith(String field, String value, String suffix) {
         return buildCharValidationMessage(field, value, suffix, "value must not end with", ValidatorType.MUST_NOT_END_WITH);
     }
 

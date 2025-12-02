@@ -34,21 +34,21 @@ public class Password {
 
     private static Result<Void, DomainError> validate(String rawPassword) {
         if (rawPassword == null || rawPassword.isBlank()) {
-            return Validators.EMPTY_VALUE(FIELD_NAME);
+            return Validators.emptyValue(FIELD_NAME);
         }
         return validateStrength(rawPassword);
     }
 
     private static Result<Void, DomainError> validateStrength(String password) {
         if (password.length() < 8)
-            return Validators.TOO_SHORT(FIELD_NAME, password, 8);
+            return Validators.tooShort(FIELD_NAME, password, 8);
 
         // Usar búsqueda directa en lugar de regex vulnerable
         if (!containsUppercase(password))
-            return Validators.INVALID_FORMAT(FIELD_NAME, password, "must contain at least one uppercase letter");
+            return Validators.invalidFormat(FIELD_NAME, password, "must contain at least one uppercase letter");
 
         if (!containsDigit(password))
-            return Validators.INVALID_FORMAT(FIELD_NAME, password, "must contain at least one digit");
+            return Validators.invalidFormat(FIELD_NAME, password, "must contain at least one digit");
 
         return Result.ok();
     }

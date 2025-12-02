@@ -149,7 +149,6 @@ public class JWTService implements TokenService {
             throw new TokenClaimsException("Invalid JWT token", e);
         } catch (ExpiredJwtException e) {
             if (safe) {
-                System.out.println("Token expirado");
                 logger.warn("JWT token expirado: {}", e.getMessage());
                 throw new TokenExpiredException();
             } else {

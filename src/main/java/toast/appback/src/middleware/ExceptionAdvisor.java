@@ -20,7 +20,6 @@ public class ExceptionAdvisor {
     @ExceptionHandler(DomainException.class)
     @Order(1)
     public ResponseEntity<ErrorData> handleDomainException(DomainException ex) {
-        System.out.println(ex.getMessage());
         List<DomainError> errors = ex.getErrors();
         log.error("Domain exception occurred: {} - Errors: {}", ex.getMessage(), errors, ex);
         if (errors.isEmpty()) {
