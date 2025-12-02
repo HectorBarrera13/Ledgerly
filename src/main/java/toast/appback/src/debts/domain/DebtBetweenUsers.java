@@ -15,27 +15,12 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Entidad concreta del agregado "Debt". Representa una deuda de usuario a usuario.
- * <p>
- * Reglas principales:
- * - Solo puede crearse en estado PENDING
- * - Puede aceptarse o rechazarse por el acreedor
- * - El pagador puede reportar un pago solo si fue aceptada previamente
- * - El acreedor debe confirmar o rechazar el pago reportado
- * - Cada transición de estado genera eventos de dominio relevantes
- * <p>
- * Esta clase extiende el comportamiento común definido en la clase abstracta Debt.
+ * Entidad de deuda entre usuarios.
+ * - Tiene un deudor y un acreedor (ambos usuarios).
  */
+
 public class DebtBetweenUsers extends Debt {
-
-    /**
-     * Usuario que debe pagar (deudor).
-     */
     private UserId idDebtor;
-
-    /**
-     * Usuario que recibe el pago (acreedor).
-     */
     private UserId idCreditor;
 
     /**
@@ -72,8 +57,6 @@ public class DebtBetweenUsers extends Debt {
     /**
      * Factory method para creación de una deuda entre usuarios.
      * - Genera un nuevo ID
-     * - Estado inicial: PENDING
-     * - Registra el evento de creación
      */
     public static DebtBetweenUsers create(Context context, DebtMoney debtMoney, UserId idDebtor, UserId idCreditor) {
         DebtId debtId = DebtId.generate();
@@ -92,16 +75,10 @@ public class DebtBetweenUsers extends Debt {
         return new DebtBetweenUsers(id, context, debtMoney, idDebtor, idCreditor, status);
     }
 
-    /**
-     * Aceptar una deuda enviada.
-     * Solo es válido si está PENDING.
-     * Estado → ACCEPTED
-     * Genera evento DebtAccepted
-     */
     public Result<Void, DomainError> accept() {
-        boolean isSent = super.getStatus() == Status.PENDING;
-        if (!isSent) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+        boolean isPending = status == Status.PENDING;
+        if (!isPending) {
+            return Result.failure(DomainError.businessRule(buildErrorMessage("accepted"))
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         super.status = Status.ACCEPTED;
@@ -109,15 +86,10 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
-    /**
-     * Rechazar una deuda enviada (PENDING).
-     * Estado → REJECTED
-     * Genera evento DebtRejected
-     */
     public Result<Void, DomainError> reject() {
-        boolean isDebtSent = status == Status.PENDING;
-        if (!isDebtSent) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+        boolean isPending = status == Status.PENDING;
+        if (!isPending) {
+            return Result.failure(DomainError.businessRule(buildErrorMessage("rejected"))
                     .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING));
         }
         this.status = Status.REJECTED;
@@ -128,74 +100,49 @@ public class DebtBetweenUsers extends Debt {
     public Result<Void, DomainError> resend() {
         boolean isDebtRejected = status == Status.REJECTED;
         if (!isDebtRejected) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be resent")
+            return Result.failure(DomainError.businessRule(buildErrorMessage("resented"))
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PENDING;
         return Result.ok();
     }
 
-    /**
-     * Reportar un pago. Solo válido si:
-     * - Estado = ACCEPTED, o
-     * - Estado = PAYMENT_CONFIRMATION_REJECTED (reporte previo rechazado)
-     * <p>
-     * Estado → PAYMENT_CONFIRMATION_PENDING
-     */
     public Result<Void, DomainError> reportPayment() {
         boolean isDebtAccepted = status == Status.ACCEPTED;
         boolean isDebtPaymentRejected = status == Status.PAYMENT_CONFIRMATION_REJECTED;
 
         if (!isDebtAccepted && !isDebtPaymentRejected) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+            return Result.failure(DomainError.businessRule(buildErrorMessage("reportPayment"))
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAYMENT_CONFIRMATION_PENDING;
         return Result.ok();
     }
 
-    /**
-     * Confirmar un pago previamente reportado.
-     * Solo válido si estado = PAYMENT_CONFIRMATION_PENDING
-     * <p>
-     * Estado → PAYMENT_CONFIRMED
-     */
     public Result<Void, DomainError> confirmPayment() {
         if (status != Status.PAYMENT_CONFIRMATION_PENDING) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+            return Result.failure(DomainError.businessRule(buildErrorMessage("confirmPayment"))
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
 
-    /**
-     * Rechazar un pago reportado.
-     * Solo válido si estado = PAYMENT_CONFIRMATION_PENDING
-     * <p>
-     * Estado → PAYMENT_CONFIRMATION_REJECTED
-     */
     public Result<Void, DomainError> rejectPayment() {
-        boolean isDebtAccepted = status == Status.PAYMENT_CONFIRMATION_PENDING;
-        if (!isDebtAccepted) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+        boolean isPaymentReported = status == Status.PAYMENT_CONFIRMATION_PENDING;
+        if (!isPaymentReported) {
+            return Result.failure(DomainError.businessRule(buildErrorMessage("rejected"))
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAYMENT_CONFIRMATION_REJECTED;
         return Result.ok();
     }
 
-    /**
-     * Implementación del método abstracto pay() definido en Debt.
-     * Solo se puede pagar una deuda ACCEPTED.
-     * <p>
-     * Estado → PAYMENT_CONFIRMATION_PENDING
-     */
     @Override
     public Result<Void, DomainError> pay() {
         boolean isDebtAccepted = status == Status.ACCEPTED;
         if (!isDebtAccepted) {
-            return Result.failure(DomainError.businessRule("A debt with " + status.name() + " cannot be paid")
+            return Result.failure(DomainError.businessRule(buildErrorMessage("pay"))
                     .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
         }
         this.status = Status.PAYMENT_CONFIRMATION_PENDING;
@@ -207,7 +154,7 @@ public class DebtBetweenUsers extends Debt {
         boolean isDebtEditable = status == Status.REJECTED || status == Status.PENDING;
         if (!isDebtEditable) {
             return Result.failure(
-                    DomainError.businessRule("A debt can only be edited if the status is 'Pending' and 'Rejected'")
+                    DomainError.businessRule(buildErrorMessage("editDebtMoney"))
                             .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
             );
         }
@@ -220,7 +167,7 @@ public class DebtBetweenUsers extends Debt {
         boolean isDebtEditable = status == Status.REJECTED || status == Status.PENDING;
         if (!isDebtEditable) {
             return Result.failure(
-                    DomainError.businessRule("A debt can only be edited if the status is 'Pending' and 'Rejected'")
+                    DomainError.businessRule(buildErrorMessage("editContext"))
                             .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
             );
         }
@@ -228,9 +175,10 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
-    /**
-     * Getters específicos del agregado concreto.
-     */
+    private String buildErrorMessage(String action) {
+        return "A debt with status " + status.name() + " cannot be " + action;
+    }
+
     public UserId getCreditorId() {
         return idCreditor;
     }

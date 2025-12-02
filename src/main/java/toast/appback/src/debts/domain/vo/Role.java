@@ -8,32 +8,23 @@ import toast.appback.src.shared.utils.result.Result;
  * Value Object que representa el rol dentro de una deuda:
  * - "DEBTOR"
  * - "CREDITOR"
- * <p>
- * Es inmutable y asegura, mediante validación, que solo existan roles válidos.
- * Se usa en entidades como DebtBetweenUsers o QuickDebt.
  */
 
 public class Role {
-    public static final Role CREDITOR = new Role("CREDITOR");
-    public static final Role DEBTOR = new Role("DEBTOR");
     private static final String[] validRoles = {"DEBTOR", "CREDITOR"};
     private static final String ROLE_FIELD = "role";
     // Valor inmutable del rol
-    private final String role;
+    private final String value;
 
     /**
-     * Constructor privado. Forzamos creación controlada mediante create() o load().
+     * Constructor privado. Forzamos creación controlada mediante create().
      */
     private Role(String role) {
-        this.role = role;
+        this.value = role;
     }
 
     /**
      * Factory method principal.
-     * Valida que el rol:
-     * - No sea vacío ni en blanco
-     * - Sea uno de los permitidos ("DEBTOR", "CREDITOR")
-     * <p>
      * Devuelve un Result para manejar errores sin usar excepciones.
      */
     public static Result<Role, DomainError> create(String role) {
@@ -55,12 +46,7 @@ public class Role {
         return new Role(role);
     }
 
-    /**
-     * Lógica de validación del rol.
-     * Verifica:
-     * - No estar vacío
-     * - Ser uno de los roles definidos en validRoles
-     */
+
     public static Result<String, DomainError> validateRol(String role, String field) {
         if (role.isBlank()) {
             return Validators.emptyValue(field);
@@ -75,7 +61,7 @@ public class Role {
         return Validators.invalidFormat(field, role, "Must be either DEBTOR or CREDITOR");
     }
 
-    public String getRole() {
-        return role;
+    public String getValue() {
+        return value;
     }
 }

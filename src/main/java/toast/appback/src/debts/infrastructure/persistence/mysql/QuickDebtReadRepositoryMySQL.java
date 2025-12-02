@@ -2,7 +2,6 @@ package toast.appback.src.debts.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.communication.result.QuickDebtView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.port.QuickDebtReadRepository;

@@ -11,29 +11,14 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Entidad concreta del agregado Debt.
- *
- * QuickDebt representa una deuda rápida creada por un solo usuario,
- * normalmente para registrar gastos propios o de interacción simple.
- *
- * Reglas del dominio:
- *  - Se crea con estado PENDING
- *  - Puede modificar su TargetUser sin restricciones de estado
- *  - Puede cambiarse a una DebtBetweenUsers (convirtiéndola en deuda entre 2 usuarios)
- *  - Solo puede pagarse si está en estado PENDING
- *  - Al pagar, el estado pasa directamente a PAYMENT_CONFIRMED
- *
- * También puede emitir eventos de dominio como DebtCreated.
+ * Entidad de deuda rápida (QuickDebt).
+ * - Involucra a un solo usuario (el propietario de la deuda).
+ * - Tiene un rol (DEBTOR o CREDITOR).
+ * - El "otro usuario" involucrado se representa como TargetUser (nombre).
  */
 public class QuickDebt extends Debt {
-
-    /** Usuario propietario de la deuda (quien la crea). */
     private final UserId userId;
-
-    /** Rol del usuario dentro de la deuda (DEBTOR o CREDITOR). */
     private final Role role;
-
-    /** Nombre del "otro usuario" involucrado. */
     private TargetUser targetUser;
 
     /**
@@ -90,27 +75,12 @@ public class QuickDebt extends Debt {
         return new QuickDebt(debtId, context, debtMoney, userId, role, targetUser, status);
     }
 
-    /**
-     * Convierte una QuickDebt en una DebtBetweenUsers.
-     * Conserva:
-     *  - id
-     *  - context
-     *  - debtMoney
-     *  - status actual
-     *
-     */
-    public DebtBetweenUsers changeToDebtBetweeenUsers(UserId newUserId) {
+    public DebtBetweenUsers changeToDebtBetweenUsers(UserId newUserId) {
         return DebtBetweenUsers.load(
                 super.getId(), super.getContext(), super.getDebtMoney(), this.userId, newUserId, this.status
         );
     }
 
-    /**
-     * Implementación del método abstracto pay() para QuickDebt.
-     *
-     * Solo puede pagarse si está en estado PENDING.
-     * El pago se confirma inmediatamente → PAYMENT_CONFIRMED.
-     */
     @Override
     public Result<Void, DomainError> pay() {
         boolean isDebtPending = status == Status.PENDING;

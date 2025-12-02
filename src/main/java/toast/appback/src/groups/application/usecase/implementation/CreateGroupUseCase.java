@@ -1,19 +1,16 @@
 package toast.appback.src.groups.application.usecase.implementation;
 
 import toast.appback.src.groups.application.communication.command.CreateGroupCommand;
-import toast.appback.src.groups.application.communication.result.GroupView;
 import toast.appback.src.groups.application.exceptions.CreationGroupException;
 import toast.appback.src.groups.application.usecase.contract.CreateGroup;
 import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.domain.repository.GroupRepository;
 import toast.appback.src.groups.domain.repository.MemberRepository;
 import toast.appback.src.groups.domain.vo.GroupInformation;
-import toast.appback.src.groups.domain.vo.GroupMember;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
 public class CreateGroupUseCase implements CreateGroup {

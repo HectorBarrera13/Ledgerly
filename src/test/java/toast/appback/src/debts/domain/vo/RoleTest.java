@@ -31,7 +31,7 @@ class RoleTest {
         var result = Role.create(VALID_DEBTOR);
 
         assertTrue(result.isOk());
-        assertEquals(VALID_DEBTOR, result.get().getRole());
+        assertEquals(VALID_DEBTOR, result.get().getValue());
     }
 
     @Test
@@ -39,7 +39,7 @@ class RoleTest {
         var result = Role.create(VALID_CREDITOR);
 
         assertTrue(result.isOk());
-        assertEquals(VALID_CREDITOR, result.get().getRole());
+        assertEquals(VALID_CREDITOR, result.get().getValue());
     }
 
     @Test
@@ -47,7 +47,7 @@ class RoleTest {
         var result = Role.create(LOWERCASE_DEBTOR);
 
         assertTrue(result.isOk());
-        assertEquals(LOWERCASE_DEBTOR.toUpperCase(), result.get().getRole().toUpperCase());
+        assertEquals(LOWERCASE_DEBTOR.toUpperCase(), result.get().getValue().toUpperCase());
     }
 
     @Test
@@ -80,7 +80,7 @@ class RoleTest {
     void load_ShouldReturnRoleWithoutValidation() {
         Role role = Role.load("SOMETHING");
 
-        assertEquals("SOMETHING", role.getRole());
+        assertEquals("SOMETHING", role.getValue());
     }
 
 

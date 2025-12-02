@@ -10,6 +10,9 @@ import toast.model.entities.debt.DebtBetweenUsersEntity;
 
 public class DebtBetweenUsersMapper {
 
+    // Private constructor to prevent instantiation
+    private DebtBetweenUsersMapper() {}
+
     public static DebtBetweenUsers toDomain(DebtBetweenUsersEntity debtEntity) {
         return DebtBetweenUsers.load(
                 DebtId.load(debtEntity.getDebtId()),

@@ -11,33 +11,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Clase abstracta que representa el agregado raíz "Debt" dentro del dominio.
- * <p>
- * Esta clase define el comportamiento y las reglas de negocio compartidas entre
- * diferentes tipos concretos de deudas (por ejemplo: DebtBetweenUsers, GroupDebt, etc.).
- * <p>
- * Responsabilidades principales:
- * - Mantener la identidad y estado de la deuda
- * - Exponer operaciones permitidas por el dominio (editar, pagar, registrar eventos)
- * - Garantizar invariantes mediante validaciones internas (ej: solo editar si está PENDING)
- * <p>
- * Es parte del dominio, por lo que debe mantenerse libre de dependencias hacia infraestructura.
- */
 public abstract class Debt {
     private final DebtId id;
     private final Instant createdAt;
-    /**
-     * Estado actual de la deuda dentro de su ciclo de vida.
-     * Solo debe ser modificado por reglas del dominio.
-     */
     protected Status status = Status.PENDING;
     protected Context context;
     protected DebtMoney debtMoney;
-    /**
-     * Lista interna de Domain Events.
-     * El agregado registra eventos y luego son publicados mediante pullEvents().
-     */
     private List<DomainEvent> debtEvents = new ArrayList<>();
 
 
@@ -75,16 +54,8 @@ public abstract class Debt {
 
     public abstract Result<Void, DomainError> editContext(Context context);
 
-    /**
-     * Operación abstracta definida por el dominio:
-     * Cada tipo de deuda implementa su propia forma de "pagarse".
-     */
     public abstract Result<Void, DomainError> pay();
 
-    /**
-     * Registra un nuevo evento de dominio dentro del agregado.
-     * No se publica aún; esto lo hace el Application Service después de pullEvents().
-     */
     public void recordEvent(DomainEvent event) {
         this.debtEvents.add(event);
     }

@@ -43,7 +43,6 @@ public interface JpaGroupDebtRepository extends JpaRepository<GroupDebtEntity, U
         WHERE gd.group.groupId = :groupId
           AND (:userId IS NULL 
                OR d.debtorId = :userId 
-               OR d.creditorId = :userId)
     
         ORDER BY d.createdAt DESC
     """)

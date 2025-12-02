@@ -1,5 +1,8 @@
 package toast.appback.src.debts.domain;
 
+/**
+ * Estados posibles de una deuda.
+ */
 public enum Status {
     PENDING,
     ACCEPTED,

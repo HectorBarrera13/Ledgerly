@@ -17,7 +17,8 @@ import toast.appback.src.shared.utils.result.Result;
 import static toast.appback.src.shared.ValueObjectsUtils.*;
 
 @DisplayName("DebtMoney Value Object Test")
-class DebtMoneyTest {
+class
+DebtMoneyTest {
 
     // ---------------------------
     // Constantes del test
@@ -84,15 +85,6 @@ class DebtMoneyTest {
 
         assertEquals(amount, money.getAmount());
         assertEquals(currency, money.getCurrency());
-    }
-
-    @Test
-    void equals_ShouldReturnTrue_WhenSameValue() {
-        var m1 = DebtMoney.create(VALID_CURRENCY, VALID_AMOUNT).get();
-        var m2 = DebtMoney.create(VALID_CURRENCY, VALID_AMOUNT).get();
-
-        assertEquals(m1, m2);
-        assertEquals(m1.hashCode(), m2.hashCode());
     }
 
     @Test

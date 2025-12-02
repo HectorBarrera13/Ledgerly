@@ -2,14 +2,12 @@ package toast.appback.src.debts.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import toast.appback.src.debts.domain.Debt;
 import toast.appback.src.debts.domain.DebtBetweenUsers;
 import toast.appback.src.debts.domain.QuickDebt;
 import toast.appback.src.debts.domain.repository.DebtRepository;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.infrastructure.persistence.jparepository.JpaDebtBetweenUsersRepository;
 import toast.appback.src.debts.infrastructure.persistence.jparepository.JpaQuickDebtRepository;
-import toast.appback.src.debts.infrastructure.persistence.jparepository.projection.DebtBetweenUsersProjection;
 import toast.appback.src.debts.infrastructure.persistence.mapping.DebtBetweenUsersMapper;
 import toast.appback.src.debts.infrastructure.persistence.mapping.QuickDebtMapper;
 import toast.model.entities.debt.DebtBetweenUsersEntity;
@@ -49,7 +47,7 @@ public class DebtRepositoryMySQL implements DebtRepository {
         quickDebtEntity.setAmount(quickDebt.getDebtMoney().getAmount());
         quickDebtEntity.setCurrency(quickDebt.getDebtMoney().getCurrency());
         quickDebtEntity.setUserId(quickDebt.getUserId().getValue());
-        quickDebtEntity.setMyRole(quickDebt.getRole().getRole());
+        quickDebtEntity.setMyRole(quickDebt.getRole().getValue());
         quickDebtEntity.setTargetUserName(quickDebt.getTargetUser().getName());
         quickDebtEntity.setStatus(quickDebt.getStatus().name());
         quickDebtEntity.setCreatedAt(quickDebt.getCreatedAt());

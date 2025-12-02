@@ -7,11 +7,9 @@ import toast.appback.src.groups.application.communication.result.MemberView;
 import toast.appback.src.groups.application.port.GroupReadService;
 import toast.appback.src.groups.application.usecase.contract.AddGroupDebt;
 import toast.appback.src.groups.application.usecase.contract.AddMember;
-import toast.appback.src.groups.domain.repository.MemberRepository;
 import toast.appback.src.groups.infrastructure.api.dto.request.AddGroupDebtRequest;
 import toast.appback.src.groups.infrastructure.api.dto.request.AddMemberRequest;
 import toast.appback.src.groups.infrastructure.api.dto.response.GroupDetailResponse;
-import toast.appback.src.groups.infrastructure.persistence.mysql.service.GroupReadServiceMySQL;
 import toast.appback.src.shared.application.PageRequest;
 import toast.appback.src.groups.application.communication.command.EditGroupCommand;
 import toast.appback.src.groups.infrastructure.api.dto.request.EditGroupRequest;
@@ -26,13 +24,10 @@ import toast.appback.src.debts.infrastructure.api.dto.response.DebtResponse;
 import toast.appback.src.groups.application.communication.command.CreateGroupCommand;
 import toast.appback.src.groups.application.communication.result.GroupDebtView;
 import toast.appback.src.groups.application.communication.result.GroupView;
-import toast.appback.src.groups.application.exceptions.GroupNotFound;
 import toast.appback.src.groups.application.port.GroupDebtReadRepository;
-import toast.appback.src.groups.application.port.GroupReadRepository;
 import toast.appback.src.groups.application.port.MemberReadRepository;
 import toast.appback.src.groups.application.usecase.contract.CreateGroup;
 import toast.appback.src.groups.domain.Group;
-import toast.appback.src.groups.domain.repository.GroupRepository;
 import toast.appback.src.groups.domain.vo.GroupId;
 import toast.appback.src.groups.infrastructure.api.dto.GroupResponseMapper;
 import toast.appback.src.groups.infrastructure.api.dto.request.CreateGroupRequest;
@@ -45,17 +40,12 @@ import toast.appback.src.users.infrastructure.api.dto.UserResponseMapper;
 import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 public class GroupController {
-    private final GroupReadRepository groupReadRepository;
-    private final GroupRepository groupRepository;
-    private final MemberRepository memberRepository;
     private final MemberReadRepository memberReadRepository;
     private final GroupDebtReadRepository groupDebtReadRepository;
     private final EditGroupService editGroupService;
@@ -148,7 +138,6 @@ public class GroupController {
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
             @RequestParam(value = "cursor", required = false) UUID cursor
     ) {
-        UserId userId = customUserDetails.getUserId();
         PageResult<MemberView, UUID> pageResult;
         if(cursor==null) {
             pageResult = memberReadRepository.findMembersByGroupId(
@@ -173,7 +162,6 @@ public class GroupController {
             @PathVariable("groupId") UUID groupId,
             @RequestBody EditGroupRequest request
     ) {
-        UserId userId = customUserDetails.getUserId();
         EditGroupCommand command = request.toEditGroupCommand(GroupId.load(groupId));
         GroupView groupView = editGroupService.execute(command);
         GroupResponse response = GroupResponseMapper.toGroupResponse(groupView);

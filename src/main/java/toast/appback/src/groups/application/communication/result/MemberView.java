@@ -2,7 +2,6 @@ package toast.appback.src.groups.application.communication.result;
 
 import toast.model.entities.CursorIdentifiable;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public record MemberView(
