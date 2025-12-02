@@ -29,7 +29,9 @@ public class Name {
         if (result.isFailure()) {
             return result.castFailure();
         }
-        return Result.ok(new Name(firstName, lastName));
+        String trimmedFirstName = firstName.trim();
+        String trimmedLastName = lastName.trim();
+        return Result.ok(new Name(trimmedFirstName, trimmedLastName));
     }
 
     public static Name load(String firstName, String lastName) {
@@ -54,15 +56,25 @@ public class Name {
             return Validators.TOO_LONG(fieldName, value, MAX_LENGTH);
         }
 
-        if (!NAME_PATTERN.matcher(value).matches()) {
-            return Validators.INVALID_FORMAT(fieldName, value, "must contain only letters");
+        // Validar múltiples espacios consecutivos
+        if (value.contains("  ")) {
+            return Validators.INVALID_FORMAT(fieldName, value, "must not contain consecutive spaces");
         }
 
-        String[] split = value.split(" ");
+        // Validar múltiples guiones o apóstrofes consecutivos
+        if (value.contains("--") || value.contains("''")) {
+            return Validators.INVALID_FORMAT(fieldName, value, "must not contain consecutive hyphens or apostrophes");
+        }
+
+        if (!NAME_PATTERN.matcher(value).matches()) {
+            return Validators.INVALID_FORMAT(fieldName, value, "must contain only letters, spaces, hyphens, or apostrophes");
+        }
+
+        String[] split = value.split(" ", -1);
         for (String part : split) {
             if (part.length() < 2) {
                 return Validators
-                        .INVALID_FORMAT("fieldName", value, "each part of the name must be at least 2 characters long");
+                        .INVALID_FORMAT(fieldName, value, "each part of the name must be at least 2 characters long");
             }
         }
         return Result.ok();
