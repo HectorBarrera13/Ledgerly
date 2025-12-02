@@ -21,8 +21,6 @@ public class EditQuickDebtUseCase implements EditQuickDebt {
     private final DebtRepository debtRepository;
     private final DomainEventBus domainEventBus;
     private final UserRepository userRepository;
-    private final String DEBTOR = "DEBTOR";
-    private final String CREDITOR = "CREDITOR";
 
     public EditQuickDebtUseCase(DebtRepository debtRepository, DomainEventBus domainEventBus, UserRepository userRepository) {
         this.debtRepository = debtRepository;

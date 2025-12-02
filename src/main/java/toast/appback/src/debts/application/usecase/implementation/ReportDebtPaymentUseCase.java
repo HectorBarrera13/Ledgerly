@@ -2,7 +2,6 @@ package toast.appback.src.debts.application.usecase.implementation;
 
 import toast.appback.src.debts.application.communication.command.EditDebtStatusCommand;
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.application.communication.result.DebtView;
 import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.application.exceptions.AcceptDebtException;
 import toast.appback.src.debts.application.exceptions.DebtNotFound;

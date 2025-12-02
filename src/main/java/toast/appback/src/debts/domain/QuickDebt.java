@@ -100,10 +100,9 @@ public class QuickDebt extends Debt {
      *
      */
     public DebtBetweenUsers changeToDebtBetweeenUsers(UserId newUserId) {
-        DebtBetweenUsers changedDebt = DebtBetweenUsers.load(
+        return DebtBetweenUsers.load(
                 super.getId(), super.getContext(), super.getDebtMoney(), this.userId, newUserId, this.status
         );
-        return changedDebt;
     }
 
     /**

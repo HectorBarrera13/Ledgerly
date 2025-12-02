@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import toast.model.entities.debt.DebtBetweenUsersEntity;
-import toast.model.entities.debt.DebtEntity;
-import toast.model.entities.users.UserEntity;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity

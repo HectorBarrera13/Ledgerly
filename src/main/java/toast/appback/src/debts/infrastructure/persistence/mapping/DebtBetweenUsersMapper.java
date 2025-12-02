@@ -5,10 +5,8 @@ import toast.appback.src.debts.domain.Status;
 import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.domain.vo.DebtMoney;
-import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 import toast.model.entities.debt.DebtBetweenUsersEntity;
-import toast.model.entities.debt.DebtEntity;
 
 public class DebtBetweenUsersMapper {
 
