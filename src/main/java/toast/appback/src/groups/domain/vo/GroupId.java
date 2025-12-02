@@ -1,25 +1,23 @@
 package toast.appback.src.groups.domain.vo;
 
-import toast.appback.src.debts.domain.vo.DebtId;
-
 import java.util.UUID;
 
 public class GroupId {
-    private UUID id;
+    private UUID id; // Identificador único del grupo
 
     private GroupId(UUID id) {
         this.id = id;
     };
 
     public static GroupId generate() {
-        return new GroupId(UUID.randomUUID());
+        return new GroupId(UUID.randomUUID()); // Crea un nuevo GroupId con un UUID generado automáticamente
     }
 
     public static GroupId load(UUID id) {
-        return new GroupId(id);
+        return new GroupId(id); // Crea un GroupId a partir de un UUID existente
     }
 
     public UUID getValue(){
-        return id;
+        return id; // Retorna el UUID interno
     }
 }

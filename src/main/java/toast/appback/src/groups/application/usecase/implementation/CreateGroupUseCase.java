@@ -34,26 +34,26 @@ public class CreateGroupUseCase implements CreateGroup {
     @Override
     public Group execute(CreateGroupCommand command) {
         User creator = userRepository.findById(command.creatorId())
-                .orElseThrow(() -> new UserNotFound(command.creatorId()));
+                .orElseThrow(() -> new UserNotFound(command.creatorId())); // Valida creador
 
         Result<GroupInformation, DomainError> groupInfoResult = GroupInformation.create(
                 command.name(),
                 command.description()
-        );
+        ); // Valida información del grupo
 
         Result<Void, DomainError> emptyResult = Result.empty();
-        emptyResult.collect(groupInfoResult);
+        emptyResult.collect(groupInfoResult); // Acumula errores
 
-        emptyResult.ifFailureThrows(CreationGroupException::new);
+        emptyResult.ifFailureThrows(CreationGroupException::new); // Lanza si hubo fallos
 
         GroupInformation groupInformation = groupInfoResult.get();
         Group group = Group.create(
                 groupInformation,
                 creator.getUserId()
-        );
+        ); // Crea grupo con info validada y creador
 
-        groupRepository.save(group);
+        groupRepository.save(group); // Persiste grupo
 
-        return group;
+        return group; // Devuelve grupo creado
     }
 }

@@ -32,16 +32,16 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
     @Override
     public List<DebtBetweenUsersView> execute(AddGroupDebtCommand command) {
         Group group = groupRepository.findById(command.groupId())
-                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + command.groupId()));
+                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + command.groupId())); // Valida grupo existente
 
         User creditor = userRepository.findById(command.creditorId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.creditorId()));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.creditorId())); // Valida acreedor
 
         List<DebtBetweenUsersView> debts = new ArrayList<>();
 
         for (var debtorCommand : command.debtors()) {
             User debtor = userRepository.findById(debtorCommand.debtorId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + debtorCommand.debtorId()));
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + debtorCommand.debtorId())); // Valida deudor
 
             CreateDebtBetweenUsersCommand debtCommand = new CreateDebtBetweenUsersCommand(
                     command.purpose(),
@@ -50,20 +50,21 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
                     debtorCommand.amount(),
                     debtorCommand.debtorId(),
                     command.creditorId()
-            );
+            ); // Comando para deuda individual
 
-            DebtBetweenUsersView newDebt = createDebtBetweenUsers.execute(debtCommand);
+            DebtBetweenUsersView newDebt = createDebtBetweenUsers.execute(debtCommand); // Crea deuda
 
             GroupDebt groupDebt = GroupDebt.create(
                     group.getId(),
                     DebtId.load(newDebt.debtId())
-            );
+            ); // Relación deuda–grupo
 
-            groupDebtRepository.save(groupDebt);
+            groupDebtRepository.save(groupDebt); // Persiste relación
 
-            debts.add(newDebt);
+            debts.add(newDebt); // Agrega resultado
         }
 
-        return debts;
+        return debts; // Deudas creadas
     }
 }
+
