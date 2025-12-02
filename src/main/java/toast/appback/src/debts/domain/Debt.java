@@ -71,37 +71,9 @@ public abstract class Debt {
         this.createdAt = createdAt;
     }
 
-    /**
-     * Regla del dominio:
-     * Solo se puede editar el monto si la deuda está en estado PENDING.
-     */
-    public Result<Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
-        boolean isDebtAccepted = status == Status.ACCEPTED;
-        if (!isDebtAccepted) {
-            return Result.failure(
-                    DomainError.businessRule("A debt can only be edited if the status is 'Pending'")
-                            .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
-            );
-        }
-        this.debtMoney = debtMoney;
-        return Result.ok();
-    }
+    public abstract Result<Void, DomainError> editDebtMoney(DebtMoney debtMoney);
 
-    /**
-     * Regla del dominio:
-     * Solo se puede editar el contexto (purpose/description) si la deuda está PENDING.
-     */
-    public Result<Void, DomainError> editContext(Context context) {
-        boolean isDebtAccepted = status == Status.ACCEPTED;
-        if (!isDebtAccepted) {
-            return Result.failure(
-                    DomainError.businessRule("A debt can only be edited if the status is 'Pending'")
-                            .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
-            );
-        }
-        this.context = context;
-        return Result.ok();
-    }
+    public abstract Result<Void, DomainError> editContext(Context context);
 
     /**
      * Operación abstracta definida por el dominio:
