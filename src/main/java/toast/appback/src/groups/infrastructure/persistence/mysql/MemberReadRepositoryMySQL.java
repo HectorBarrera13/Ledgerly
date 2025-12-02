@@ -2,7 +2,6 @@ package toast.appback.src.groups.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import toast.appback.src.shared.application.PageRequest;
 import org.springframework.stereotype.Repository;
 import toast.appback.src.groups.application.communication.result.MemberView;
 import toast.appback.src.groups.application.port.MemberReadRepository;
@@ -10,6 +9,7 @@ import toast.appback.src.groups.domain.vo.GroupId;
 import toast.appback.src.groups.infrastructure.persistence.jparepository.JpaGroupRepository;
 import toast.appback.src.groups.infrastructure.persistence.jparepository.JpaMemberRepository;
 import toast.appback.src.shared.application.CursorRequest;
+import toast.appback.src.shared.application.PageRequest;
 import toast.appback.src.shared.application.PageResult;
 import toast.appback.src.shared.infrastructure.PageMapper;
 import toast.model.entities.group.MemberEntity;
@@ -41,7 +41,7 @@ public class MemberReadRepositoryMySQL implements MemberReadRepository {
     }
 
     @Override
-    public PageResult<MemberView, UUID> findMembersByGroupIdAfterCursor(GroupId groupId, CursorRequest cursorRequest) {
+    public PageResult<MemberView, UUID> findMembersByGroupIdAfterCursor(GroupId groupId, CursorRequest<UUID> cursorRequest) {
         Page<MemberView> page = jpaMemberRepository
                 .findMembersByGroupId(groupId.getValue(), PageMapper.toPageable(cursorRequest))
                 .map(p -> new MemberView(
