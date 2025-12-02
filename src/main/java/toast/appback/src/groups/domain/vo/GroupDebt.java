@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GroupDebt {
-    private final GroupId groupId;              // ID del grupo dueño de la deuda
-    private final DebtId debtId;                // ID de la deuda asociada
-    private final Instant createdAt;            // Momento en que se creó la relación
-    private final List<DomainEvent> groupDebtEvents = new ArrayList<>(); // Eventos de dominio acumulados
+    private final GroupId groupId;
+    private final DebtId debtId;
+    private final Instant createdAt;
+    private final List<DomainEvent> groupDebtEvents = new ArrayList<>();
 
     private GroupDebt(GroupId groupId, DebtId debtId, Instant createdAt) {
         this.groupId = groupId;
@@ -21,7 +21,7 @@ public class GroupDebt {
     }
 
     public static GroupDebt create(GroupId groupId, DebtId debtId) {
-        Instant now = Instant.now(); // Marca de tiempo de la creación
+        Instant now = Instant.now();
         GroupDebt grupalDebt = new GroupDebt(groupId, debtId, now);
 
         grupalDebt.recordEvent(
@@ -29,22 +29,22 @@ public class GroupDebt {
                         groupId,
                         debtId
                 )
-        ); // Registra evento de creación
+        );
 
         return grupalDebt;
     }
 
     public static GroupDebt load(GroupId groupId, DebtId debtId, Instant createdAt) {
-        return new GroupDebt(groupId, debtId, createdAt); // Carga sin disparar eventos
+        return new GroupDebt(groupId, debtId, createdAt);
     }
 
     public void recordEvent(DomainEvent event) {
-        this.groupDebtEvents.add(event); // Acumula evento
+        this.groupDebtEvents.add(event);
     }
 
     public List<DomainEvent> pullEvents() {
-        List<DomainEvent> events = new ArrayList<>(groupDebtEvents); // Copia eventos pendientes
-        groupDebtEvents.clear(); // Limpia después de extraer
+        List<DomainEvent> events = new ArrayList<>(groupDebtEvents);
+        groupDebtEvents.clear();
         return events;
     }
 

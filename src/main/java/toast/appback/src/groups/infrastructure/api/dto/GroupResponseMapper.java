@@ -11,6 +11,8 @@ import java.util.List;
 
 public class GroupResponseMapper {
 
+    private GroupResponseMapper() {}
+
     public static GroupDetailResponse toGroupDetailResponse(Group group, List<UserView> users) {
         GroupResponse groupResponse = new GroupResponse(
                 group.getId().getValue(),

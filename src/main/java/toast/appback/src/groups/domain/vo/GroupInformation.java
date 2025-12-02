@@ -10,8 +10,8 @@ public class GroupInformation {
     private static final int MAX_NAME_LENGTH = 30;
     private static final int MAX_DESCRIPTION_LENGTH = 300;
 
-    private final String name;          // Nombre del grupo (validado)
-    private final String description;   // Descripción del grupo (validada)
+    private final String name;
+    private final String description;
 
     private GroupInformation(String name, String description) {
         this.name = name;
@@ -19,17 +19,18 @@ public class GroupInformation {
     }
 
     public static Result<GroupInformation, DomainError> create(String name, String description) {
-        Result<Void, DomainError> emptyResult = Result.empty(); // Acumulador de errores
+        // Acumulador de errores
+        Result<Void, DomainError> emptyResult = Result.empty();
 
         emptyResult.collect(nameValidation(name, FIELD_NAME));
         emptyResult.collect(descriptionValidation(description, FIELD_DESCRIPTION));
 
-        // Si hay errores, devuelve el primer error encontrado
+        // Si hay errores los devuelve
         if (emptyResult.isFailure()) {
             return emptyResult.castFailure();
         }
 
-        return Result.ok(new GroupInformation(name, description)); // Devuelve instancia válida
+        return Result.ok(new GroupInformation(name, description));
     }
 
     public static GroupInformation load(String name, String description) {

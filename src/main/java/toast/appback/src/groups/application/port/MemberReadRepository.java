@@ -5,7 +5,6 @@ import toast.appback.src.groups.application.communication.result.MemberView;
 import toast.appback.src.groups.domain.vo.GroupId;
 import toast.appback.src.shared.application.CursorRequest;
 import toast.appback.src.shared.application.PageResult;
-import toast.appback.src.users.application.communication.result.UserView;
 import toast.model.entities.group.MemberEntity;
 
 import java.util.List;

@@ -6,6 +6,9 @@ import toast.appback.src.groups.application.communication.result.GroupDebtView;
 
 public class DebtResponseMapper {
 
+    // Prevent instantiation
+    private DebtResponseMapper() {}
+
     public static DebtResponseInt toDebtResponse(DebtView debtView) {
         if (debtView instanceof QuickDebtView quickDebt) {
             return toQuickDebtResponse(quickDebt);

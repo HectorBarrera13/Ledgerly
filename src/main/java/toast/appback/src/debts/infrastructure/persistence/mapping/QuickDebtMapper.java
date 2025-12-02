@@ -1,5 +1,6 @@
 package toast.appback.src.debts.infrastructure.persistence.mapping;
 
+import toast.appback.src.debts.application.communication.result.QuickDebtView;
 import toast.appback.src.debts.domain.QuickDebt;
 import toast.appback.src.debts.domain.Status;
 import toast.appback.src.debts.domain.vo.*;
@@ -7,6 +8,9 @@ import toast.appback.src.users.domain.UserId;
 import toast.model.entities.debt.QuickDebtEntity;
 
 public class QuickDebtMapper {
+
+    // Prevent instantiation
+    private QuickDebtMapper() {}
 
     public static QuickDebt toDomain(QuickDebtEntity debtEntity) {
         return QuickDebt.load(
