@@ -1,4 +1,4 @@
-name: SonarQube
+name: SonarCloud
 on:
   push:
     branches:
@@ -13,12 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available
+          distribution: 'zulu'
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -31,7 +31,17 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('*/.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-      - name: Build and analyze
+
+      # *** Importante: Separar la ejecución de JaCoCo y Sonar ***
+      # Se ejecuta 'test' (que dispara jacocoTestReport) y luego se ejecuta 'sonar'
+      - name: Run Tests with Coverage and Analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonar --info
+        run: |
+          # 1. Ejecuta las tareas 'build' y 'jacocoTestReport' (implícita por 'test')
+          ./gradlew build jacocoTestReport
+          
+          # 2. Ejecuta el análisis de Sonar con la ruta del reporte de JaCoCo
+          # NOTA: La ruta por defecto de JaCoCo en Gradle es: build/reports/jacoco/test/jacocoTestReport.xml
+          ./gradlew sonar --info \
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
