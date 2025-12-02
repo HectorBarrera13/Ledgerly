@@ -41,7 +41,7 @@ public class Name {
 
     private static Result<Void, DomainError> validation(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            return Validators.EMPTY_VALUE(fieldName);
+            return Validators.emptyValue(fieldName);
         }
         String trimmed = value.trim();
         return validate(trimmed, fieldName);
@@ -49,32 +49,32 @@ public class Name {
 
     private static Result<Void, DomainError> validate(String value, String fieldName) {
         if (value.length() < MIN_LENGTH) {
-            return Validators.TOO_SHORT(fieldName, value, MIN_LENGTH);
+            return Validators.tooShort(fieldName, value, MIN_LENGTH);
         }
 
         if (value.length() >= MAX_LENGTH) {
-            return Validators.TOO_LONG(fieldName, value, MAX_LENGTH);
+            return Validators.tooLong(fieldName, value, MAX_LENGTH);
         }
 
         // Validar múltiples espacios consecutivos
         if (value.contains("  ")) {
-            return Validators.INVALID_FORMAT(fieldName, value, "must not contain consecutive spaces");
+            return Validators.invalidFormat(fieldName, value, "must not contain consecutive spaces");
         }
 
         // Validar múltiples guiones o apóstrofes consecutivos
         if (value.contains("--") || value.contains("''")) {
-            return Validators.INVALID_FORMAT(fieldName, value, "must not contain consecutive hyphens or apostrophes");
+            return Validators.invalidFormat(fieldName, value, "must not contain consecutive hyphens or apostrophes");
         }
 
         if (!NAME_PATTERN.matcher(value).matches()) {
-            return Validators.INVALID_FORMAT(fieldName, value, "must contain only letters, spaces, hyphens, or apostrophes");
+            return Validators.invalidFormat(fieldName, value, "must contain only letters, spaces, hyphens, or apostrophes");
         }
 
         String[] split = value.split(" ", -1);
         for (String part : split) {
             if (part.length() < 2) {
                 return Validators
-                        .INVALID_FORMAT(fieldName, value, "each part of the name must be at least 2 characters long");
+                        .invalidFormat(fieldName, value, "each part of the name must be at least 2 characters long");
             }
         }
         return Result.ok();

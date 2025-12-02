@@ -32,9 +32,9 @@ public class Context {
 
     /**
      * Factory method principal para crear el Value Object validando sus reglas:
-     *  - purpose no puede ser nulo, vacío, ni exceder el tamaño máximo
-     *  - description es opcional, pero si viene debe respetar su límite máximo
-     *
+     * - purpose no puede ser nulo, vacío, ni exceder el tamaño máximo
+     * - description es opcional, pero si viene debe respetar su límite máximo
+     * <p>
      * Utiliza Result para propagar errores de dominio sin excepciones.
      */
     public static Result<Context, DomainError> create(String purpose, String description) {
@@ -68,10 +68,10 @@ public class Context {
      */
     private static Result<String, DomainError> purposeValidation(String purpose, String fildName) {
         if (purpose == null || purpose.isBlank()) {
-            return Validators.EMPTY_VALUE(fildName);
+            return Validators.emptyValue(fildName);
         }
         if (purpose.length() > MAX_PURPOSE_LENGTH) {
-            return Validators.TOO_LONG(fildName, purpose, MAX_PURPOSE_LENGTH);
+            return Validators.tooLong(fildName, purpose, MAX_PURPOSE_LENGTH);
         }
         return Result.ok(purpose);
     }
@@ -83,17 +83,21 @@ public class Context {
      */
     private static Result<String, DomainError> descriptionValidation(String description, String fildName) {
         if (description != null && !description.isBlank() && description.length() > MAX_DESCRIPTION_LENGTH) {
-            return Validators.TOO_LONG(fildName, description, MAX_DESCRIPTION_LENGTH);
+            return Validators.tooLong(fildName, description, MAX_DESCRIPTION_LENGTH);
         }
         return Result.ok(description);
     }
 
-    /** Devuelve el propósito (siempre no nulo y validado) */
+    /**
+     * Devuelve el propósito (siempre no nulo y validado)
+     */
     public String getPurpose() {
         return purpose;
     }
 
-    /** Devuelve la descripción (puede ser nula o cadena vacía válida) */
+    /**
+     * Devuelve la descripción (puede ser nula o cadena vacía válida)
+     */
     public String getDescription() {
         return description;
     }

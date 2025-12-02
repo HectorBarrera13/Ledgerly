@@ -38,10 +38,8 @@ public class DebtAdvisor {
 
     @ExceptionHandler(UnauthorizedActionException.class)
     public ResponseEntity<ErrorData> handleUnauthorizedActionException(UnauthorizedActionException ex) {
-        System.out.println(ex.getMessage());
         String friendlyMessage = ex.getMessage();
         ErrorData errorData = ErrorData.create(friendlyMessage);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorData);
     }
-
 }

@@ -6,17 +6,16 @@ import toast.appback.src.shared.utils.result.Result;
 
 /**
  * Value Object que representa el nombre del "usuario objetivo" en una deuda rápida.
- *
+ * <p>
  * Asegura inmutabilidad y valida:
- *  - Que el nombre no sea nulo ni vacío
- *  - Que no exceda la longitud máxima permitida
+ * - Que el nombre no sea nulo ni vacío
+ * - Que no exceda la longitud máxima permitida
  */
 public class TargetUser {
-    // Nombre del usuario objetivo (inmutable)
-    private final String name;
-
     private static final String FIELD_NAME = "name";
     private static final int MAX_NAME_LENGTH = 30;
+    // Nombre del usuario objetivo (inmutable)
+    private final String name;
 
     /**
      * Constructor privado para asegurar creación controlada vía create() o load().
@@ -28,9 +27,9 @@ public class TargetUser {
     /**
      * Factory method principal.
      * Valida:
-     *  - name no debe ser nulo ni vacío
-     *  - name no debe exceder MAX_NAME_LENGTH
-     *
+     * - name no debe ser nulo ni vacío
+     * - name no debe exceder MAX_NAME_LENGTH
+     * <p>
      * Devuelve Result<> para manejar errores sin excepciones en dominio.
      */
     public static Result<TargetUser, DomainError> create(String name) {
@@ -57,10 +56,10 @@ public class TargetUser {
      */
     public static Result<String, DomainError> nameValidation(String name, String field) {
         if (name == null || name.isEmpty()) {
-            return Validators.EMPTY_VALUE(field);
+            return Validators.emptyValue(field);
         }
         if (name.length() > MAX_NAME_LENGTH) {
-            return Validators.TOO_LONG(field, name, MAX_NAME_LENGTH);
+            return Validators.tooLong(field, name, MAX_NAME_LENGTH);
         }
         return Result.ok();
     }

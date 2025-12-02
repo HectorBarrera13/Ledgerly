@@ -124,6 +124,32 @@ public class QuickDebt extends Debt {
         return Result.ok();
     }
 
+    @Override
+    public Result<Void, DomainError> editDebtMoney(DebtMoney debtMoney) {
+        boolean isDebtAccepted = status == Status.PENDING;
+        if (!isDebtAccepted) {
+            return Result.failure(
+                    DomainError.businessRule("A debt can only be edited if the status is 'Pending'")
+                            .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
+            );
+        }
+        this.debtMoney = debtMoney;
+        return Result.ok();
+    }
+
+    @Override
+    public Result<Void, DomainError> editContext(Context context) {
+        boolean isDebtAccepted = status == Status.PENDING;
+        if (!isDebtAccepted) {
+            return Result.failure(
+                    DomainError.businessRule("A debt can only be edited if the status is 'Pending'")
+                            .withBusinessCode(DebtBusinessCode.STATUS_NOT_PENDING)
+            );
+        }
+        this.context = context;
+        return Result.ok();
+    }
+
     public UserId getUserId() { return this.userId; }
 
     public Role getRole() { return this.role; }
