@@ -5,8 +5,9 @@ import toast.model.entities.CursorIdentifiable;
 import java.time.Instant;
 import java.util.UUID;
 
-public record GroupView (
+public record GroupView(
         UUID groupId,
+        UUID creatorId,
         String name,
         String description,
         Instant createdAt

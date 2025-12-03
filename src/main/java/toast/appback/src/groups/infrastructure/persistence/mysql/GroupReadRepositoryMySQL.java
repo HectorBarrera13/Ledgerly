@@ -2,16 +2,14 @@ package toast.appback.src.groups.infrastructure.persistence.mysql;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import toast.appback.src.groups.infrastructure.api.dto.GroupResponseMapper;
-import toast.appback.src.groups.infrastructure.api.dto.response.GroupDetailResponse;
-import toast.appback.src.groups.infrastructure.api.dto.response.GroupResponse;
-import toast.appback.src.shared.application.PageRequest;
 import org.springframework.stereotype.Repository;
 import toast.appback.src.groups.application.communication.result.GroupView;
 import toast.appback.src.groups.application.port.GroupReadRepository;
 import toast.appback.src.groups.domain.vo.GroupId;
+import toast.appback.src.groups.infrastructure.api.dto.response.GroupResponse;
 import toast.appback.src.groups.infrastructure.persistence.jparepository.JpaGroupRepository;
 import toast.appback.src.shared.application.CursorRequest;
+import toast.appback.src.shared.application.PageRequest;
 import toast.appback.src.shared.application.PageResult;
 import toast.appback.src.shared.infrastructure.PageMapper;
 import toast.appback.src.users.domain.UserId;
@@ -29,6 +27,7 @@ public class GroupReadRepositoryMySQL implements GroupReadRepository {
         return jpaGroupRepository.findGroupProjectionByGroupId(groupId.getValue())
                 .map(projection -> new GroupView(
                         projection.getGroupId(),
+                        projection.getCreatorId(),
                         projection.getName(),
                         projection.getDescription(),
                         projection.getCreatedAt()
@@ -42,6 +41,7 @@ public class GroupReadRepositoryMySQL implements GroupReadRepository {
                 .map(
                         projection -> new GroupView(
                                 projection.getGroupId(),
+                                projection.getCreatorId(),
                                 projection.getName(),
                                 projection.getDescription(),
                                 projection.getCreatedAt()
@@ -60,10 +60,11 @@ public class GroupReadRepositoryMySQL implements GroupReadRepository {
 
         return jpaGroupRepository.findGroupByIdAndUser(groupId.getValue(), userId.getValue())
                 .map(projection -> new GroupResponse(
-                            projection.getGroupId(),
-                            projection.getName(),
-                            projection.getDescription(),
-                            projection.getCreatedAt()
+                        projection.getGroupId(),
+                        projection.getCreatorId(),
+                        projection.getName(),
+                        projection.getDescription(),
+                        projection.getCreatedAt()
                 ));
     }
 }

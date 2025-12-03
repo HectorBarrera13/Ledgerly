@@ -5,7 +5,7 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.UserId;
 
 public record UserCreated(
-    UserId userId,
-    Name name
+        UserId userId,
+        Name name
 ) implements DomainEvent {
 }

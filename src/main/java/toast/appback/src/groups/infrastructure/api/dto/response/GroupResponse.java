@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record GroupResponse(
         UUID groupId,
+        UUID creatorId,
         String name,
         String description,
         Instant createdAt

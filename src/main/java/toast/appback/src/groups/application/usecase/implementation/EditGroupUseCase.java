@@ -31,6 +31,7 @@ public class EditGroupUseCase implements EditGroup {
 
         return new GroupView(
                 group.getId().getValue(),
+                group.getCreatorId().getValue(),
                 group.getGroupInformation().getName(),       // Usa la info del grupo
                 group.getGroupInformation().getDescription(),
                 group.getCreatedAt()

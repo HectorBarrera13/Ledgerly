@@ -5,7 +5,12 @@ import java.util.UUID;
 
 public interface GroupProjection {
     UUID getGroupId();
+
+    UUID getCreatorId();
+
     String getName();
+
     String getDescription();
+
     Instant getCreatedAt();
 }

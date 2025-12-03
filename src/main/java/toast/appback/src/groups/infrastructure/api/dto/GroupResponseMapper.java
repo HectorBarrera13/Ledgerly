@@ -11,11 +11,13 @@ import java.util.List;
 
 public class GroupResponseMapper {
 
-    private GroupResponseMapper() {}
+    private GroupResponseMapper() {
+    }
 
     public static GroupDetailResponse toGroupDetailResponse(Group group, List<UserView> users) {
         GroupResponse groupResponse = new GroupResponse(
                 group.getId().getValue(),
+                group.getCreatorId().getValue(),
                 group.getGroupInformation().getName(),
                 group.getGroupInformation().getDescription(),
                 group.getCreatedAt()
@@ -32,6 +34,7 @@ public class GroupResponseMapper {
     public static GroupDetailResponse toGroupDetailResponse(GroupView groupView, List<UserView> users) {
         GroupResponse groupResponse = new GroupResponse(
                 groupView.groupId(),
+                groupView.creatorId(),
                 groupView.name(),
                 groupView.description(),
                 groupView.createdAt()
@@ -48,6 +51,7 @@ public class GroupResponseMapper {
     public static GroupResponse toGroupResponse(GroupView groupView) {
         return new GroupResponse(
                 groupView.groupId(),
+                groupView.creatorId(),
                 groupView.name(),
                 groupView.description(),
                 groupView.createdAt()
