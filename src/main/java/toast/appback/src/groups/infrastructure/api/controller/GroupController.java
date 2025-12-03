@@ -1,6 +1,8 @@
 package toast.appback.src.groups.infrastructure.api.controller;
 
 import lombok.RequiredArgsConstructor;
+import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
+import toast.appback.src.debts.infrastructure.api.dto.response.DebtBetweenUsersResponse;
 import toast.appback.src.groups.application.communication.command.AddGroupDebtCommand;
 import toast.appback.src.groups.application.communication.command.AddMemberCommand;
 import toast.appback.src.groups.application.communication.result.MemberView;
@@ -104,24 +106,30 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}/debts")
-    public ResponseEntity<Pageable<DebtResponse, UUID>> getGroupDebts(
+    public ResponseEntity<Pageable<DebtBetweenUsersResponse, UUID>> getGroupDebts(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
             @RequestParam(value = "cursor", required = false) UUID cursor,
-            @PathVariable("groupId") UUID groupId
+            @PathVariable("groupId") UUID groupId,
+            @RequestParam(value = "role", required = true) String role,
+            @RequestParam(value = "status", required = true) String status
     ) {
         UserId userId = customUserDetails.getUserId();
-        PageResult<GroupDebtView, UUID> pageResult;
+        PageResult<DebtBetweenUsersView, UUID> pageResult;
         if(cursor==null) {
             pageResult = groupDebtReadRepository.findUserDebtsByGroupId(
                     GroupId.load(groupId),
                     userId,
+                    role,
+                    status,
                     PageRequest.of(0, limit)
             );
         } else {
             pageResult = groupDebtReadRepository.findUserDebtsByGroupIdAfterCursor(
                     GroupId.load(groupId),
                     userId,
+                    role,
+                    status,
                     CursorRequest.of(limit, cursor)
             );
         }

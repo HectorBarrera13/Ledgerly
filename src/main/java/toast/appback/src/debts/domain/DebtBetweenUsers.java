@@ -140,11 +140,6 @@ public class DebtBetweenUsers extends Debt {
 
     @Override
     public Result<Void, DomainError> pay() {
-        boolean isDebtAccepted = status == Status.ACCEPTED;
-        if (!isDebtAccepted) {
-            return Result.failure(DomainError.businessRule(buildErrorMessage("pay"))
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
         this.status = Status.PAYMENT_CONFIRMATION_PENDING;
         return Result.ok();
     }
