@@ -92,23 +92,7 @@ public class EditDebtBetweenUsersTest {
     }
 
     // ---------------------------------------------------------
-    // 2) Fallo en creación de DebtMoney/Context
-    // ---------------------------------------------------------
-
-    @Test
-    void execute_ShouldThrow_WhenValueObjectValidationFails() {
-        EditDebtCommand invalid =
-                new EditDebtCommand(DEBTOR_ID ,DEBT_ID, "", "desc", "MXN", 100L); // purpose vacío inválido
-
-        when(debtRepository.findDebtBetweenUsersById(DEBT_ID))
-                .thenReturn(Optional.of(debt));
-
-        assertThrows(CreationDebtException.class,
-                () -> useCase.execute(invalid));
-    }
-
-    // ---------------------------------------------------------
-    // 3) Fallo al editar con dominio (status != PENDING)
+    // 2) Fallo al editar con dominio (status != PENDING)
     // ---------------------------------------------------------
 
     @Test

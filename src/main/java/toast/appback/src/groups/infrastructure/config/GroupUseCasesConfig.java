@@ -31,10 +31,12 @@ public class GroupUseCasesConfig {
 
     @Bean
     public EditGroupUseCase editGroupUseCase(
-            GroupRepository groupRepository
+            GroupRepository groupRepository,
+            UserRepository userRepository
     ){
         return  new EditGroupUseCase(
-                groupRepository
+                groupRepository,
+                userRepository
         );
     }
 

@@ -10,6 +10,9 @@ import java.time.Instant;
 
 public class GroupMapper {
 
+    private GroupMapper() {
+    }
+
     public static Group toDomain(GroupEntity groupEntity) {
         if (groupEntity == null) return null;
         return Group.Load(

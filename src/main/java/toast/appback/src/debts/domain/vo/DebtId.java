@@ -5,9 +5,6 @@ import java.util.UUID;
 
 /**
  * Value Object que representa el identificador único de una deuda (Debt).
- * Encapsula un UUID y garantiza inmutabilidad.
- *
- * Se usa tanto para crear nuevos IDs (generate) como para reconstruirlos desde persistencia (load).
  */
 public class DebtId {
     private final UUID id;

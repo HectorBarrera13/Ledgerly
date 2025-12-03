@@ -35,23 +35,30 @@ public interface JpaGroupDebtRepository extends JpaRepository<GroupDebtEntity, U
         uc.firstName AS creditorFirstName,
         uc.lastName AS creditorLastName
 
-        FROM GroupDebtEntity gd
-        JOIN gd.debt d
-        JOIN UserEntity ud ON ud.userId = d.debtorId
-        JOIN UserEntity uc ON uc.userId = d.creditorId
+    FROM GroupDebtEntity gd
+    JOIN gd.debt d
+    JOIN UserEntity ud ON ud.userId = d.debtorId
+    JOIN UserEntity uc ON uc.userId = d.creditorId
     
-        WHERE gd.group.groupId = :groupId
-          AND (:userId IS NULL 
-               OR d.debtorId = :userId 
-               OR d.creditorId = :userId)
-    
-        ORDER BY d.createdAt DESC
-    """)
+    WHERE gd.group.groupId = :groupId
+      AND (:status IS NULL OR d.status = :status)
+      AND (
+            (:role = 'DEBTOR' AND d.debtorId = :userId)
+         OR (:role = 'CREDITOR' AND d.creditorId = :userId)
+         OR (:role IS NULL AND :userId IS NULL) 
+      )
+
+    ORDER BY d.createdAt DESC
+    """
+    )
     Page<DebtBetweenUsersProjection> findAllDebtsByGroupIdAndUserId(
             @Param("groupId") UUID groupId,
             @Param("userId") UUID userId,
+            @Param("role") String role,
+            @Param("status") String status,
             Pageable pageable
     );
+
 
     @Query("""
     SELECT 
@@ -76,16 +83,22 @@ public interface JpaGroupDebtRepository extends JpaRepository<GroupDebtEntity, U
     JOIN UserEntity uc ON uc.userId = d.creditorId
 
     WHERE gd.group.groupId = :groupId
-      AND (d.debtorId = :userId OR d.creditorId = :userId)
-      AND d.createdAt < :cursorCreatedAt
+      AND d.status = :status
+      AND (
+            (:role = 'DEBTOR' AND d.debtorId = :userId)
+         OR (:role = 'CREDITOR' AND d.creditorId = :userId)
+      )
+      AND d.createdAt < :cursor
 
     ORDER BY d.createdAt DESC
 """)
     Page<DebtBetweenUsersProjection> findAllDebtsByGroupIdAndUserIdAfterCursor(
             @Param("groupId") UUID groupId,
             @Param("userId") UUID userId,
-            @Param("cursor") UUID cursorCreatedAt,
+            @Param("role") String role,
+            @Param("status") String status,
             Pageable pageable
     );
+
 
 }

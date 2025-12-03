@@ -8,7 +8,7 @@ public record EditDebtStatusRequest(
         DebtId debtId,
         UserId actorId
 ) {
-    public EditDebtStatusCommand EditDebtStatusRequest() {
+    public EditDebtStatusCommand toEditDebtStatusCommand() {
         return new EditDebtStatusCommand(
                 debtId,
                 actorId

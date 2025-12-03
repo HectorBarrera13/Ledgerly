@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import toast.appback.src.debts.application.communication.command.EditDebtCommand;
 import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
 import toast.appback.src.debts.application.usecase.contract.EditDebtBetweenUsers;
-import toast.appback.src.users.domain.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

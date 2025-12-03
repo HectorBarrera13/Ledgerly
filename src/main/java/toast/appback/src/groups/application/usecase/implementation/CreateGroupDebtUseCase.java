@@ -31,40 +31,44 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
 
     @Override
     public List<DebtBetweenUsersView> execute(AddGroupDebtCommand command) {
+        // Valida grupo existente
         Group group = groupRepository.findById(command.groupId())
-                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + command.groupId())); // Valida grupo existente
+                .orElseThrow(() -> new IllegalArgumentException("Group not found with id: " + command.groupId()));
 
+        // Valida acreedor
         User creditor = userRepository.findById(command.creditorId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.creditorId())); // Valida acreedor
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + command.creditorId()));
 
         List<DebtBetweenUsersView> debts = new ArrayList<>();
 
+        //Para cada deudor, crea deuda con el creditor
         for (var debtorCommand : command.debtors()) {
             User debtor = userRepository.findById(debtorCommand.debtorId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + debtorCommand.debtorId())); // Valida deudor
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + debtorCommand.debtorId()));
 
+            //Crear el comando para crear deuda entre usuarios
             CreateDebtBetweenUsersCommand debtCommand = new CreateDebtBetweenUsersCommand(
                     command.purpose(),
                     command.description(),
                     command.currency(),
                     debtorCommand.amount(),
-                    debtorCommand.debtorId(),
-                    command.creditorId()
-            ); // Comando para deuda individual
+                    debtor.getUserId(),
+                    creditor.getUserId()
+            );
 
-            DebtBetweenUsersView newDebt = createDebtBetweenUsers.execute(debtCommand); // Crea deuda
+            DebtBetweenUsersView newDebt = createDebtBetweenUsers.execute(debtCommand);
 
             GroupDebt groupDebt = GroupDebt.create(
                     group.getId(),
                     DebtId.load(newDebt.debtId())
-            ); // Relación deuda–grupo
+            );
 
-            groupDebtRepository.save(groupDebt); // Persiste relación
+            groupDebtRepository.save(groupDebt);
 
-            debts.add(newDebt); // Agrega resultado
+            debts.add(newDebt);
         }
 
-        return debts; // Deudas creadas
+        return debts;
     }
 }
 

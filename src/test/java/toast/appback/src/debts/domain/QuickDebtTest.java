@@ -77,7 +77,7 @@ class QuickDebtTest {
 
         UserId newUser = UserId.load(UUID.randomUUID());
 
-        DebtBetweenUsers converted = debt.changeToDebtBetweeenUsers(newUser);
+        DebtBetweenUsers converted = debt.changeToDebtBetweenUsers(newUser);
 
         assertEquals(debt.getId(), converted.getId());
         assertEquals(debt.getContext(), converted.getContext());

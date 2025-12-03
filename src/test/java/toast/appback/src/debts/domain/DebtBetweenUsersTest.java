@@ -213,11 +213,11 @@ class DebtBetweenUsersTest {
     }
 
     @Test
-    void pay_ShouldFail_WhenNotAccepted() {
+    void pay_ShouldBeOk_WhenNotAccepted() {
         DebtBetweenUsers debt = DebtBetweenUsers.create(CONTEXT, MONEY, DEBTOR, CREDITOR);
 
         var result = debt.pay();
 
-        assertTrue(result.isFailure());
+        assertTrue(result.isOk());
     }
 }

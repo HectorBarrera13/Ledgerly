@@ -10,12 +10,6 @@ import java.util.Objects;
 
 /**
  * Value Object que representa el monto de una deuda junto con su moneda.
- * Encapsula reglas de validación:
- * - currency debe cumplir el formato ISO (3 letras mayúsculas)
- * - amount debe ser no nulo y positivo
- * - amount siempre se convierte a BigDecimal con SCALE = 2
- * <p>
- * Es completamente inmutable y propio del dominio.
  */
 public class DebtMoney {
 
@@ -40,10 +34,7 @@ public class DebtMoney {
 
     /**
      * Factory method principal:
-     * - Valida currency con regex (3 letras mayúsculas)
-     * - Valida amount no nulo y positivo
-     * - Convierte el monto Long a BigDecimal con escala de 2 decimales
-     * - Devuelve Result para manejar errores de dominio sin excepciones
+     * Valida las reglas de negocio antes de crear una instancia.
      */
     public static Result<DebtMoney, DomainError> create(String currency, Long amount) {
         Result<Void, DomainError> emptyResult = Result.empty();
@@ -60,15 +51,12 @@ public class DebtMoney {
 
     /**
      * Factory method alternativo para reconstrucción desde persistencia.
-     * No valida reglas porque se asume que ya fueron validadas antes.
      */
     public static DebtMoney load(BigDecimal amount, String currency) {
         return new DebtMoney(amount, currency);
     }
 
-    /**
-     * Validación del código de moneda.
-     */
+
     private static Result<String, DomainError> currencyValidation(String currency, String format, String field) {
         if (currency == null) {
             return Validators.emptyValue(field);
@@ -79,9 +67,6 @@ public class DebtMoney {
         return Result.ok();
     }
 
-    /**
-     * Validación del monto de la deuda.
-     */
     private static Result<String, DomainError> amountValidation(Long amount, String field) {
         if (amount == null) {
             return Validators.emptyValue(field);
@@ -99,28 +84,6 @@ public class DebtMoney {
     private static BigDecimal amountTransformation(Long amount, int scale) {
         BigInteger unscaledAmount = BigInteger.valueOf(amount);
         return new BigDecimal(unscaledAmount, scale);
-    }
-
-    /**
-     * Implementación de igualdad basada en valor, siguiendo las reglas de un Value Object.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DebtMoney debtMoney = (DebtMoney) o;
-        return Objects.equals(amount, debtMoney.amount) &&
-                Objects.equals(currency, debtMoney.currency);
-    }
-
-    /**
-     * hashCode consistente con equals.
-     */
-    @Override
-    public int hashCode() {
-        int result = Objects.hashCode(amount);
-        result = 31 * result + Objects.hashCode(currency);
-        return result;
     }
 
     public String getCurrency() {

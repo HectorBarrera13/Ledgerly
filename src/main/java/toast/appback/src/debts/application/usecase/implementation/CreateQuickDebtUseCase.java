@@ -19,62 +19,29 @@ import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
-/**
- * Caso de uso para crear una QuickDebt.
- *
- * Tipo: Application Service dentro de Clean Architecture.
- *
- * Responsabilidades:
- *  - Validar existencia del usuario
- *  - Construir los Value Objects (DebtMoney, Context, Role, TargetUser)
- *  - Validarlos mediante Result<T,E>
- *  - Crear una QuickDebt (entidad del dominio)
- *  - Persistirla en el repositorio
- *  - Retornar un DTO de lectura (QuickDebtView)
- *
- * El caso de uso NO contiene lógica de negocio,
- * solo orquesta las llamadas entre repositorios, dominio y DTOs.
- */
 public class CreateQuickDebtUseCase implements CreateQuickDebt {
 
     private final UserRepository userRepository;
     private final DebtRepository debtRepository;
 
-    /**
-     * Constructor inyectando dependencias (DIP).
-     */
     public CreateQuickDebtUseCase(UserRepository userRepository, DebtRepository debtRepository) {
         this.userRepository = userRepository;
         this.debtRepository = debtRepository;
     }
 
-    /**
-     * Flujo del caso de uso:
-     *
-     * 1. Verificar que el usuario exista
-     * 2. Crear y validar los Value Objects: DebtMoney, Context, Role, TargetUser
-     * 3. Si alguno falla, lanzar CreationDebtException
-     * 4. Crear la entidad QuickDebt mediante el método estático del dominio
-     * 5. Guardar la deuda
-     * 6. Construir y retornar el DTO QuickDebtView
-     */
     @Override
     public QuickDebtView execute(CreateQuickDebtCommand command) {
-
-        // 1) Usuario debe existir
+        //Comprobar que el usuario existe
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new UserNotFound(command.userId()));
 
-        // 2) Construcción y validación de Value Objects
+        //Validar los VO del caso de uso
         Result<DebtMoney, DomainError> moneyResult =
                 DebtMoney.create(command.currency(), command.amount());
-
         Result<Context, DomainError> contextResult =
                 Context.create(command.purpose(), command.description());
-
         Result<Role, DomainError> roleResult =
                 Role.create(command.role());
-
         Result<TargetUser, DomainError> targetUserResult =
                 TargetUser.create(command.targetUserName());
 
@@ -104,8 +71,7 @@ public class CreateQuickDebtUseCase implements CreateQuickDebt {
                 userName.getLastName()
         );
 
-        // 4) Crear la entidad QuickDebt
-        QuickDebt debt = QuickDebt.create(
+        QuickDebt newDebt = QuickDebt.create(
                 context,
                 debtMoney,
                 userId,
@@ -113,20 +79,18 @@ public class CreateQuickDebtUseCase implements CreateQuickDebt {
                 targetUser
         );
 
-        // 5) Persistencia
-        debtRepository.save(debt);
+        debtRepository.save(newDebt);
 
-        // 6) Retornar DTO
         return new QuickDebtView(
-                debt.getId().getValue(),
-                debt.getContext().getPurpose(),
-                debt.getContext().getDescription(),
-                debt.getDebtMoney().getAmount(),
-                debt.getDebtMoney().getCurrency(),
-                debt.getStatus().toString(),
+                newDebt.getId().getValue(),
+                newDebt.getContext().getPurpose(),
+                newDebt.getContext().getDescription(),
+                newDebt.getDebtMoney().getAmount(),
+                newDebt.getDebtMoney().getCurrency(),
+                newDebt.getStatus().toString(),
                 userSummary,
-                debt.getRole().getRole(),
-                debt.getTargetUser().getName()
+                newDebt.getRole().getValue(),
+                newDebt.getTargetUser().getName()
         );
     }
 }

@@ -6,19 +6,14 @@ import toast.appback.src.shared.utils.result.Result;
 
 /**
  * Value Object que representa el contexto (purpose + description) asociado a una deuda.
- * Es inmutable y garantiza reglas de validación de dominio.
  */
 public class Context {
-
-    // Nombre de los campos, usados para reportar errores de validación
+    // Nombres de campos para mensajes de error y validaciones
     private static final String FIELD_PURPOSE = "purpose";
     private static final String FIELD_DESCRIPTION = "description";
 
-    // Límites definidos por la regla de negocio
     private static final int MAX_PURPOSE_LENGTH = 30;
     private static final int MAX_DESCRIPTION_LENGTH = 200;
-
-    // Atributos inmutables del Value Object
     private final String purpose;
     private final String description;
 
@@ -32,17 +27,13 @@ public class Context {
 
     /**
      * Factory method principal para crear el Value Object validando sus reglas:
-     * - purpose no puede ser nulo, vacío, ni exceder el tamaño máximo
-     * - description es opcional, pero si viene debe respetar su límite máximo
-     * <p>
-     * Utiliza Result para propagar errores de dominio sin excepciones.
+     *
      */
     public static Result<Context, DomainError> create(String purpose, String description) {
         Result<Void, DomainError> emptyResult = Result.empty();
         emptyResult.collect(purposeValidation(purpose, FIELD_PURPOSE));
         emptyResult.collect(descriptionValidation(description, FIELD_DESCRIPTION));
 
-        // Si hubo errores de validación, los regresamos como DomainError
         if (emptyResult.isFailure()) {
             return emptyResult.castFailure();
         }
