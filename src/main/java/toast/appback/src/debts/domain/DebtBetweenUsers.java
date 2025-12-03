@@ -120,10 +120,6 @@ public class DebtBetweenUsers extends Debt {
     }
 
     public Result<Void, DomainError> confirmPayment() {
-        if (status != Status.PAYMENT_CONFIRMATION_PENDING) {
-            return Result.failure(DomainError.businessRule(buildErrorMessage("confirmPayment"))
-                    .withBusinessCode(DebtBusinessCode.DEBT_NO_ACCEPTED));
-        }
         this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
