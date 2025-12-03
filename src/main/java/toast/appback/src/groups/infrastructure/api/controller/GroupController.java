@@ -170,7 +170,8 @@ public class GroupController {
             @PathVariable("groupId") UUID groupId,
             @RequestBody EditGroupRequest request
     ) {
-        EditGroupCommand command = request.toEditGroupCommand(GroupId.load(groupId));
+        UserId userId = customUserDetails.getUserId();
+        EditGroupCommand command = request.toEditGroupCommand(GroupId.load(groupId), userId);
         GroupView groupView = editGroupService.execute(command);
         GroupResponse response = GroupResponseMapper.toGroupResponse(groupView);
         return ResponseEntity.ok(response);
