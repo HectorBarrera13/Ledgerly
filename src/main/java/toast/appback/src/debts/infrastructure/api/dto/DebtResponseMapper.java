@@ -68,14 +68,16 @@ public class DebtResponseMapper {
         );
     }
 
-    public static DebtResponse toGroupDebtResponse(GroupDebtView groupDebtView) {
-        return new DebtResponse(
-                groupDebtView.DebtId(),
-                groupDebtView.purpose(),
-                groupDebtView.description(),
-                groupDebtView.amount().longValue(),
-                groupDebtView.currency(),
-                groupDebtView.status()
+    public static DebtBetweenUsersResponse toGroupDebtResponse(DebtBetweenUsersView debt) {
+        return new DebtBetweenUsersResponse(
+                debt.debtId(),
+                debt.purpose(),
+                debt.description(),
+                debt.amount(),
+                debt.currency(),
+                debt.status()
+                , toUserSummaryResponse(debt.debtorSummary())
+                , toUserSummaryResponse(debt.creditorSummary())
         );
     }
 }
