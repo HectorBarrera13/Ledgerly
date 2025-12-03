@@ -1,6 +1,10 @@
 package toast.appback.src.groups.application;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import toast.appback.src.groups.application.communication.command.EditGroupCommand;
 import toast.appback.src.groups.application.communication.result.GroupView;
 import toast.appback.src.groups.application.usecase.implementation.EditGroupUseCase;
@@ -8,6 +12,9 @@ import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.domain.repository.GroupRepository;
 import toast.appback.src.groups.domain.vo.GroupId;
 import toast.appback.src.groups.domain.vo.GroupInformation;
+import toast.appback.src.users.domain.User;
+import toast.appback.src.users.domain.UserId;
+import toast.appback.src.users.domain.repository.UserRepository;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -15,47 +22,55 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class EditGroupTest {
+@ExtendWith(MockitoExtension.class)
+class EditGroupTest {
+
+    @Mock
+    private GroupRepository groupRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private EditGroupUseCase useCase;
 
     @Test
     void testEditGroupSuccessfully() {
-        GroupRepository groupRepository = mock(GroupRepository.class);
-        EditGroupUseCase useCase = new EditGroupUseCase(groupRepository);
-
+        // Arrange
         GroupId groupId = GroupId.generate();
+        UserId creatorId = UserId.generate();
         Group group = mock(Group.class);
+        User user = mock(User.class);
 
-        // Simula que el grupo existe en BD
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+        when(userRepository.findById(creatorId)).thenReturn(Optional.of(user));
+        when(user.getUserId()).thenReturn(creatorId);
+        when(group.getCreatorId()).thenReturn(creatorId);
 
-        // Nueva información válida del grupo
         GroupInformation updatedInfo = GroupInformation.load("Nuevo Nombre", "Nueva descripción");
 
-        // Simulamos que después de la edición,
-        // el grupo regresa la nueva información
-        when(group.getGroupInformation()).thenReturn(updatedInfo);
         when(group.getId()).thenReturn(groupId);
+        when(group.getGroupInformation()).thenReturn(updatedInfo);
         when(group.getCreatedAt()).thenReturn(Instant.now());
 
         EditGroupCommand command = new EditGroupCommand(
                 groupId,
+                creatorId,
                 "Nuevo Nombre",
                 "Nueva descripción"
         );
 
+        // Act
         GroupView result = useCase.execute(command);
 
-        // Validaciones
+        // Assert
+        assertEquals(groupId.getValue(), result.groupId());
         assertEquals("Nuevo Nombre", result.name());
         assertEquals("Nueva descripción", result.description());
-        assertEquals(groupId.getValue(), result.groupId());
 
-        // Verifica que se haya buscado el grupo
-        verify(groupRepository, times(1)).findById(groupId);
-
-        // Verifica que se haya guardado el grupo editado
-        verify(groupRepository, times(1)).save(group);
-
+        verify(groupRepository).findById(groupId);
+        verify(groupRepository).save(group);
+        verifyNoMoreInteractions(groupRepository);
     }
 }
 
