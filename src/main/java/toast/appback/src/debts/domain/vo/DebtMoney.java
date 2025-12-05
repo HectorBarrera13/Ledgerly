@@ -6,7 +6,6 @@ import toast.appback.src.shared.utils.result.Result;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Objects;
 
 /**
  * Value Object que representa el monto de una deuda junto con su moneda.
@@ -35,6 +34,10 @@ public class DebtMoney {
     /**
      * Factory method principal:
      * Valida las reglas de negocio antes de crear una instancia.
+     *
+     * @param currency Código ISO de 3 letras.
+     * @param amount   Monto en centavos (Long); se transforma a BigDecimal con escala fija.
+     * @return Result con instancia válida o DomainError con detalles de validación.
      */
     public static Result<DebtMoney, DomainError> create(String currency, Long amount) {
         Result<Void, DomainError> emptyResult = Result.empty();
@@ -86,10 +89,16 @@ public class DebtMoney {
         return new BigDecimal(unscaledAmount, scale);
     }
 
+    /**
+     * @return Código ISO de la moneda.
+     */
     public String getCurrency() {
         return currency;
     }
 
+    /**
+     * @return Monto como BigDecimal con escala fija.
+     */
     public BigDecimal getAmount() {
         return amount;
     }

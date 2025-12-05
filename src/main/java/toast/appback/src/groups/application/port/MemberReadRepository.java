@@ -10,6 +10,9 @@ import toast.model.entities.group.MemberEntity;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Puerto de lectura para consultar miembros de un grupo.
+ */
 public interface MemberReadRepository {
     PageResult<UserSummaryView, UUID> findMembersByGroupId(GroupId groupId, PageRequest pageRequest);
 

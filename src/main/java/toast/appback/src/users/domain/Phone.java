@@ -6,6 +6,13 @@ import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Objects;
 
+/**
+ * Objeto de valor que representa un número de teléfono internacional dividido en código de país y número.
+ *
+ * <p>Reglas de validación principales:
+ * - `countryCode` debe comenzar con '+' seguido de 1 a 4 dígitos.
+ * - `number` debe contener solo dígitos y tener entre 4 y 15 caracteres.
+ */
 public class Phone {
 
     private final String countryCode;
@@ -16,6 +23,13 @@ public class Phone {
         this.number = number;
     }
 
+    /**
+     * Intenta construir un {@link Phone} validado.
+     *
+     * @param countryCode Código de país (ejemplo: "+34").
+     * @param number      Número de teléfono (solo dígitos).
+     * @return Resultado con la instancia `Phone` o un `DomainError` si falla la validación.
+     */
     public static Result<Phone, DomainError> create(String countryCode, String number) {
         Result<Void, DomainError> result = Result.empty();
         result.collect(isValidCode(countryCode));
@@ -26,6 +40,15 @@ public class Phone {
         return Result.ok(new Phone(countryCode, number));
     }
 
+    /**
+     * Carga un {@link Phone} asumiendo que los valores son válidos. Lanza {@link IllegalArgumentException}
+     * si la creación falla.
+     *
+     * @param countryCode Código de país.
+     * @param number      Número de teléfono.
+     * @return Instancia `Phone` válida.
+     * @throws IllegalArgumentException Si los valores no cumplen las validaciones.
+     */
     public static Phone load(String countryCode, String number) {
         return create(countryCode, number)
                 .orElseThrow(() -> new IllegalArgumentException("invalid phone data: " + countryCode + ", " + number));
@@ -51,14 +74,23 @@ public class Phone {
         return Result.ok();
     }
 
+    /**
+     * @return Código de país, por ejemplo "+34".
+     */
     public String getCountryCode() {
         return countryCode;
     }
 
+    /**
+     * @return Número de teléfono (solo dígitos).
+     */
     public String getNumber() {
         return number;
     }
 
+    /**
+     * @return Representación combinada del teléfono: "{countryCode}-{number}".
+     */
     public String getValue() {
         return countryCode + "-" + number;
     }

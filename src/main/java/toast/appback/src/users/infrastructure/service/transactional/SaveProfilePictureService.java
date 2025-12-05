@@ -13,6 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+/**
+ * Servicio transaccional que guarda la imagen de perfil de un usuario.
+ * <p>
+ * Flujo:
+ * - Valida el tipo de media (JPEG/PNG).
+ * - Actualiza la entidad de usuario con el nombre de fichero.
+ * - Escribe el fichero en disco.
+ */
 @Service
 @RequiredArgsConstructor
 public class SaveProfilePictureService {
@@ -26,6 +34,13 @@ public class SaveProfilePictureService {
         fileStorageLocation = Paths.get(filePath).toAbsolutePath().normalize().resolve("image/profile");
     }
 
+    /**
+     * Guarda la imagen de perfil y actualiza la referencia en la base de datos.
+     *
+     * @param userId      Identificador del usuario.
+     * @param pictureData Bytes de la imagen.
+     * @param mediaType   Tipo MIME de la imagen (image/jpeg o image/png).
+     */
     @Transactional
     public void execute(UserId userId, byte[] pictureData, String mediaType) {
         // Logic to save the profile picture data, e.g., store in a file system or cloud storage

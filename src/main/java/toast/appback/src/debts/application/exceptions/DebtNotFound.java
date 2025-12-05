@@ -4,6 +4,9 @@ import toast.appback.src.shared.application.ApplicationException;
 
 import java.util.UUID;
 
+/**
+ * Excepción lanzada cuando no se encuentra una deuda por su identificador.
+ */
 public class DebtNotFound extends ApplicationException {
     private final UUID debtId;
 

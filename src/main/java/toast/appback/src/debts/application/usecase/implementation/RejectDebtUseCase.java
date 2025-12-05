@@ -17,6 +17,11 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Caso de uso que rechaza una deuda entre usuarios.
+ *
+ * <p>El actor que rechaza debe ser el deudor. Valida reglas de negocio y publica eventos.
+ */
 public class RejectDebtUseCase implements EditDebtBetweenUsersStatus {
 
     private final DebtRepository debtRepository;
@@ -33,6 +38,15 @@ public class RejectDebtUseCase implements EditDebtBetweenUsersStatus {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta el rechazo de la deuda indicada.
+     *
+     * @param command Comando con el identificador de la deuda y el actor.
+     * @return Vista {@link DebtBetweenUsersView} con el estado actualizado.
+     * @throws DebtNotFound                Si la deuda no existe.
+     * @throws UnauthorizedActionException Si el actor no tiene permisos.
+     * @throws AcceptDebtException         Si la regla de negocio impide el rechazo.
+     */
     @Override
     public DebtBetweenUsersView execute(EditDebtStatusCommand command) {
         //Comprobar que la deuda existe

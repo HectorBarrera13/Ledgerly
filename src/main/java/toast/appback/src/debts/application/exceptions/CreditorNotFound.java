@@ -4,6 +4,9 @@ import toast.appback.src.shared.application.ApplicationException;
 
 import java.util.UUID;
 
+/**
+ * Excepción lanzada cuando no se encuentra el usuario acreedor requerido por una operación.
+ */
 public class CreditorNotFound extends ApplicationException {
     private final UUID creditorId;
 

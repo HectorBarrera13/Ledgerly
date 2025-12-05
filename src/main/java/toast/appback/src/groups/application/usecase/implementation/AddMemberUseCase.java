@@ -16,6 +16,15 @@ import toast.appback.src.users.domain.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Caso de uso que agrega miembros a un grupo existente.
+ * <p>
+ * Responsabilidades principales:
+ * - Verificar que el grupo exista.
+ * - Verificar que el actor que realiza la acción exista y tenga permisos (actualmente, solo el creador puede agregar miembros).
+ * - Validar cada usuario a agregar y persistir la membresía si no existe (evitar duplicados).
+ * - Devolver las vistas de usuario de los miembros que realmente fueron añadidos.
+ */
 public class AddMemberUseCase implements AddMember {
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
@@ -31,6 +40,18 @@ public class AddMemberUseCase implements AddMember {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Ejecuta la operación de agregar miembros al grupo.
+     *
+     * @param command Comando con `groupId`, `actorId` y la lista `membersId` a agregar.
+     * @return Lista de {@link UserView} representando los miembros que fueron efectivamente añadidos.
+     * @throws GroupNotFound      Si el grupo indicado no existe.
+     * @throws UserNotFound       Si el actor o alguno de los usuarios a agregar no existe.
+     * @throws AddMemberException Si el actor no tiene permisos para agregar miembros u ocurre otra regla de negocio.
+     *                            <p>
+     *                            Notas:
+     *                            - Si un miembro ya existe en el grupo, se omite y no se incluye en la lista de retorno.
+     */
     @Override
     public List<UserView> execute(AddMemberCommand command) {
         Group group = groupRepository.findById(command.groupId())
@@ -40,19 +61,19 @@ public class AddMemberUseCase implements AddMember {
                 .orElseThrow(() -> new UserNotFound(command.actorId())); // Valida actor
 
         boolean isActorCreator = actor.getUserId().equals(group.getCreatorId()); // Solo el creador puede agregar
-        if(!isActorCreator) {
+        if (!isActorCreator) {
             throw new AddMemberException("Only the group creator can add members");
         }
 
         List<UserView> newMembers = new ArrayList<>();
 
-        for(var memberId : command.membersId()) {
+        for (var memberId : command.membersId()) {
             User user = userRepository.findById(memberId)
                     .orElseThrow(() -> new UserNotFound(memberId)); // Valida cada usuario
 
             GroupMember groupMember = GroupMember.create(group.getId(), user.getUserId()); // Crea membresía
 
-            if (memberRepository.exists(group.getId(), groupMember)){
+            if (memberRepository.exists(group.getId(), groupMember)) {
                 continue; // Evita duplicados
             }
 

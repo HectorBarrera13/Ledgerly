@@ -19,6 +19,14 @@ import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso que crea una deuda rápida (QuickDebt).
+ *
+ * <p>Responsabilidades:
+ * - Validar los Value Objects (monto, contexto, rol, target user).
+ * - Comprobar que el usuario creador existe.
+ * - Crear la entidad {@link QuickDebt}, persistirla y devolver una vista pública.
+ */
 public class CreateQuickDebtUseCase implements CreateQuickDebt {
 
     private final UserRepository userRepository;
@@ -29,6 +37,14 @@ public class CreateQuickDebtUseCase implements CreateQuickDebt {
         this.debtRepository = debtRepository;
     }
 
+    /**
+     * Ejecuta la creación de una deuda rápida.
+     *
+     * @param command Comando con los datos necesarios para crear la deuda (propósito, descripción, moneda, monto, userId, rol, targetUserName).
+     * @return {@link QuickDebtView} vista pública de la deuda creada.
+     * @throws UserNotFound          Si el usuario creador no existe.
+     * @throws CreationDebtException Si alguno de los Value Objects no cumple las reglas de validación.
+     */
     @Override
     public QuickDebtView execute(CreateQuickDebtCommand command) {
         //Comprobar que el usuario existe

@@ -7,21 +7,21 @@ import toast.appback.src.debts.domain.vo.Context;
 import toast.appback.src.debts.domain.vo.DebtId;
 import toast.appback.src.debts.domain.vo.DebtMoney;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * Entidad de deuda entre usuarios.
- * - Tiene un deudor y un acreedor (ambos usuarios).
+ * - Tiene un deudor y un acreedor (ambos usuarios identificados por {@link UserId}).
+ * <p>
+ * Comportamiento:
+ * - Aceptar, rechazar, reenviar, reportar/confirmar pago y editar campos mientras esté en estado permitido.
  */
-
 public class DebtBetweenUsers extends Debt {
-    private UserId idDebtor;
-    private UserId idCreditor;
+    private final UserId idDebtor;
+    private final UserId idCreditor;
 
     /**
      * Constructor base para creación desde lógica de dominio (estado inicial PENDING, fecha now()).
@@ -45,18 +45,9 @@ public class DebtBetweenUsers extends Debt {
     }
 
     /**
-     * Constructor usado para reconstruir desde persistencia incluyendo eventos previos.
-     */
-    private DebtBetweenUsers(DebtId id, Context context, DebtMoney debtMoney,
-                             UserId idDebtor, UserId idCreditor, List<DomainEvent> debtEvents) {
-        super(id, context, debtMoney, Instant.now(), debtEvents);
-        this.idDebtor = idDebtor;
-        this.idCreditor = idCreditor;
-    }
-
-    /**
      * Factory method para creación de una deuda entre usuarios.
      * - Genera un nuevo ID
+     * - Registra el evento {@link DebtCreated}
      */
     public static DebtBetweenUsers create(Context context, DebtMoney debtMoney, UserId idDebtor, UserId idCreditor) {
         DebtId debtId = DebtId.generate();
@@ -75,6 +66,10 @@ public class DebtBetweenUsers extends Debt {
         return new DebtBetweenUsers(id, context, debtMoney, idDebtor, idCreditor, status);
     }
 
+    /**
+     * Acepta la deuda si está en estado {@link Status#PENDING}.
+     * Registra {@link DebtAccepted} al cambiar el estado.
+     */
     public Result<Void, DomainError> accept() {
         boolean isPending = status == Status.PENDING;
         if (!isPending) {
@@ -86,6 +81,10 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
+    /**
+     * Rechaza la deuda si está en estado {@link Status#PENDING}.
+     * Registra {@link DebtRejected} al cambiar el estado.
+     */
     public Result<Void, DomainError> reject() {
         boolean isPending = status == Status.PENDING;
         if (!isPending) {
@@ -97,6 +96,9 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
+    /**
+     * Reenvía una deuda previamente rechazada (vuelve a estado {@link Status#PENDING}).
+     */
     public Result<Void, DomainError> resend() {
         boolean isDebtRejected = status == Status.REJECTED;
         if (!isDebtRejected) {
@@ -107,6 +109,9 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
+    /**
+     * Reporta que se ha realizado un pago, iniciando el flujo de confirmación de pago.
+     */
     public Result<Void, DomainError> reportPayment() {
         boolean isDebtAccepted = status == Status.ACCEPTED;
         boolean isDebtPaymentRejected = status == Status.PAYMENT_CONFIRMATION_REJECTED;
@@ -119,11 +124,17 @@ public class DebtBetweenUsers extends Debt {
         return Result.ok();
     }
 
+    /**
+     * Confirma el pago (estado {@link Status#PAYMENT_CONFIRMED}).
+     */
     public Result<Void, DomainError> confirmPayment() {
         this.status = Status.PAYMENT_CONFIRMED;
         return Result.ok();
     }
 
+    /**
+     * Rechaza la confirmación de pago (estado {@link Status#PAYMENT_CONFIRMATION_REJECTED}).
+     */
     public Result<Void, DomainError> rejectPayment() {
         boolean isPaymentReported = status == Status.PAYMENT_CONFIRMATION_PENDING;
         if (!isPaymentReported) {
@@ -170,10 +181,16 @@ public class DebtBetweenUsers extends Debt {
         return "A debt with status " + status.name() + " cannot be " + action;
     }
 
+    /**
+     * @return Identificador del acreedor.
+     */
     public UserId getCreditorId() {
         return idCreditor;
     }
 
+    /**
+     * @return Identificador del deudor.
+     */
     public UserId getDebtorId() {
         return idDebtor;
     }

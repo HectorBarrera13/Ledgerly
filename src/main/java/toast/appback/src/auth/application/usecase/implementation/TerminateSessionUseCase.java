@@ -9,6 +9,11 @@ import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 import toast.appback.src.shared.application.DomainEventBus;
 
+/**
+ * Implementación del caso de uso que termina (revoca) una sesión a partir de un token.
+ *
+ * <p>Extrae las claims (sin validación estricta), revoca la sesión indicada y publica eventos.
+ */
 public class TerminateSessionUseCase implements TerminateSession {
     private final TokenService tokenService;
     private final AccountRepository accountRepository;
@@ -22,6 +27,13 @@ public class TerminateSessionUseCase implements TerminateSession {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta la terminación de sesión.
+     *
+     * @param accessToken Token (o identificador) que contiene la sesión a terminar.
+     * @throws InvalidClaimsException Si las claims no corresponden a una cuenta válida.
+     * @throws RevokeSessionException Si la revocación falla por reglas de negocio.
+     */
     @Override
     public void execute(String accessToken) {
         TokenClaims tokenClaims = tokenService.extractClaimsFromAccessTokenUnsafe(accessToken);

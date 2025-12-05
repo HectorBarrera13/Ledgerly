@@ -3,6 +3,9 @@ package toast.appback.src.auth.domain;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Objeto de valor que envuelve un {@link UUID} para identificar de forma única una sesión.
+ */
 public class SessionId {
 
     private final UUID value;
@@ -11,16 +14,30 @@ public class SessionId {
         this.value = value;
     }
 
-    public UUID getValue() {
-        return value;
-    }
-
+    /**
+     * Carga un {@link SessionId} existente a partir de un UUID.
+     *
+     * @param uuid UUID existente.
+     * @return SessionId que envuelve el UUID.
+     */
     public static SessionId load(UUID uuid) {
         return new SessionId(uuid);
     }
 
+    /**
+     * Genera un nuevo {@link SessionId} único.
+     *
+     * @return Nuevo SessionId.
+     */
     public static SessionId generate() {
         return new SessionId(UUID.randomUUID());
+    }
+
+    /**
+     * @return El valor {@link UUID} subyacente.
+     */
+    public UUID getValue() {
+        return value;
     }
 
     @Override

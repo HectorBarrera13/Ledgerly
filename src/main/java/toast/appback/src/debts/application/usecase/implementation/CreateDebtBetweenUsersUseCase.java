@@ -18,6 +18,14 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso para crear una deuda entre dos usuarios registrados.
+ *
+ * <p>Responsabilidades:
+ * - Comprobar existencia de deudor y acreedor.
+ * - Validar Value Objects (contexto y monto).
+ * - Crear la entidad {@link DebtBetweenUsers}, persistirla y publicar eventos de dominio.
+ */
 public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
 
     private final UserRepository userRepository;
@@ -34,6 +42,15 @@ public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta la creación de una deuda entre usuarios.
+     *
+     * @param command Comando con datos del propósito, monto y los IDs de los dos usuarios.
+     * @return {@link DebtBetweenUsersView} vista pública de la deuda creada.
+     * @throws DebtorNotFound        Si el usuario deudor no existe.
+     * @throws CreditorNotFound      Si el usuario acreedor no existe.
+     * @throws CreationDebtException Si alguno de los Value Objects no cumple las reglas de validación.
+     */
     @Override
     public DebtBetweenUsersView execute(CreateDebtBetweenUsersCommand command) {
         //Comprobamos que existan los usuarios
@@ -93,4 +110,3 @@ public class CreateDebtBetweenUsersUseCase implements CreateDebtBetweenUsers {
         );
     }
 }
-

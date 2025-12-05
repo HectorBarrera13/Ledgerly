@@ -26,6 +26,14 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
 
+/**
+ * Servicio para generar y validar JSON Web Tokens (JWT) de acceso y refresh.
+ *
+ * <p>Responsabilidades:
+ * - Generar access y refresh tokens firmados con HS256.
+ * - Extraer y validar claims desde tokens (modo seguro y no seguro para tokens expirados).
+ * - Publicar excepciones específicas del dominio cuando el token es inválido o expirado.
+ */
 @Service
 @RequiredArgsConstructor
 public class JWTService implements TokenService {
@@ -53,6 +61,12 @@ public class JWTService implements TokenService {
         this.jwtParser = Jwts.parser().verifyWith(secretKey).build();
     }
 
+    /**
+     * Genera un access token JWT válido por un período específico.
+     *
+     * @param tokenClaims información del token (accountId, userId, sessionId).
+     * @return Jwt objeto que contiene el token y su fecha de expiración.
+     */
     @Override
     public Jwt generateAccessToken(TokenClaims tokenClaims) {
         return getJwt(tokenClaims, accessExpirationInSeconds, TOKEN_TYPE_ACCESS);
@@ -62,6 +76,12 @@ public class JWTService implements TokenService {
         return getJwt(tokenClaims, refreshExpirationInSeconds, "refresh");
     }
 
+    /**
+     * Genera un par de tokens (access y refresh) JWT para un usuario.
+     *
+     * @param tokenClaims información del token (accountId, userId, sessionId).
+     * @return Tokens objeto que contiene ambos tokens.
+     */
     @Override
     public Tokens generateTokens(TokenClaims tokenClaims) {
         Jwt accessToken = generateAccessToken(tokenClaims);
@@ -80,6 +100,14 @@ public class JWTService implements TokenService {
         );
     }
 
+    /**
+     * Extrae claims de un refresh token (modo seguro: lanza si expirado/invalid).
+     *
+     * @param refreshToken token JWT del tipo refresh.
+     * @return {@link TokenClaims} con accountId, userId y sessionId.
+     * @throws TokenClaimsException  si el token es inválido o no corresponde al tipo refresh.
+     * @throws TokenExpiredException si el token ha expirado.
+     */
     @Override
     public TokenClaims extractClaimsFromRefreshToken(String refreshToken) {
         String type = extractClaim(refreshToken,
@@ -90,6 +118,14 @@ public class JWTService implements TokenService {
         return getTokenClaims(refreshToken, true);
     }
 
+    /**
+     * Extrae claims de un access token (modo seguro: lanza si expirado/invalid).
+     *
+     * @param accessToken token JWT de acceso.
+     * @return {@link TokenClaims} con accountId, userId y sessionId.
+     * @throws TokenClaimsException  si el token es inválido o no corresponde al tipo access.
+     * @throws TokenExpiredException si el token ha expirado.
+     */
     @Override
     public TokenClaims extractClaimsFromAccessToken(String accessToken) {
         String type = extractClaim(accessToken,
@@ -100,6 +136,14 @@ public class JWTService implements TokenService {
         return getTokenClaims(accessToken, true);
     }
 
+    /**
+     * Extrae claims de un access token en modo no seguro: si el token está expirado, devuelve los claims
+     * contenidos en la excepción de expiración en lugar de lanzar.
+     *
+     * @param refreshToken token JWT de acceso (posiblemente expirado).
+     * @return {@link TokenClaims} con accountId, userId y sessionId.
+     * @throws TokenClaimsException si el token es inválido o no corresponde al tipo access.
+     */
     @Override
     public TokenClaims extractClaimsFromAccessTokenUnsafe(String refreshToken) {
         String type = extractClaim(refreshToken,

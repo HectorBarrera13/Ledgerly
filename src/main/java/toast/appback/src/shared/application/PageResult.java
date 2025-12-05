@@ -1,24 +1,39 @@
 package toast.appback.src.shared.application;
 
-import java.util.List;
-import java.util.function.Function;
-
+/**
+ * Contenedor para resultados paginados.
+ *
+ * @param items      Lista de elementos de la página.
+ * @param nextCursor Cursor para obtener la siguiente página.
+ * @param <T>        Tipo de elementos.
+ * @param <C>        Tipo del cursor.
+ */
 public record PageResult<T, C>(
-        List<T> items,
+        java.util.List<T> items,
         C nextCursor
 ) {
+    /**
+     * Número de elementos en la página.
+     */
     public long itemCount() {
-        return items.size();
+        return items().size();
     }
 
+    /**
+     * Indica si la página está vacía.
+     */
     public boolean isEmpty() {
-        return items.isEmpty();
+        return items().isEmpty();
     }
 
-    public <R> PageResult<R, C> mapItems(Function<? super T, R> mapper) {
-        List<R> mappedItems = items.stream()
-                .map(mapper)
-                .toList();
+    /**
+     * Transforma los elementos de la página aplicando el mapeador y conservando el mismo cursor.
+     */
+    public <R> PageResult<R, C> mapItems(java.util.function.Function<? super T, R> mapper) {
+        java.util.List<R> mappedItems = new java.util.ArrayList<R>();
+        for (T item : items()) {
+            mappedItems.add(mapper.apply(item));
+        }
         return new PageResult<>(mappedItems, nextCursor);
     }
 }

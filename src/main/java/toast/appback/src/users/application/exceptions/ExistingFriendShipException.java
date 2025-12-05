@@ -5,6 +5,9 @@ import toast.appback.src.users.domain.UserId;
 
 import java.util.UUID;
 
+/**
+ * Excepción lanzada cuando ya existe una relación de amistad entre dos usuarios.
+ */
 public class ExistingFriendShipException extends ApplicationException {
     private static final String TEMPLATE_MESSAGE = "friendship already exists between users with ids %s and %s.";
     private static final String FRIENDLY_MESSAGE = "friendship already exists between the users.";
@@ -17,10 +20,16 @@ public class ExistingFriendShipException extends ApplicationException {
         this.receiverUser = receiverUser.getValue();
     }
 
+    /**
+     * @return Identificador del usuario que inició la solicitud.
+     */
     public UserId getRequestUser() {
         return UserId.load(requestUser);
     }
 
+    /**
+     * @return Identificador del usuario receptor.
+     */
     public UserId getReceiverUser() {
         return UserId.load(receiverUser);
     }

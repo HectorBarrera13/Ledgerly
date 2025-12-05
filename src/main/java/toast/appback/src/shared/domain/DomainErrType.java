@@ -4,6 +4,9 @@ import toast.appback.src.shared.errors.ErrorTypeV;
 
 import java.util.Optional;
 
+/**
+ * Tipos genéricos de error de dominio para categorizar fallos: validación, negocio o inesperados.
+ */
 public enum DomainErrType implements ErrorTypeV {
     VALIDATION_ERROR,
     BUSINESS_RULE_VIOLATION,

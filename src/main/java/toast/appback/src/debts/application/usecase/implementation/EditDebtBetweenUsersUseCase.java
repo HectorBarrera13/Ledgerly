@@ -18,6 +18,13 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso para editar una deuda entre usuarios.
+ *
+ * <p>Responsabilidades:
+ * - Validar los Value Objects nuevos.
+ * - Aplicar la edición y persistir, publicando los eventos de dominio.
+ */
 public class EditDebtBetweenUsersUseCase implements EditDebtBetweenUsers {
 
     private final DebtRepository debtRepository;
@@ -34,6 +41,14 @@ public class EditDebtBetweenUsersUseCase implements EditDebtBetweenUsers {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Ejecuta la edición de una deuda entre usuarios.
+     *
+     * @param command Comando con el identificador de la deuda y los nuevos campos.
+     * @return {@link DebtBetweenUsersView} vista actualizada.
+     * @throws DebtNotFound      Si la deuda o los usuarios involucrados no se encuentran.
+     * @throws EditDebtException Si alguna validación o regla de negocio impide la edición.
+     */
     @Override
     public DebtBetweenUsersView execute(EditDebtCommand command) {
         //Comprobar si la deuda existe

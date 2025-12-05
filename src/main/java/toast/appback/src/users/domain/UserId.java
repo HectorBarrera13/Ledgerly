@@ -3,6 +3,12 @@ package toast.appback.src.users.domain;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Objeto de valor que envuelve un {@link UUID} para identificar de forma única a un usuario.
+ *
+ * <p>Notas:
+ * - Proporciona fábricas para generar un nuevo identificador (`generate`) o cargar uno existente (`load`).
+ */
 public class UserId {
 
     private final UUID value;
@@ -11,16 +17,30 @@ public class UserId {
         this.value = value;
     }
 
-    public UUID getValue() {
-        return value;
-    }
-
+    /**
+     * Genera un nuevo {@link UserId} con un UUID aleatorio.
+     *
+     * @return Nuevo `UserId` único.
+     */
     public static UserId generate() {
         return new UserId(UUID.randomUUID());
     }
 
+    /**
+     * Crea un {@link UserId} a partir de un {@link UUID} existente.
+     *
+     * @param uuid UUID existente.
+     * @return `UserId` que envuelve el UUID dado.
+     */
     public static UserId load(UUID uuid) {
         return new UserId(uuid);
+    }
+
+    /**
+     * @return El valor {@link UUID} subyacente.
+     */
+    public UUID getValue() {
+        return value;
     }
 
     @Override

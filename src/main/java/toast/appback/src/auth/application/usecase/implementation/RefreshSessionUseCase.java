@@ -10,6 +10,11 @@ import toast.appback.src.auth.domain.Account;
 import toast.appback.src.auth.domain.SessionId;
 import toast.appback.src.auth.domain.repository.AccountRepository;
 
+/**
+ * Implementación del caso de uso que renueva un access token a partir de un refresh token.
+ *
+ * <p>Extrae claims, verifica la sesión y genera un nuevo access token.
+ */
 public class RefreshSessionUseCase implements RefreshSession {
     private final TokenService tokenService;
     private final AccountRepository accountRepository;
@@ -20,6 +25,14 @@ public class RefreshSessionUseCase implements RefreshSession {
         this.accountRepository = accountRepository;
     }
 
+    /**
+     * Ejecuta la renovación del access token.
+     *
+     * @param refreshToken Token de refresco.
+     * @return Nuevo JWT de acceso.
+     * @throws InvalidClaimsException  Si las claims no se pueden resolver a una cuenta válida.
+     * @throws InvalidSessionException Si la sesión indicada no es válida.
+     */
     @Override
     public Jwt execute(String refreshToken) {
         TokenClaims tokenClaims = tokenService.extractClaimsFromRefreshToken(refreshToken);

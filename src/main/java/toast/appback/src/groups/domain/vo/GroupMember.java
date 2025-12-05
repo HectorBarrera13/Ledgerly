@@ -21,6 +21,9 @@ public class GroupMember {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Crea un nuevo miembro de grupo y registra el evento {@link GroupMemberAdded}.
+     */
     public static GroupMember create(GroupId groupId, UserId userId) {
         Instant now = Instant.now();
         GroupMember groupMember = new GroupMember(groupId, userId, now);
@@ -65,4 +68,3 @@ public class GroupMember {
         return memberEvents;
     }
 }
-

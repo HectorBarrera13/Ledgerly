@@ -8,6 +8,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Value Object que enlaza una deuda (`DebtId`) con un grupo (`GroupId`).
+ * <p>
+ * Registra eventos de dominio cuando se asocia una deuda al grupo.
+ */
 public class GroupDebt {
     private final GroupId groupId;
     private final DebtId debtId;
@@ -20,6 +25,9 @@ public class GroupDebt {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Crea una asociación entre grupo y deuda y registra {@link GroupDebtAdded}.
+     */
     public static GroupDebt create(GroupId groupId, DebtId debtId) {
         Instant now = Instant.now();
         GroupDebt grupalDebt = new GroupDebt(groupId, debtId, now);

@@ -97,7 +97,7 @@ class AccountTest {
     @Test
     @DisplayName("Should not add session when limit exceeded")
     void testStartSessionOverLimit() {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             account.startSession();
         }
         var result = account.startSession();

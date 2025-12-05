@@ -5,7 +5,6 @@ import toast.appback.src.groups.application.exceptions.CreationGroupException;
 import toast.appback.src.groups.application.usecase.contract.CreateGroup;
 import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.domain.repository.GroupRepository;
-import toast.appback.src.groups.domain.repository.MemberRepository;
 import toast.appback.src.groups.domain.vo.GroupInformation;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
@@ -13,21 +12,34 @@ import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso para crear un nuevo grupo.
+ * <p>
+ * Responsabilidades:
+ * - Validar la información del grupo mediante {@link GroupInformation}.
+ * - Verificar que el usuario creador exista.
+ * - Persistir la entidad {@link Group} y devolverla.
+ */
 public class CreateGroupUseCase implements CreateGroup {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-    private final MemberRepository memberRepository;
 
     public CreateGroupUseCase(
             GroupRepository groupRepository,
-            UserRepository userRepository,
-            MemberRepository memberRepository
+            UserRepository userRepository
     ) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
-        this.memberRepository = memberRepository;
     }
 
+    /**
+     * Ejecuta la creación de un grupo.
+     *
+     * @param command Comando con los campos necesarios para crear el grupo (name, description, creatorId).
+     * @return {@link Group} entidad creada y persistida.
+     * @throws UserNotFound           Si el usuario creador no existe.
+     * @throws CreationGroupException Si la validación de {@link GroupInformation} falla.
+     */
     @Override
     public Group execute(CreateGroupCommand command) {
         User creator = userRepository.findById(command.creatorId())

@@ -1,5 +1,8 @@
 package toast.appback.src.shared.domain;
 
+/**
+ * Enumeración de tipos de validadores/errores de validación para clasificar resultados.
+ */
 public enum ValidatorType {
     EMPTY_VALUE,
     EMPTY_COLLECTION,

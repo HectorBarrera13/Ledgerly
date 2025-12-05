@@ -18,6 +18,12 @@ import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.application.port.UserReadRepository;
 
+/**
+ * Implementación del caso de uso que autentica una cuenta (login).
+ *
+ * <p>Valida que exista la cuenta, delega la validación de credenciales a {@link AuthService},
+ * inicia una nueva sesión y genera tokens JWT.
+ */
 public class AuthenticateAccountUseCase implements AuthenticateAccount {
     private final TokenService tokenService;
     private final AuthService authService;
@@ -37,6 +43,13 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta el flujo de autenticación.
+     *
+     * @param command Comando con credenciales.
+     * @return {@link AuthResult} con vistas y tokens.
+     * @throws AccountNotFoundException Si no existe la cuenta.
+     */
     @Override
     public AuthResult execute(AuthenticateAccountCommand command) {
         Account account = accountRepository.findByEmail(command.email())
@@ -45,7 +58,7 @@ public class AuthenticateAccountUseCase implements AuthenticateAccount {
         authService.authenticate(command);
 
         Session newSession = account.startSession()
-                        .orElseThrow(SessionStartException::new);
+                .orElseThrow(SessionStartException::new);
 
         Tokens tokens = tokenService.generateTokens(
                 new TokenClaims(
