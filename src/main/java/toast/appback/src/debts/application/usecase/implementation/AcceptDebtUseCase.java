@@ -60,6 +60,7 @@ public class AcceptDebtUseCase implements EditDebtBetweenUsersStatus {
                 debtorName.getFirstName(),
                 debtorName.getLastName()
         );
+
         UserSummaryView creditorSummary = new UserSummaryView(
                 creditor.getUserId().getValue(),
                 creditorName.getFirstName(),

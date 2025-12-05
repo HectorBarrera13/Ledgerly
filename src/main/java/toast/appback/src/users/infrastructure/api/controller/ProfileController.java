@@ -3,7 +3,9 @@ package toast.appback.src.users.infrastructure.api.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import toast.appback.src.auth.application.communication.result.AccountView;
 import toast.appback.src.auth.application.port.AccountReadRepository;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class ProfileController {
     private final UserReadRepository userReadRepository;
     private final AccountReadRepository accountReadRepository;
+    private final UserResponseMapper userResponseMapper;
 
     @GetMapping()
     public ResponseEntity<ProfileResponse> getProfile(
@@ -33,7 +36,7 @@ public class ProfileController {
         if (userView.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        ProfileResponse profileResponse = UserResponseMapper.toProfileResponse(accountView.get(), userView.get());
+        ProfileResponse profileResponse = userResponseMapper.toProfileResponse(accountView.get(), userView.get());
         return ResponseEntity.ok(profileResponse);
     }
 }

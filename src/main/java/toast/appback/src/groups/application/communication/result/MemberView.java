@@ -9,7 +9,8 @@ public record MemberView(
         String firstName,
         String lastName,
         String phone
-) implements CursorIdentifiable<UUID>{
+
+) implements CursorIdentifiable<UUID> {
     @Override
     public UUID getCursorId() {
         return this.userId;

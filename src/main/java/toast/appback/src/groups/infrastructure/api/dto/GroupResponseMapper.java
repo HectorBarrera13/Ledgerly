@@ -1,11 +1,10 @@
 package toast.appback.src.groups.infrastructure.api.dto;
 
+import toast.appback.src.debts.infrastructure.api.dto.response.UserSummaryResponse;
 import toast.appback.src.groups.application.communication.result.GroupView;
 import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.infrastructure.api.dto.response.GroupDetailResponse;
 import toast.appback.src.groups.infrastructure.api.dto.response.GroupResponse;
-import toast.appback.src.users.application.communication.result.UserView;
-import toast.appback.src.users.infrastructure.api.dto.UserResponseMapper;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public class GroupResponseMapper {
     private GroupResponseMapper() {
     }
 
-    public static GroupDetailResponse toGroupDetailResponse(Group group, List<UserView> users) {
+    public static GroupDetailResponse toGroupDetailResponse(Group group, List<UserSummaryResponse> users) {
         GroupResponse groupResponse = new GroupResponse(
                 group.getId().getValue(),
                 group.getCreatorId().getValue(),
@@ -25,13 +24,21 @@ public class GroupResponseMapper {
 
         return new GroupDetailResponse(
                 groupResponse,
-                users.stream()
-                        .map(UserResponseMapper::toUserResponse)
-                        .toList()
+                users
         );
     }
 
-    public static GroupDetailResponse toGroupDetailResponse(GroupView groupView, List<UserView> users) {
+    public static GroupResponse toGroupResponse(Group group) {
+        return new GroupResponse(
+                group.getId().getValue(),
+                group.getCreatorId().getValue(),
+                group.getGroupInformation().getName(),
+                group.getGroupInformation().getDescription(),
+                group.getCreatedAt()
+        );
+    }
+
+    public static GroupDetailResponse toGroupDetailResponse(GroupView groupView, List<UserSummaryResponse> users) {
         GroupResponse groupResponse = new GroupResponse(
                 groupView.groupId(),
                 groupView.creatorId(),
@@ -42,9 +49,7 @@ public class GroupResponseMapper {
 
         return new GroupDetailResponse(
                 groupResponse,
-                users.stream()
-                        .map(UserResponseMapper::toUserResponse)
-                        .toList()
+                users
         );
     }
 

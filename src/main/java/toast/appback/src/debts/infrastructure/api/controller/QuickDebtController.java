@@ -33,16 +33,17 @@ public class QuickDebtController {
     private final EditQuickDebtStatus settleQuickDebt;
     private final CreateQuickDebt createQuickDebt;
     private final EditQuickDebtService editQuickDebt;
+    private final DebtResponseMapper debtResponseMapper;
 
     @PostMapping
     public ResponseEntity<QuickDebtResponse> createQuickDebt(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CreateQuickDebtRequest createQuickDebtRequest
-            ) {
+    ) {
         UserId userId = customUserDetails.getUserId();
         CreateQuickDebtCommand command = createQuickDebtRequest.toCreateQuickDebtCommand(userId);
         QuickDebtView debtView = createQuickDebt.execute(command);
-        QuickDebtResponse debtResponse = DebtResponseMapper.toQuickDebtResponse(debtView);
+        QuickDebtResponse debtResponse = debtResponseMapper.toQuickDebtResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -55,7 +56,7 @@ public class QuickDebtController {
         QuickDebtView debtView = quickDebtReadRepository.findById(requiredDebtId).orElseThrow(
                 () -> new IllegalArgumentException("Debt not found")
         );
-        QuickDebtResponse debtResponse = DebtResponseMapper.toQuickDebtResponse(debtView);
+        QuickDebtResponse debtResponse = debtResponseMapper.toQuickDebtResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -68,7 +69,7 @@ public class QuickDebtController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         QuickDebtView debtView = settleQuickDebt.execute(command);
-        QuickDebtResponse debtResponse = DebtResponseMapper.toQuickDebtResponse(debtView);
+        QuickDebtResponse debtResponse = debtResponseMapper.toQuickDebtResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -82,11 +83,11 @@ public class QuickDebtController {
         UserId userId = customUserDetails.getUserId();
         List<QuickDebtResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = quickDebtReadRepository.getQuickDebts(userId, role,limit+1)
-                    .stream().map(DebtResponseMapper::toQuickDebtResponse).toList();
+            debtsContent = quickDebtReadRepository.getQuickDebts(userId, role, limit + 1)
+                    .stream().map(debtResponseMapper::toQuickDebtResponse).toList();
         } else {
             debtsContent = quickDebtReadRepository.getQuickDebtsAfterCursor(userId, role, cursor, limit + 1)
-                    .stream().map(DebtResponseMapper::toQuickDebtResponse).toList();
+                    .stream().map(debtResponseMapper::toQuickDebtResponse).toList();
         }
         if (debtsContent.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -113,7 +114,7 @@ public class QuickDebtController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtCommand command = request.toEditDebtCommand(userId, requiredDebtId);
         QuickDebtView debtView = editQuickDebt.execute(command);
-        QuickDebtResponse debtResponse = DebtResponseMapper.toQuickDebtResponse(debtView);
+        QuickDebtResponse debtResponse = debtResponseMapper.toQuickDebtResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 }
