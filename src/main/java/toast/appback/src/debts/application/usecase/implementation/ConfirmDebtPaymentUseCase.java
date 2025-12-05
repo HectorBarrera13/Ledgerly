@@ -17,6 +17,11 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Caso de uso que confirma el pago reportado por el deudor (aceptado por el acreedor).
+ *
+ * <p>El actor debe ser el acreedor; el agregado valida reglas y publica eventos de confirmación.
+ */
 public class ConfirmDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
     private final DebtRepository debtRepository;
     private final UserRepository userRepository;
@@ -32,6 +37,16 @@ public class ConfirmDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta la confirmación de pago para una deuda entre usuarios.
+     *
+     * @param command Comando con la deuda y el actor que confirma el pago.
+     * @return {@link DebtBetweenUsersView} con el estado actualizado.
+     * @throws DebtNotFound                Si la deuda no existe.
+     * @throws UnauthorizedActionException Si el actor no es el acreedor.
+     * @throws DebtorNotFound              Si el usuario deudor no existe.
+     * @throws AcceptDebtException         Si el agregado impide la confirmación.
+     */
     @Override
     public DebtBetweenUsersView execute(EditDebtStatusCommand command) {
         //comprombamos que la deuda existe

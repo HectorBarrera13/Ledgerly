@@ -16,6 +16,14 @@ import toast.appback.src.users.domain.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Caso de uso para crear una deuda asociada a un grupo (convierte el comando grupal en múltiples deudas entre usuarios).
+ * <p>
+ * Flujo principal:
+ * - Valida existencia del grupo y del usuario acreedor.
+ * - Para cada deudor en el comando, valida el usuario, crea la deuda entre usuarios mediante el caso de uso
+ * {@link CreateDebtBetweenUsers} y asocia la deuda creada al grupo mediante {@link GroupDebt}.
+ */
 public class CreateGroupDebtUseCase implements AddGroupDebt {
     private final GroupDebtRepository groupDebtRepository;
     private final GroupRepository groupRepository;
@@ -29,6 +37,13 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
         this.createDebtBetweenUsers = createDebtBetweenUsers;
     }
 
+    /**
+     * Ejecuta la creación de deudas grupales y retorna las vistas de las deudas creadas.
+     *
+     * @param command Comando que contiene groupId, creditorId, propósito, moneda y la lista de deudores con montos.
+     * @return Lista de {@link DebtBetweenUsersView} con las deudas creadas y asociadas al grupo.
+     * @throws IllegalArgumentException Si el grupo o algún usuario (acreedor o deudor) no existe.
+     */
     @Override
     public List<DebtBetweenUsersView> execute(AddGroupDebtCommand command) {
         // Valida grupo existente
@@ -71,4 +86,3 @@ public class CreateGroupDebtUseCase implements AddGroupDebt {
         return debts;
     }
 }
-

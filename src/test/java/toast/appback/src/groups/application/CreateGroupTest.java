@@ -7,8 +7,6 @@ import toast.appback.src.groups.application.exceptions.CreationGroupException;
 import toast.appback.src.groups.application.usecase.implementation.CreateGroupUseCase;
 import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.domain.repository.GroupRepository;
-import toast.appback.src.groups.domain.repository.MemberRepository;
-import toast.appback.src.groups.domain.vo.GroupInformation;
 import toast.appback.src.users.application.exceptions.UserNotFound;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.UserId;
@@ -23,16 +21,14 @@ public class CreateGroupTest {
 
     private GroupRepository groupRepository;
     private UserRepository userRepository;
-    private MemberRepository memberRepository;
     private CreateGroupUseCase useCase;
 
     @BeforeEach
     void setup() {
         groupRepository = mock(GroupRepository.class);
         userRepository = mock(UserRepository.class);
-        memberRepository = mock(MemberRepository.class);
 
-        useCase = new CreateGroupUseCase(groupRepository, userRepository, memberRepository);
+        useCase = new CreateGroupUseCase(groupRepository, userRepository);
     }
 
     @Test
@@ -89,7 +85,7 @@ public class CreateGroupTest {
 
         // Nombre inválido (vacío)
         CreateGroupCommand command = new CreateGroupCommand(
-                 "", "Descripción", creatorId
+                "", "Descripción", creatorId
         );
 
         assertThrows(CreationGroupException.class, () -> useCase.execute(command));

@@ -3,7 +3,10 @@ package toast.appback.src.auth.application.usecase.implementation;
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
 import toast.appback.src.auth.application.communication.command.RegisterAccountCommand;
 import toast.appback.src.auth.application.communication.command.TokenClaims;
-import toast.appback.src.auth.application.communication.result.*;
+import toast.appback.src.auth.application.communication.result.AccountView;
+import toast.appback.src.auth.application.communication.result.AuthResult;
+import toast.appback.src.auth.application.communication.result.CreateAccountResult;
+import toast.appback.src.auth.application.communication.result.Tokens;
 import toast.appback.src.auth.application.port.TokenService;
 import toast.appback.src.auth.application.usecase.contract.CreateAccount;
 import toast.appback.src.auth.application.usecase.contract.RegisterAccount;
@@ -15,6 +18,12 @@ import toast.appback.src.users.application.communication.result.UserView;
 import toast.appback.src.users.application.usecase.contract.CreateUser;
 import toast.appback.src.users.domain.User;
 
+/**
+ * Implementación del caso de uso que registra un nuevo usuario y crea su cuenta.
+ *
+ * <p>Orquesta la creación del `User`, la creación de la `Account`, la generación de tokens
+ * y la publicación de eventos de dominio generados por ambos agregados.
+ */
 public class RegisterAccountUseCase implements RegisterAccount {
     private final CreateUser createUser;
     private final CreateAccount createAccount;
@@ -31,6 +40,12 @@ public class RegisterAccountUseCase implements RegisterAccount {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta el registro completo.
+     *
+     * @param command Comando con los datos del nuevo usuario y la cuenta.
+     * @return {@link AuthResult} con la vista de cuenta, la vista del usuario y los tokens generados.
+     */
     @Override
     public AuthResult execute(RegisterAccountCommand command) {
         CreateUserCommand createUserCommand = new CreateUserCommand(

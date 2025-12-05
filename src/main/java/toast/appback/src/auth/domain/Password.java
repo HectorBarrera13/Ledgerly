@@ -7,6 +7,12 @@ import toast.appback.src.shared.utils.result.Result;
 
 import java.util.Objects;
 
+/**
+ * Objeto de valor que representa una contraseña almacenada (hashed).
+ *
+ * <p>Proporciona fábrica para crear desde texto plano usando un {@link PasswordHasher} y
+ * validaciones de fortaleza de la contraseña.
+ */
 public class Password {
     private static final String FIELD_NAME = "password";
 
@@ -16,6 +22,13 @@ public class Password {
         this.hashedPassword = hashedPassword;
     }
 
+    /**
+     * Valida y hashea una contraseña en texto plano usando el hasher proporcionado.
+     *
+     * @param rawPassword Contraseña en texto plano.
+     * @param hasher      Servicio que realiza el hash de la contraseña.
+     * @return Resultado con la instancia {@link Password} hasheada o un {@link DomainError} si falla la validación.
+     */
     public static Result<Password, DomainError> fromPlain(String rawPassword, PasswordHasher hasher) {
         Result<Void, DomainError> validation = validate(rawPassword);
         if (validation.isFailure()) {
@@ -25,6 +38,13 @@ public class Password {
         return Result.ok(new Password(hashed));
     }
 
+    /**
+     * Crea una instancia de {@link Password} a partir de un hash ya existente.
+     *
+     * @param hashedPassword Hash de la contraseña.
+     * @return Instancia `Password`.
+     * @throws IllegalArgumentException Si el hash es nulo o vacío.
+     */
     public static Password fromHashed(String hashedPassword) {
         if (hashedPassword == null || hashedPassword.isBlank()) {
             throw new IllegalArgumentException("Hashed password cannot be null or blank");
@@ -71,6 +91,9 @@ public class Password {
         return false;
     }
 
+    /**
+     * @return Contraseña hasheada almacenada.
+     */
     public String getHashed() {
         return hashedPassword;
     }

@@ -3,7 +3,6 @@ package toast.appback.src.groups.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import toast.appback.src.debts.application.usecase.contract.CreateDebtBetweenUsers;
-import toast.appback.src.groups.application.usecase.contract.AddMember;
 import toast.appback.src.groups.application.usecase.implementation.AddMemberUseCase;
 import toast.appback.src.groups.application.usecase.implementation.CreateGroupDebtUseCase;
 import toast.appback.src.groups.application.usecase.implementation.CreateGroupUseCase;
@@ -19,13 +18,11 @@ public class GroupUseCasesConfig {
     @Bean
     public CreateGroupUseCase createGroupUseCase(
             GroupRepository groupRepository,
-            UserRepository userRepository,
-            MemberRepository memberRepository
+            UserRepository userRepository
     ) {
         return new CreateGroupUseCase(
                 groupRepository,
-                userRepository,
-                memberRepository
+                userRepository
         );
     }
 
@@ -33,8 +30,8 @@ public class GroupUseCasesConfig {
     public EditGroupUseCase editGroupUseCase(
             GroupRepository groupRepository,
             UserRepository userRepository
-    ){
-        return  new EditGroupUseCase(
+    ) {
+        return new EditGroupUseCase(
                 groupRepository,
                 userRepository
         );
@@ -45,7 +42,7 @@ public class GroupUseCasesConfig {
             GroupRepository groupRepository,
             MemberRepository memberRepository,
             UserRepository userRepository
-    ){
+    ) {
         return new AddMemberUseCase(
                 groupRepository,
                 memberRepository,
@@ -59,7 +56,7 @@ public class GroupUseCasesConfig {
             GroupRepository groupRepository,
             UserRepository userRepository,
             CreateDebtBetweenUsers createDebtBetweenUsers
-    ){
+    ) {
         return new CreateGroupDebtUseCase(
                 groupDebtRepository,
                 groupRepository,

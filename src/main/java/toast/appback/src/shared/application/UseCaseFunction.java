@@ -1,13 +1,17 @@
 package toast.appback.src.shared.application;
 
-import toast.appback.src.shared.utils.result.Result;
-
 /**
- * Generic Use Case interface defining the contract for executing use cases.
+ * Interfaz genérica que define el contrato para ejecutar casos de uso.
  *
- * @param <R> The type of the {@link Result} returned by the use case.
- * @param <C> The type of command or input required to execute the use case.
+ * @param <R> Tipo del resultado retornado por el caso de uso.
+ * @param <C> Tipo del comando o entrada requerida para ejecutar el caso de uso.
  */
 public interface UseCaseFunction<R, C> {
+    /**
+     * Ejecuta el caso de uso con el comando proporcionado.
+     *
+     * @param command Comando para ejecutar el caso de uso.
+     * @return Resultado de la ejecución del caso de uso.
+     */
     R execute(C command);
 }

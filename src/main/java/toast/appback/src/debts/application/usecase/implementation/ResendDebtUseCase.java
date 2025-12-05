@@ -17,6 +17,11 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Caso de uso que reenvía una deuda previamente rechazada (por el acreedor) para volverla a estado PENDING.
+ *
+ * <p>El actor debe ser el acreedor. Publica eventos resultantes ante éxito.
+ */
 public class ResendDebtUseCase implements EditDebtBetweenUsersStatus {
 
     private final DebtRepository debtRepository;
@@ -33,11 +38,20 @@ public class ResendDebtUseCase implements EditDebtBetweenUsersStatus {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta el reenvío de la deuda.
+     *
+     * @param command Comando con la deuda y el actor.
+     * @return Vista {@link DebtBetweenUsersView} actualizada.
+     * @throws DebtNotFound                Si la deuda no existe.
+     * @throws UnauthorizedActionException Si el actor no es el acreedor.
+     * @throws AcceptDebtException         Si la regla de dominio impide el reenvío.
+     */
     @Override
     public DebtBetweenUsersView execute(EditDebtStatusCommand command) {
 
         DebtBetweenUsers debt = debtRepository.findDebtBetweenUsersById(command.debtId())
-                .orElseThrow(() -> new RuntimeException("Debt not found"));
+                .orElseThrow(() -> new DebtNotFound(command.debtId().getValue()));
 
         boolean isActorTheCreditor = command.actorId().equals(debt.getCreditorId());
         if (!isActorTheCreditor) {

@@ -9,6 +9,13 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso encargado de editar el nombre de un usuario.
+ *
+ * <p>Busca el usuario, valida el nuevo nombre y persiste la entidad actualizada.
+ * Lanza {@link UserNotFound} si el usuario no existe y {@link UserEditionException}
+ * si la validación del nombre falla.
+ */
 public class EditUserUseCase implements EditUser {
     private final UserRepository userRepository;
 
@@ -16,6 +23,14 @@ public class EditUserUseCase implements EditUser {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Ejecuta la edición del usuario.
+     *
+     * @param command Comando con el identificador y los nuevos nombres.
+     * @return Vista (`UserView`) con los datos actualizados.
+     * @throws UserNotFound         Si el usuario no existe.
+     * @throws UserEditionException Si la validación del nombre falla.
+     */
     @Override
     public UserView execute(EditUserCommand command) {
         User user = userRepository.findById(command.userId())

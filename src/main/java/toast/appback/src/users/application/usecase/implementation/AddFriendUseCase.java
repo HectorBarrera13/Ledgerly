@@ -13,6 +13,12 @@ import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.FriendShipRepository;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso que añade una relación de amistad entre dos usuarios.
+ *
+ * <p>Valida que los usuarios existan, que no sean la misma persona y que no exista una relación
+ * previa. Persiste la relación y publica los eventos de dominio generados.
+ */
 public class AddFriendUseCase implements AddFriend {
     private final FriendShipRepository friendShipRepository;
     private final UserRepository userRepository;
@@ -24,6 +30,16 @@ public class AddFriendUseCase implements AddFriend {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta la lógica para crear una amistad.
+     *
+     * @param command Comando que contiene los identificadores de los dos usuarios.
+     * @return Vista del amigo creado (`FriendView`).
+     * @throws FriendToMySelfException     Si ambos identificadores son iguales.
+     * @throws RequesterNotFound           Si el usuario solicitante no existe.
+     * @throws ReceiverNotFound            Si el usuario receptor no existe.
+     * @throws ExistingFriendShipException Si ya existe una relación de amistad entre ambos.
+     */
     @Override
     public FriendView execute(AddFriendCommand command) {
         if (command.userAId().equals(command.userBId())) {

@@ -3,17 +3,10 @@ package toast.appback.src.shared.domain;
 import toast.appback.src.shared.utils.result.Result;
 
 /**
- * A utility class providing static methods for generating standardized validation error results.
- * Each method returns a Result object encapsulating a DomainError with a specific validation message.
- * The class includes an enumeration for common special characters to enhance error message clarity.
- * Example usage:
- * <pre>
- *     Result<String, DomainError> result = Validators.TOO_LONG("username", "verylongusername", 10);
- *     if (result.isFailure()) {
- *         DomainError error = result.getFailure();
- *         // Handle the validation error
- *     }
- * </pre>
+ * Utilidades de validación reutilizables que generan {@link Result} con {@link DomainError}.
+ * <p>
+ * Cada método devuelve un {@link Result} en fallo con información estructurada para reportar
+ * validaciones de campos, colecciones y reglas específicas.
  */
 
 public class Validators {
@@ -124,4 +117,3 @@ public class Validators {
         }
     }
 }
-

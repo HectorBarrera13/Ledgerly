@@ -3,23 +3,21 @@ package toast.appback.src.debts.domain;
 import toast.appback.src.debts.domain.event.DebtCreated;
 import toast.appback.src.debts.domain.vo.*;
 import toast.appback.src.shared.domain.DomainError;
-import toast.appback.src.shared.domain.DomainEvent;
 import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.UserId;
 
 import java.time.Instant;
-import java.util.List;
 
 /**
  * Entidad de deuda rápida (QuickDebt).
  * - Involucra a un solo usuario (el propietario de la deuda).
  * - Tiene un rol (DEBTOR o CREDITOR).
- * - El "otro usuario" involucrado se representa como TargetUser (nombre).
+ * - El "otro usuario" involucrado se representa como {@link TargetUser} (nombre).
  */
 public class QuickDebt extends Debt {
     private final UserId userId;
     private final Role role;
-    private TargetUser targetUser;
+    private final TargetUser targetUser;
 
     /**
      * Constructor base para creación desde dominio (estado inicial PENDING).
@@ -45,20 +43,9 @@ public class QuickDebt extends Debt {
     }
 
     /**
-     * Constructor para reconstrucción incluyendo eventos previos.
-     */
-    private QuickDebt(DebtId debtId, Context context, DebtMoney debtMoney,
-                      UserId userId, Role role, TargetUser targetUser, List<DomainEvent> debtEvents) {
-        super(debtId, context, debtMoney, Instant.now(), debtEvents);
-        this.userId = userId;
-        this.role = role;
-        this.targetUser = targetUser;
-    }
-
-    /**
      * Factory method principal.
      * Genera un nuevo DebtId, crea la deuda en estado PENDING
-     * y registra el evento DebtCreated.
+     * y registra el evento {@link DebtCreated}.
      */
     public static QuickDebt create(Context context, DebtMoney debtMoney, UserId userId, Role role, TargetUser targetUser) {
         DebtId debtId = DebtId.generate();
@@ -75,6 +62,12 @@ public class QuickDebt extends Debt {
         return new QuickDebt(debtId, context, debtMoney, userId, role, targetUser, status);
     }
 
+    /**
+     * Convierte esta deuda rápida en una deuda entre usuarios moviendo el segundo usuario proporcionado.
+     *
+     * @param newUserId Identificador del segundo usuario que completará la deuda entre usuarios.
+     * @return Instancia de {@link DebtBetweenUsers} con los datos transferidos.
+     */
     public DebtBetweenUsers changeToDebtBetweenUsers(UserId newUserId) {
         return DebtBetweenUsers.load(
                 super.getId(), super.getContext(), super.getDebtMoney(), this.userId, newUserId, this.status
@@ -120,10 +113,25 @@ public class QuickDebt extends Debt {
         return Result.ok();
     }
 
-    public UserId getUserId() { return this.userId; }
+    /**
+     * @return Identificador del usuario propietario de esta deuda.
+     */
+    public UserId getUserId() {
+        return this.userId;
+    }
 
-    public Role getRole() { return this.role; }
+    /**
+     * @return Rol del usuario en esta deuda (DEBTOR o CREDITOR).
+     */
+    public Role getRole() {
+        return this.role;
+    }
 
-    public TargetUser getTargetUser() { return this.targetUser; }
+    /**
+     * @return Información del usuario objetivo (nombre) asociado a la deuda rápida.
+     */
+    public TargetUser getTargetUser() {
+        return this.targetUser;
+    }
 
 }

@@ -5,6 +5,9 @@ import toast.appback.src.users.domain.UserId;
 
 import java.util.UUID;
 
+/**
+ * Excepción lanzada cuando no se encuentra el usuario que solicita una acción (ej. solicitud de amistad).
+ */
 public class RequesterNotFound extends ApplicationException {
     private static final String MESSAGE_TEMPLATE = "requester with id %s not found.";
     private static final String FRIENDLY_MESSAGE = "the user who sent the friend request was not found.";
@@ -15,6 +18,9 @@ public class RequesterNotFound extends ApplicationException {
         this.userId = userId.getValue();
     }
 
+    /**
+     * @return Identificador del usuario solicitante que no fue encontrado.
+     */
     public UserId getUserId() {
         return UserId.load(userId);
     }

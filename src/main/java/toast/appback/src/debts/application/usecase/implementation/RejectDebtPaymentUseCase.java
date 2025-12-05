@@ -17,6 +17,11 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Caso de uso que rechaza la confirmación de pago de una deuda por parte del acreedor.
+ *
+ * <p>El actor debe ser el acreedor; el agregado valida reglas y publica eventos.
+ */
 public class RejectDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
 
     private final DebtRepository debtRepository;
@@ -33,6 +38,15 @@ public class RejectDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta el rechazo de la confirmación de pago.
+     *
+     * @param command Comando con la deuda y el actor que rechaza la confirmación.
+     * @return {@link DebtBetweenUsersView} con el estado actualizado.
+     * @throws DebtNotFound                Si la deuda no existe.
+     * @throws UnauthorizedActionException Si el actor no es el acreedor.
+     * @throws AcceptDebtException         Si las reglas de negocio impiden el rechazo.
+     */
     @Override
     public DebtBetweenUsersView execute(EditDebtStatusCommand command) {
         //Comprobar que la deuda existe
