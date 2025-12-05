@@ -17,6 +17,12 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Caso de uso que reporta la realización de un pago por parte del deudor.
+ *
+ * <p>El actor que reporta debe ser el deudor; el agregado validará reglas de negocio y
+ * publicará eventos relacionados con la confirmación del pago.
+ */
 public class ReportDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
 
     private final DebtRepository debtRepository;
@@ -33,6 +39,15 @@ public class ReportDebtPaymentUseCase implements EditDebtBetweenUsersStatus {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta el reporte de pago para una deuda.
+     *
+     * @param command Comando con la deuda y el actor que reporta.
+     * @return {@link DebtBetweenUsersView} con el estado actualizado.
+     * @throws DebtNotFound                Si la deuda no existe.
+     * @throws UnauthorizedActionException Si el actor no es el deudor.
+     * @throws AcceptDebtException         Si la regla del dominio impide el reporte.
+     */
     @Override
     public DebtBetweenUsersView execute(EditDebtStatusCommand command) {
         //Comprobar que la deuda existe

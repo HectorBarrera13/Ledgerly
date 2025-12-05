@@ -4,6 +4,11 @@ import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.domain.Validators;
 import toast.appback.src.shared.utils.result.Result;
 
+/**
+ * Value Object que encapsula la información básica de un grupo (nombre y descripción).
+ * <p>
+ * Incluye las validaciones del dominio para ambos campos.
+ */
 public class GroupInformation {
     private static final String FIELD_NAME = "name";
     private static final String FIELD_DESCRIPTION = "description";
@@ -18,6 +23,13 @@ public class GroupInformation {
         this.description = description;
     }
 
+    /**
+     * Crea una instancia validando reglas de negocio.
+     *
+     * @param name        Nombre del grupo (requerido, máximo {@value MAX_NAME_LENGTH} caracteres).
+     * @param description Descripción (requerida, máximo {@value MAX_DESCRIPTION_LENGTH} caracteres).
+     * @return Result con la instancia válida o con errores de dominio.
+     */
     public static Result<GroupInformation, DomainError> create(String name, String description) {
         // Acumulador de errores
         Result<Void, DomainError> emptyResult = Result.empty();
@@ -33,6 +45,9 @@ public class GroupInformation {
         return Result.ok(new GroupInformation(name, description));
     }
 
+    /**
+     * Carga sin validación: lanza excepción si la información es inválida.
+     */
     public static GroupInformation load(String name, String description) {
         return create(name, description).orElseThrow(
                 () -> new IllegalArgumentException("invalid group information: " + name));

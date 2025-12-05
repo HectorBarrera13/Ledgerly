@@ -33,6 +33,7 @@ public class FriendController {
     private final AddFriendService addFriend;
     private final RemoveFriend removeFriend;
     private final FriendReadRepository friendReadRepository;
+    private final UserResponseMapper userResponseMapper;
 
     @GetMapping()
     public ResponseEntity<Pageable<FriendResponse, UUID>> getFriends(
@@ -56,7 +57,7 @@ public class FriendController {
         if (pageResult.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(Pageable.toPageable(pageResult, UserResponseMapper::toFriendResponse));
+        return ResponseEntity.ok(Pageable.toPageable(pageResult, userResponseMapper::toFriendResponse));
     }
 
     @GetMapping("/search")
@@ -74,7 +75,7 @@ public class FriendController {
                     query,
                     PageRequest.of(0, limit)
             );
-            case PHONE ->  pageResult = friendReadRepository.searchFriendsByPhone(
+            case PHONE -> pageResult = friendReadRepository.searchFriendsByPhone(
                     userId,
                     query,
                     PageRequest.of(0, limit)
@@ -83,14 +84,14 @@ public class FriendController {
                 List<FriendView> emptyList = List.of();
                 return ResponseEntity.ok(Pageable.toPageable(
                         new PageResult<>(emptyList, null),
-                        UserResponseMapper::toFriendResponse
+                        userResponseMapper::toFriendResponse
                 ));
             }
         }
         if (pageResult.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(Pageable.toPageable(pageResult, UserResponseMapper::toFriendResponse));
+        return ResponseEntity.ok(Pageable.toPageable(pageResult, userResponseMapper::toFriendResponse));
     }
 
     @GetMapping(value = "/qr", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -110,7 +111,7 @@ public class FriendController {
         UserId requesterId = customUserDetails.getUserId();
         AddFriendCommand command = new AddFriendCommand(requesterId, UserId.load(receiverId));
         FriendView friendView = addFriend.execute(command);
-        FriendResponse friendResponse = UserResponseMapper.toFriendResponse(friendView);
+        FriendResponse friendResponse = userResponseMapper.toFriendResponse(friendView);
         return ResponseEntity.ok(friendResponse);
     }
 

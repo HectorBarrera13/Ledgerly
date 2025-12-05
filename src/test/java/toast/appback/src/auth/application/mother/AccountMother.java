@@ -1,7 +1,9 @@
 package toast.appback.src.auth.application.mother;
 
 import toast.appback.src.auth.application.communication.command.CreateAccountCommand;
-import toast.appback.src.auth.domain.*;
+import toast.appback.src.auth.domain.Account;
+import toast.appback.src.auth.domain.Email;
+import toast.appback.src.auth.domain.Password;
 import toast.appback.src.auth.domain.service.PasswordHasher;
 import toast.appback.src.shared.domain.DomainError;
 import toast.appback.src.shared.utils.result.Result;
@@ -9,7 +11,7 @@ import toast.appback.src.users.domain.UserId;
 
 public class AccountMother {
 
-    private static final int MAX_SESSIONS = 5;
+    private static final int MAX_SESSIONS = 10;
 
     public static Result<Account, DomainError> create(UserId userId, String email, String password) {
         Result<Email, DomainError> emailResult = Email.create(email);
@@ -105,8 +107,13 @@ public class AccountMother {
     }
 
     public static class FakePasswordHasher implements PasswordHasher {
-        @Override public String hash(String raw) { return "hashed_" + raw; }
-        @Override public boolean verify(String raw, String hashed) {
+        @Override
+        public String hash(String raw) {
+            return "hashed_" + raw;
+        }
+
+        @Override
+        public boolean verify(String raw, String hashed) {
             return hashed.equals("hashed_" + raw);
         }
     }

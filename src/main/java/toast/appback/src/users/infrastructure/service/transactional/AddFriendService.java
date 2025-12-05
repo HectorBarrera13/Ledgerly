@@ -7,11 +7,20 @@ import toast.appback.src.users.application.communication.command.AddFriendComman
 import toast.appback.src.users.application.communication.result.FriendView;
 import toast.appback.src.users.application.usecase.contract.AddFriend;
 
+/**
+ * Envoltura transaccional para el caso de uso de añadir amistad entre usuarios.
+ */
 @Service
 @RequiredArgsConstructor
 public class AddFriendService {
     private final AddFriend addFriend;
 
+    /**
+     * Ejecuta la creación de la relación de amistad dentro de una transacción.
+     *
+     * @param command Comando con los datos para añadir amigo.
+     * @return Vista pública de la relación creada.
+     */
     @Transactional
     public FriendView execute(AddFriendCommand command) {
         return addFriend.execute(command);

@@ -24,7 +24,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="user_id", nullable = false, unique = true, updatable = false)
+    @Column(name = "user_id", nullable = false, unique = true, updatable = false)
     private UUID userId;
 
     @Column(nullable = false)
@@ -38,4 +38,6 @@ public class UserEntity {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    private String profilePictureFileName;
 }

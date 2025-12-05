@@ -9,9 +9,15 @@ import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.domain.repository.GroupRepository;
 import toast.appback.src.groups.domain.vo.GroupInformation;
 import toast.appback.src.users.domain.User;
-import toast.appback.src.users.domain.UserId;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso para editar la información básica de un grupo.
+ * <p>
+ * Reglas principales:
+ * - Solo el creador del grupo puede editar su información.
+ * - Valida la nueva información mediante {@link GroupInformation}.
+ */
 public class EditGroupUseCase implements EditGroup {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
@@ -21,6 +27,14 @@ public class EditGroupUseCase implements EditGroup {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Ejecuta la edición del grupo.
+     *
+     * @param command Comando con groupId, actorId y los nuevos campos (name, description).
+     * @return {@link GroupView} vista pública con la información actualizada.
+     * @throws IllegalArgumentException Si el grupo o el usuario actor no existen.
+     * @throws EditGroupException       Si el actor no tiene permisos o la edición no cumple las reglas.
+     */
     @Override
     public GroupView execute(EditGroupCommand command) {
         Group group = groupRepository.findById(command.groupId())

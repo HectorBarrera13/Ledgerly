@@ -13,10 +13,17 @@ public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUserId(UUID userId);
 
     @Query("""
-        SELECT u.userId AS userId,u.firstName AS firstName, u.lastName AS lastName,
-            CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone
-        FROM UserEntity u
-        WHERE u.userId = :userId
-    """)
+                SELECT u.userId AS userId,u.firstName AS firstName, u.lastName AS lastName,
+                    CONCAT(u.phone.countryCode,'-',u.phone.number) AS phone
+                FROM UserEntity u
+                WHERE u.userId = :userId
+            """)
     Optional<UserProjection> findUserProjectionByUserId(@Param("userId") UUID userId);
+
+    @Query("""
+                SELECT u.profilePictureFileName
+                FROM UserEntity u
+                WHERE u.userId = :userId
+            """)
+    Optional<String> getProfilePictureFileNameByUserId(UUID userId);
 }

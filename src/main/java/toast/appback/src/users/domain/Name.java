@@ -7,6 +7,17 @@ import toast.appback.src.shared.utils.result.Result;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * Objeto de valor que representa el nombre de una persona.
+ *
+ * <p>Contiene nombre y apellido, y aplica validaciones estrictas sobre formato y longitud.
+ * <p>
+ * Reglas principales:
+ * - Longitud mínima: 2 caracteres por cada parte.
+ * - Longitud máxima del campo: 80 caracteres.
+ * - No permite espacios consecutivos ni guiones/apóstrofes repetidos.
+ * - Solo permite letras, espacios, guiones y apóstrofes según el patrón definido.
+ */
 public class Name {
 
     private static final int MIN_LENGTH = 2;
@@ -22,6 +33,13 @@ public class Name {
         this.lastName = lastName;
     }
 
+    /**
+     * Crea un {@link Name} validado.
+     *
+     * @param firstName Nombre de pila. No nulo ni vacío; validado por las reglas de formato.
+     * @param lastName  Apellido. No nulo ni vacío; validado por las reglas de formato.
+     * @return Resultado exitoso con el objeto `Name` o un `DomainError` con la razón de fallo.
+     */
     public static Result<Name, DomainError> create(String firstName, String lastName) {
         Result<Void, DomainError> result = Result.empty();
         result.collect(validation(firstName, FIELD_FIRST_NAME));
@@ -34,6 +52,15 @@ public class Name {
         return Result.ok(new Name(trimmedFirstName, trimmedLastName));
     }
 
+    /**
+     * Carga un `Name` asumiendo que los valores son válidos. Lanza {@link IllegalArgumentException}
+     * si la creación falla.
+     *
+     * @param firstName Nombre de pila.
+     * @param lastName  Apellido.
+     * @return Instancia `Name` válida.
+     * @throws IllegalArgumentException Si los valores no cumplen las validaciones.
+     */
     public static Name load(String firstName, String lastName) {
         return create(firstName, lastName)
                 .orElseThrow(() -> new IllegalArgumentException("invalid name values: " + firstName + " " + lastName));
@@ -80,10 +107,16 @@ public class Name {
         return Result.ok();
     }
 
+    /**
+     * @return Nombre de pila (trimmed) del usuario.
+     */
     public String getFirstName() {
         return firstName;
     }
 
+    /**
+     * @return Apellido (trimmed) del usuario.
+     */
     public String getLastName() {
         return lastName;
     }
@@ -107,6 +140,9 @@ public class Name {
         return Objects.hash(firstName, lastName);
     }
 
+    /**
+     * @return Nombre completo concatenado: "{firstName} {lastName}".
+     */
     public String getFullName() {
         return firstName + " " + lastName;
     }

@@ -17,6 +17,13 @@ import toast.appback.src.users.domain.Name;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Implementación del caso de uso para editar una deuda rápida.
+ *
+ * <p>Responsabilidades:
+ * - Validar nuevos Value Objects.
+ * - Aplicar cambios en la entidad QuickDebt y persistirlos.
+ */
 public class EditQuickDebtUseCase implements EditQuickDebt {
 
     private final DebtRepository debtRepository;
@@ -33,6 +40,14 @@ public class EditQuickDebtUseCase implements EditQuickDebt {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Ejecuta la edición de una deuda rápida.
+     *
+     * @param command Comando que contiene el identificador de la deuda y los nuevos valores.
+     * @return {@link QuickDebtView} vista actualizada de la deuda.
+     * @throws DebtNotFound      Si la deuda indicada no existe o el usuario no puede ser resuelto.
+     * @throws EditDebtException Si la validación de los VO o la aplicación de cambios falla.
+     */
     @Override
     public QuickDebtView execute(EditDebtCommand command) {
         // Comprobar que la deuda existe y obtenerla

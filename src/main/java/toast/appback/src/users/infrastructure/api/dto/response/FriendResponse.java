@@ -13,6 +13,7 @@ public record FriendResponse(
         String lastName,
         String phone,
         @JsonProperty("added_at")
-        Instant addedAt
+        Instant addedAt,
+        String picture
 ) {
 }

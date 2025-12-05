@@ -16,10 +16,6 @@ public class DebtId {
         this.id = id;
     }
 
-    public UUID getValue() {
-        return id;
-    }
-
     /**
      * Factory method para generar un nuevo DebtId con UUID aleatorio.
      * Usado al crear nuevas entidades en dominio.
@@ -34,6 +30,13 @@ public class DebtId {
      */
     public static DebtId load(UUID uuid) {
         return new DebtId(uuid);
+    }
+
+    /**
+     * @return UUID subyacente.
+     */
+    public UUID getValue() {
+        return id;
     }
 
     /**
@@ -56,4 +59,3 @@ public class DebtId {
         return Objects.hashCode(id);
     }
 }
-

@@ -1,5 +1,11 @@
 package toast.appback.src.shared.application;
 
+/**
+ * Representa una petición de paginación basada en número de página.
+ *
+ * @param page Índice de la página (0-based).
+ * @param size Tamaño de página (número de elementos por página).
+ */
 public record PageRequest(
         Integer page,
         Integer size
@@ -18,6 +24,9 @@ public record PageRequest(
         return new PageRequest(page, size);
     }
 
+    /**
+     * Offset (desplazamiento) calculado en base a la página y el tamaño.
+     */
     public int getOffset() {
         return page * size;
     }

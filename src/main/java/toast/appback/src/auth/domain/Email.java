@@ -7,6 +7,14 @@ import toast.appback.src.shared.utils.result.Result;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * Objeto de valor que representa y valida una dirección de correo electrónico.
+ * <p>
+ * Reglas principales:
+ * - Longitud máxima total: 320 caracteres.
+ * - Partes local y dominio validadas según patrones permitidos.
+ * - Dominio y TLD con restricciones de longitud.
+ */
 public class Email {
     private static final String FIELD_NAME = "email";
     private static final int MAX_EMAIL_LENGTH = 320;
@@ -25,6 +33,12 @@ public class Email {
         this.tld = tld;
     }
 
+    /**
+     * Intenta crear y validar una dirección de correo.
+     *
+     * @param email Cadena con el email completo.
+     * @return Resultado con el objeto `Email` o `DomainError` si falla la validación.
+     */
     public static Result<Email, DomainError> create(String email) {
         Result<EmailParts, DomainError> generalValidation = verifyGeneral(email);
         if (generalValidation.isFailure()) {
@@ -46,6 +60,14 @@ public class Email {
         return Result.ok(new Email(parts.local, parts.domainTag, parts.tld));
     }
 
+    /**
+     * Carga un `Email` asumiendo que la cadena pasada es válida. Lanza {@link IllegalArgumentException}
+     * si la validación falla.
+     *
+     * @param email Cadena con el email.
+     * @return Instancia `Email` válida.
+     * @throws IllegalArgumentException Si el email no cumple las reglas.
+     */
     public static Email load(String email) {
         return create(email)
                 .orElseThrow(() -> new IllegalArgumentException("invalid email format: " + email));
@@ -162,18 +184,30 @@ public class Email {
         return Result.ok();
     }
 
+    /**
+     * @return Parte local del email (antes del @).
+     */
     public String getLocal() {
         return local;
     }
 
+    /**
+     * @return Parte de dominio del email (sin TLD).
+     */
     public String getDomain() {
         return domain;
     }
 
+    /**
+     * @return TLD del email.
+     */
     public String getTld() {
         return tld;
     }
 
+    /**
+     * @return Representación completa del email: local@domain.tld
+     */
     public String getValue() {
         return local + "@" + domain + "." + tld;
     }

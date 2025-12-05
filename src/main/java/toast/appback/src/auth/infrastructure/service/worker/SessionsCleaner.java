@@ -7,6 +7,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import toast.appback.src.auth.infrastructure.persistence.jparepository.JpaSessionRepository;
 
+/**
+ * Tarea programada que limpia sesiones expiradas y revocadas periódicamente.
+ * <p>
+ * Programada para ejecutarse cada 12 horas.
+ */
 @Component
 @RequiredArgsConstructor
 public class SessionsCleaner {

@@ -28,6 +28,9 @@ public class Context {
     /**
      * Factory method principal para crear el Value Object validando sus reglas:
      *
+     * @param purpose     Propósito breve (requerido).
+     * @param description Descripción detallada (opcional).
+     * @return Result con Context válido o DomainError con los motivos de fallo.
      */
     public static Result<Context, DomainError> create(String purpose, String description) {
         Result<Void, DomainError> emptyResult = Result.empty();
@@ -57,12 +60,12 @@ public class Context {
      * - No vacío
      * - Máximo de longitud
      */
-    private static Result<String, DomainError> purposeValidation(String purpose, String fildName) {
+    private static Result<String, DomainError> purposeValidation(String purpose, String fieldName) {
         if (purpose == null || purpose.isBlank()) {
-            return Validators.emptyValue(fildName);
+            return Validators.emptyValue(fieldName);
         }
         if (purpose.length() > MAX_PURPOSE_LENGTH) {
-            return Validators.tooLong(fildName, purpose, MAX_PURPOSE_LENGTH);
+            return Validators.tooLong(fieldName, purpose, MAX_PURPOSE_LENGTH);
         }
         return Result.ok(purpose);
     }
@@ -72,9 +75,9 @@ public class Context {
      * - Opcional
      * - Si existe, no debe exceder el máximo permitido
      */
-    private static Result<String, DomainError> descriptionValidation(String description, String fildName) {
+    private static Result<String, DomainError> descriptionValidation(String description, String fieldName) {
         if (description != null && !description.isBlank() && description.length() > MAX_DESCRIPTION_LENGTH) {
-            return Validators.tooLong(fildName, description, MAX_DESCRIPTION_LENGTH);
+            return Validators.tooLong(fieldName, description, MAX_DESCRIPTION_LENGTH);
         }
         return Result.ok(description);
     }
@@ -93,4 +96,3 @@ public class Context {
         return description;
     }
 }
-

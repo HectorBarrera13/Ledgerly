@@ -15,6 +15,11 @@ import toast.appback.src.shared.utils.result.Result;
 import toast.appback.src.users.domain.User;
 import toast.appback.src.users.domain.repository.UserRepository;
 
+/**
+ * Caso de uso que marca una QuickDebt como saldada (settle/pay).
+ *
+ * <p>El actor que ejecuta la acción suele ser el propietario de la deuda; el agregado valida reglas y publica eventos.
+ */
 public class SettleQuickDebtUseCase implements EditQuickDebtStatus {
 
     private final DebtRepository debtRepository;
@@ -31,6 +36,15 @@ public class SettleQuickDebtUseCase implements EditQuickDebtStatus {
         this.domainEventBus = domainEventBus;
     }
 
+    /**
+     * Ejecuta la acción de saldar una deuda rápida.
+     *
+     * @param command Comando con la deuda y el actor que realiza la acción.
+     * @return {@link QuickDebtView} con el estado actualizado.
+     * @throws DebtNotFound        Si la deuda no existe.
+     * @throws DebtorNotFound      Si el usuario actor no se encuentra.
+     * @throws AcceptDebtException Si la regla de negocio impide saldar la deuda.
+     */
     @Override
     public QuickDebtView execute(EditDebtStatusCommand command) {
 
