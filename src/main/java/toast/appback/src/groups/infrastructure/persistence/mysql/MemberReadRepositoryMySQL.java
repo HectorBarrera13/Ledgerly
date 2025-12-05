@@ -3,10 +3,9 @@ package toast.appback.src.groups.infrastructure.persistence.mysql;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
-import toast.appback.src.groups.application.communication.result.MemberView;
+import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.groups.application.port.MemberReadRepository;
 import toast.appback.src.groups.domain.vo.GroupId;
-import toast.appback.src.groups.infrastructure.persistence.jparepository.JpaGroupRepository;
 import toast.appback.src.groups.infrastructure.persistence.jparepository.JpaMemberRepository;
 import toast.appback.src.shared.application.CursorRequest;
 import toast.appback.src.shared.application.PageRequest;
@@ -21,34 +20,31 @@ import java.util.UUID;
 @Repository
 @RequiredArgsConstructor
 public class MemberReadRepositoryMySQL implements MemberReadRepository {
-    private final JpaGroupRepository jpaGroupRepository;
     private final JpaMemberRepository jpaMemberRepository;
 
     @Override
-    public PageResult<MemberView, UUID> findMembersByGroupId(GroupId groupId, PageRequest pageRequest) {
+    public PageResult<UserSummaryView, UUID> findMembersByGroupId(GroupId groupId, PageRequest pageRequest) {
 
-        Page<MemberView> pageable = jpaMemberRepository
+        Page<UserSummaryView> pageable = jpaMemberRepository
                 .findMembersByGroupId(groupId.getValue(), PageMapper.toPageable(pageRequest))
                 .map(
-                        projection -> new MemberView(
-                                projection.getUserId(),
-                                projection.getFirstName(),
-                                projection.getLastName(),
-                                projection.getPhone()
+                        projection -> new UserSummaryView(
+                                projection.userId(),
+                                projection.userFirstName(),
+                                projection.userLastName()
                         )
                 );
         return PageMapper.toPageResult(pageable);
     }
 
     @Override
-    public PageResult<MemberView, UUID> findMembersByGroupIdAfterCursor(GroupId groupId, CursorRequest<UUID> cursorRequest) {
-        Page<MemberView> page = jpaMemberRepository
+    public PageResult<UserSummaryView, UUID> findMembersByGroupIdAfterCursor(GroupId groupId, CursorRequest<UUID> cursorRequest) {
+        Page<UserSummaryView> page = jpaMemberRepository
                 .findMembersByGroupId(groupId.getValue(), PageMapper.toPageable(cursorRequest))
-                .map(p -> new MemberView(
-                        p.getUserId(),
-                        p.getFirstName(),
-                        p.getLastName(),
-                        p.getPhone()
+                .map(p -> new UserSummaryView(
+                        p.userId(),
+                        p.userFirstName(),
+                        p.userLastName()
                 ));
 
         return PageMapper.toPageResult(page);

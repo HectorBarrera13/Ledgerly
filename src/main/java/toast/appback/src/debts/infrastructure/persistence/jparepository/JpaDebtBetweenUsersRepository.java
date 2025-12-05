@@ -16,52 +16,52 @@ public interface JpaDebtBetweenUsersRepository extends JpaRepository<DebtBetween
 
 
     @Query("""
-           SELECT 
-                d.debtId AS debtId,
-                d.purpose AS purpose, 
-                d.description AS description,
-                d.amount AS amount, 
-                d.currency AS currency,
-                d.debtorId AS debtorId,
-                debtor.firstName AS debtorFirstName,
-                debtor.lastName AS debtorLastName,
-                d.creditorId AS creditorId,
-                creditor.firstName AS creditorFirstName,
-                creditor.lastName AS creditorLastName,
-                d.status AS status
-            FROM DebtBetweenUsersEntity d
-            JOIN UserEntity debtor ON d.debtorId = debtor.userId
-            JOIN UserEntity creditor ON d.creditorId = creditor.userId
-            WHERE d.debtId = :debtId
-           """)
+            SELECT 
+                 d.debtId AS debtId,
+                 d.purpose AS purpose, 
+                 d.description AS description,
+                 d.amount AS amount, 
+                 d.currency AS currency,
+                 d.debtorId AS debtorId,
+                 debtor.firstName AS debtorFirstName,
+                 debtor.lastName AS debtorLastName,
+                 d.creditorId AS creditorId,
+                 creditor.firstName AS creditorFirstName,
+                 creditor.lastName AS creditorLastName,
+                 d.status AS status
+             FROM DebtBetweenUsersEntity d
+             JOIN UserEntity debtor ON d.debtorId = debtor.userId
+             JOIN UserEntity creditor ON d.creditorId = creditor.userId
+             WHERE d.debtId = :debtId
+            """)
     Optional<DebtBetweenUsersProjection> findDebtBetweenUsersProjectionByDebtId(@Param("debtId") UUID debtId);
 
     @Query("""
-       SELECT 
-            d.debtId AS debtId,
-            d.purpose AS purpose, 
-            d.description AS description,
-            d.amount AS amount, 
-            d.currency AS currency,
-            d.debtorId AS debtorId,
-            debtor.firstName AS debtorFirstName,
-            debtor.lastName AS debtorLastName,
-            d.creditorId AS creditorId,
-            creditor.firstName AS creditorFirstName,
-            creditor.lastName AS creditorLastName,
-            d.status AS status
-        FROM DebtBetweenUsersEntity d
-        JOIN UserEntity debtor ON d.debtorId = debtor.userId
-        JOIN UserEntity creditor ON d.creditorId = creditor.userId
-        WHERE
-            d.status = :status AND 
-            (
-                (:role = 'DEBTOR' AND d.debtorId = :userId) OR
-                (:role = 'CREDITOR' AND d.creditorId = :userId)
-            )
-        ORDER BY d.createdAt DESC
-        LIMIT :limit
-       """)
+            SELECT 
+                 d.debtId AS debtId,
+                 d.purpose AS purpose, 
+                 d.description AS description,
+                 d.amount AS amount, 
+                 d.currency AS currency,
+                 d.debtorId AS debtorId,
+                 debtor.firstName AS debtorFirstName,
+                 debtor.lastName AS debtorLastName,
+                 d.creditorId AS creditorId,
+                 creditor.firstName AS creditorFirstName,
+                 creditor.lastName AS creditorLastName,
+                 d.status AS status
+             FROM DebtBetweenUsersEntity d
+             JOIN UserEntity debtor ON d.debtorId = debtor.userId
+             JOIN UserEntity creditor ON d.creditorId = creditor.userId
+             WHERE
+                 d.status = :status AND 
+                 (
+                     (:role = 'DEBTOR' AND d.debtorId = :userId) OR
+                     (:role = 'CREDITOR' AND d.creditorId = :userId)
+                 )
+             ORDER BY d.createdAt DESC
+             LIMIT :limit
+            """)
     List<DebtBetweenUsersProjection> getDebtsBetweenUsersProjectionByRole(
             @Param("userId") UUID userId,
             @Param("role") String role,

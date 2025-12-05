@@ -23,6 +23,7 @@ import toast.appback.src.users.domain.UserId;
 
 import java.util.List;
 import java.util.UUID;
+
 @RestController
 @RequestMapping("/debt-between-users")
 public class DebtBetweenUsersController {
@@ -35,6 +36,7 @@ public class DebtBetweenUsersController {
     private final EditDebtBetweenUsersService editDebtBetweenUsersService;
     private final EditDebtBetweenUsersStatus resendDebtUseCase;
     private final DebtBetweenUsersReadRepository debtBetweenUsersReadRepository;
+    private final DebtResponseMapper debtResponseMapper;
 
     public DebtBetweenUsersController(
             @Qualifier("acceptDebtUseCase") EditDebtBetweenUsersStatus acceptDebtUseCase,
@@ -45,7 +47,8 @@ public class DebtBetweenUsersController {
             @Qualifier("resendDebtUseCase") EditDebtBetweenUsersStatus resendDebtUseCase,
             EditDebtBetweenUsersService editDebt,
             CreateDebtBetweenUsers createDebtBetweenUsers,
-            DebtBetweenUsersReadRepository debtBetweenUsersReadRepository
+            DebtBetweenUsersReadRepository debtBetweenUsersReadRepository,
+            DebtResponseMapper debtResponseMapper
     ) {
         this.acceptDebtUseCase = acceptDebtUseCase;
         this.declineDebtUseCase = declineDebtUseCase;
@@ -56,6 +59,7 @@ public class DebtBetweenUsersController {
         this.editDebtBetweenUsersService = editDebt;
         this.createDebtBetweenUsersUseCase = createDebtBetweenUsers;
         this.debtBetweenUsersReadRepository = debtBetweenUsersReadRepository;
+        this.debtResponseMapper = debtResponseMapper;
     }
 
     @PostMapping()
@@ -66,7 +70,7 @@ public class DebtBetweenUsersController {
         UserId userId = customUserDetails.getUserId();
         CreateDebtBetweenUsersCommand command = request.toCreateDebtBetweenUsersCommand(userId);
         DebtBetweenUsersView debtView = createDebtBetweenUsersUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -78,7 +82,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         DebtBetweenUsersView debtView = debtBetweenUsersReadRepository.findById(requiredDebtId).orElseThrow(() ->
                 new IllegalArgumentException("Debt between users not found"));
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -93,11 +97,11 @@ public class DebtBetweenUsersController {
         UserId userId = customUserDetails.getUserId();
         List<DebtBetweenUsersResponse> debtsContent;
         if (cursor == null) {
-            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsers(userId, role, status,  limit + 1)
-                    .stream().map(DebtResponseMapper::toDebtBetweenUsersResponse).toList();
+            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsers(userId, role, status, limit + 1)
+                    .stream().map(debtResponseMapper::toDebtBetweenUsersResponse).toList();
         } else {
-            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsersAfterCursor(userId,role,status, cursor, limit + 1)
-                    .stream().map(DebtResponseMapper::toDebtBetweenUsersResponse).toList();
+            debtsContent = debtBetweenUsersReadRepository.getDebtsBetweenUsersAfterCursor(userId, role, status, cursor, limit + 1)
+                    .stream().map(debtResponseMapper::toDebtBetweenUsersResponse).toList();
         }
         if (debtsContent.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -123,8 +127,8 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtCommand command = request.toEditDebtCommand(userId, requiredDebtId);
         DebtBetweenUsersView debtView = editDebtBetweenUsersService.execute(command);
-        DebtBetweenUsersResponse debtResoponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
-        return ResponseEntity.ok(debtResoponse);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        return ResponseEntity.ok(debtResponse);
     }
 
     @PostMapping("/{debtId}/accept-debt")
@@ -136,7 +140,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = acceptDebtUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -149,7 +153,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = declineDebtUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -162,7 +166,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = resendDebtUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -175,7 +179,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = reportDebtPaymentUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -188,7 +192,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = confirmDebtPaymentUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 
@@ -201,7 +205,7 @@ public class DebtBetweenUsersController {
         DebtId requiredDebtId = DebtId.load(debtId);
         EditDebtStatusCommand command = new EditDebtStatusCommand(requiredDebtId, userId);
         DebtBetweenUsersView debtView = rejectDebtPaymentUseCase.execute(command);
-        DebtBetweenUsersResponse debtResponse = DebtResponseMapper.toDebtBetweenUsersResponse(debtView);
+        DebtBetweenUsersResponse debtResponse = debtResponseMapper.toDebtBetweenUsersResponse(debtView);
         return ResponseEntity.ok(debtResponse);
     }
 }

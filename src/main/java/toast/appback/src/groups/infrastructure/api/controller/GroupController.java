@@ -1,45 +1,41 @@
 package toast.appback.src.groups.infrastructure.api.controller;
 
 import lombok.RequiredArgsConstructor;
-import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
-import toast.appback.src.debts.infrastructure.api.dto.response.DebtBetweenUsersResponse;
-import toast.appback.src.groups.application.communication.command.AddGroupDebtCommand;
-import toast.appback.src.groups.application.communication.command.AddMemberCommand;
-import toast.appback.src.groups.application.communication.result.MemberView;
-import toast.appback.src.groups.application.port.GroupReadService;
-import toast.appback.src.groups.application.usecase.contract.AddGroupDebt;
-import toast.appback.src.groups.application.usecase.contract.AddMember;
-import toast.appback.src.groups.infrastructure.api.dto.request.AddGroupDebtRequest;
-import toast.appback.src.groups.infrastructure.api.dto.request.AddMemberRequest;
-import toast.appback.src.groups.infrastructure.api.dto.response.GroupDetailResponse;
-import toast.appback.src.shared.application.PageRequest;
-import toast.appback.src.groups.application.communication.command.EditGroupCommand;
-import toast.appback.src.groups.infrastructure.api.dto.request.EditGroupRequest;
-import toast.appback.src.groups.infrastructure.service.transactional.EditGroupService;
-import toast.appback.src.shared.infrastructure.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import toast.appback.src.auth.infrastructure.config.auth.CustomUserDetails;
+import toast.appback.src.debts.application.communication.result.DebtBetweenUsersView;
+import toast.appback.src.debts.application.communication.result.UserSummaryView;
 import toast.appback.src.debts.infrastructure.api.dto.DebtResponseMapper;
-import toast.appback.src.debts.infrastructure.api.dto.response.DebtResponse;
+import toast.appback.src.debts.infrastructure.api.dto.response.DebtBetweenUsersResponse;
+import toast.appback.src.debts.infrastructure.api.dto.response.UserSummaryResponse;
+import toast.appback.src.groups.application.communication.command.AddGroupDebtCommand;
+import toast.appback.src.groups.application.communication.command.AddMemberCommand;
 import toast.appback.src.groups.application.communication.command.CreateGroupCommand;
-import toast.appback.src.groups.application.communication.result.GroupDebtView;
+import toast.appback.src.groups.application.communication.command.EditGroupCommand;
 import toast.appback.src.groups.application.communication.result.GroupView;
 import toast.appback.src.groups.application.port.GroupDebtReadRepository;
+import toast.appback.src.groups.application.port.GroupReadService;
 import toast.appback.src.groups.application.port.MemberReadRepository;
+import toast.appback.src.groups.application.usecase.contract.AddGroupDebt;
+import toast.appback.src.groups.application.usecase.contract.AddMember;
 import toast.appback.src.groups.application.usecase.contract.CreateGroup;
 import toast.appback.src.groups.domain.Group;
 import toast.appback.src.groups.domain.vo.GroupId;
 import toast.appback.src.groups.infrastructure.api.dto.GroupResponseMapper;
+import toast.appback.src.groups.infrastructure.api.dto.request.AddGroupDebtRequest;
+import toast.appback.src.groups.infrastructure.api.dto.request.AddMemberRequest;
 import toast.appback.src.groups.infrastructure.api.dto.request.CreateGroupRequest;
+import toast.appback.src.groups.infrastructure.api.dto.request.EditGroupRequest;
+import toast.appback.src.groups.infrastructure.api.dto.response.GroupDetailResponse;
 import toast.appback.src.groups.infrastructure.api.dto.response.GroupResponse;
+import toast.appback.src.groups.infrastructure.service.transactional.EditGroupService;
 import toast.appback.src.shared.application.CursorRequest;
+import toast.appback.src.shared.application.PageRequest;
 import toast.appback.src.shared.application.PageResult;
-import toast.appback.src.users.application.communication.result.UserView;
+import toast.appback.src.shared.infrastructure.Pageable;
 import toast.appback.src.users.domain.UserId;
-import toast.appback.src.users.infrastructure.api.dto.UserResponseMapper;
-import toast.appback.src.users.infrastructure.api.dto.response.UserResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +51,7 @@ public class GroupController {
     private final AddMember addMember;
     private final AddGroupDebt addGroupDebt;
     private final GroupReadService groupReadService;
+    private final DebtResponseMapper debtResponseMapper;
 
     @PostMapping()
     public ResponseEntity<GroupDetailResponse> createGroup(
@@ -65,8 +62,16 @@ public class GroupController {
         CreateGroupCommand command = request.toCreateGroupCommand(userId);
         Group group = createGroup.execute(command);
         AddMemberCommand addMemberCommand = request.toAddMemberCommand(group.getId(), userId);
-        List<UserView> members = addMember.execute(addMemberCommand);
-        GroupDetailResponse response = GroupResponseMapper.toGroupDetailResponse(group, members.subList(0,Math.min(members.size(), 5)));
+        List<UserSummaryResponse> members = addMember.execute(addMemberCommand)
+                .stream().map(memberView -> {
+                    UserSummaryView userSummaryView = new UserSummaryView(
+                            memberView.userId(),
+                            memberView.firstName(),
+                            memberView.lastName()
+                    );
+                    return debtResponseMapper.toUserSummaryResponse(userSummaryView);
+                }).toList();
+        GroupDetailResponse response = GroupResponseMapper.toGroupDetailResponse(group, members.subList(0, Math.min(members.size(), 5)));
         return ResponseEntity.ok(response);
     }
 
@@ -116,7 +121,7 @@ public class GroupController {
     ) {
         UserId userId = customUserDetails.getUserId();
         PageResult<DebtBetweenUsersView, UUID> pageResult;
-        if(cursor==null) {
+        if (cursor == null) {
             pageResult = groupDebtReadRepository.findUserDebtsByGroupId(
                     GroupId.load(groupId),
                     userId,
@@ -133,21 +138,21 @@ public class GroupController {
                     CursorRequest.of(limit, cursor)
             );
         }
-        if(pageResult.isEmpty()){
+        if (pageResult.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(Pageable.toPageable(pageResult, DebtResponseMapper::toGroupDebtResponse));
+        return ResponseEntity.ok(Pageable.toPageable(pageResult, debtResponseMapper::toGroupDebtResponse));
     }
 
     @GetMapping("/{groupId}/members")
-    public ResponseEntity<Pageable<UserResponse, UUID>> getGroupMembers(
+    public ResponseEntity<Pageable<UserSummaryResponse, UUID>> getGroupMembers(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("groupId") UUID groupId,
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit,
             @RequestParam(value = "cursor", required = false) UUID cursor
     ) {
-        PageResult<MemberView, UUID> pageResult;
-        if(cursor==null) {
+        PageResult<UserSummaryView, UUID> pageResult;
+        if (cursor == null) {
             pageResult = memberReadRepository.findMembersByGroupId(
                     GroupId.load(groupId),
                     PageRequest.of(0, limit)
@@ -158,10 +163,10 @@ public class GroupController {
                     CursorRequest.of(limit, cursor)
             );
         }
-        if(pageResult.isEmpty()){
+        if (pageResult.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(Pageable.toPageable(pageResult, UserResponseMapper :: toUserResponse));
+        return ResponseEntity.ok(Pageable.toPageable(pageResult, debtResponseMapper::toUserSummaryResponse));
     }
 
     @PatchMapping("/{groupId}")
@@ -177,7 +182,7 @@ public class GroupController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{groupId}/members" )
+    @PostMapping("/{groupId}/members")
     public ResponseEntity<Void> addGroupMember(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("groupId") UUID groupId,
@@ -195,7 +200,7 @@ public class GroupController {
             @RequestBody AddGroupDebtRequest request
     ) {
         UserId userId = customUserDetails.getUserId();
-       AddGroupDebtCommand command =
+        AddGroupDebtCommand command =
                 request.toAddGroupDebtCommand(
                         userId
                 );
